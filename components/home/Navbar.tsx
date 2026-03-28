@@ -1,9 +1,15 @@
 "use client";
 
-import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
+
+const NAV_LINKS = [
+  { label: "Features", href: "#features" },
+  { label: "How it works", href: "#how-it-works" },
+  { label: "About", href: "/about", isRoute: true },
+];
 
 function NavAuthButton() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -44,14 +50,7 @@ function NavAuthButton() {
 }
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { scrollY } = useScroll();
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(latest > 30);
-  });
 
   return (
     <div className="fixed top-0 right-0 left-0 z-50 flex justify-center px-4 pt-4">
@@ -62,7 +61,7 @@ export default function Navbar() {
         className="
           relative w-full max-w-4xl rounded-full px-3 py-2
 
-          bg-gradient-to-b from-white/90 via-white/70 to-white/40
+          bg-linear-to-b from-white/90 via-white/70 to-white/40
           backdrop-blur-2xl
 
           border border-white/60
@@ -71,7 +70,7 @@ export default function Navbar() {
           shadow-[0_10px_40px_rgba(0,0,0,0.08)]
 
           before:absolute before:inset-0 before:rounded-full
-          before:bg-gradient-to-b before:from-white/80 before:to-transparent
+          before:bg-linear-to-b before:from-white/80 before:to-transparent
           before:opacity-60 before:pointer-events-none
 
           after:absolute after:inset-0 after:rounded-full
@@ -101,12 +100,12 @@ export default function Navbar() {
             </a>
 
 
-            <a
-              href="#"
+            <Link
+              href="/about"
               className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"
             >
               About
-            </a>
+            </Link>
           </nav>
 
           {/* Right side */}
@@ -117,7 +116,7 @@ export default function Navbar() {
             <motion.button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-800 md:hidden"
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 md:hidden"
               whileTap={{ scale: 0.9 }}
               aria-label="Toggle menu"
             >
@@ -144,7 +143,7 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-emerald-50 hover:text-emerald-800"
+                  className="flex w-full items-center rounded-xl px-4 py-2.5 font-mono text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 hover:text-black"
                 >
                   {link.label}
                 </Tag>

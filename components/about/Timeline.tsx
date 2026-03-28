@@ -47,20 +47,20 @@ export default function Timeline() {
           transition={{ duration: 0.5 }}
           className="mb-16 text-center"
         >
-          <span className="mb-3 block text-xs font-semibold tracking-widest text-emerald-600 uppercase">
+          <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             Journey
           </span>
           <h2 className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-            How we <span className="text-emerald-600">built it</span>
+            How we <span className="text-slate-400">built it</span>
           </h2>
-          <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-slate-500">
+          <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">
             From idea to production in one focused sprint.
           </p>
         </motion.div>
 
         <div className="relative">
           {/* Vertical line */}
-          <div className="absolute top-0 bottom-0 left-8 w-px bg-linear-to-b from-emerald-300 via-emerald-400 to-emerald-200" />
+          <div className="absolute top-0 bottom-0 left-8 w-px bg-linear-to-b from-slate-300 via-slate-400 to-slate-200" />
 
           <div className="space-y-10">
             {milestones.map((m, i) => (
@@ -72,19 +72,19 @@ export default function Timeline() {
                 transition={{ delay: i * 0.1, duration: 0.4 }}
                 className="group relative flex items-start gap-6 pl-4"
               >
-                <div className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-2 ring-white transition-colors group-hover:bg-emerald-500 group-hover:text-white">
+                <div className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 ring-2 ring-white transition-colors group-hover:bg-slate-900 group-hover:text-white">
                   <m.icon size={16} strokeWidth={2} />
                 </div>
-                <div className="flex-1 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition-all group-hover:border-emerald-200 group-hover:shadow-md">
+                <div className="flex-1 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition-all group-hover:border-slate-300 group-hover:shadow-md">
                   <div className="mb-1 flex items-center justify-between">
                     <h3 className="font-(family-name:--font-doto) text-sm font-black tracking-tight text-slate-950">
                       {m.title}
                     </h3>
-                    <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                    <span className="font-mono text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
                       {m.date}
                     </span>
                   </div>
-                  <p className="text-sm leading-relaxed text-slate-500">{m.description}</p>
+                  <p className="font-mono text-sm leading-relaxed text-slate-500">{m.description}</p>
                 </div>
               </motion.div>
             ))}
