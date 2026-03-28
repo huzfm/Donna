@@ -4,36 +4,72 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import Link from "next/link";
-import { Brain } from "lucide-react";
+import { Brain, ArrowLeft } from "lucide-react";
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
       });
-      if (signInError) throw signInError;
-      router.push("/dashboard");
-      router.refresh();
+      if (signUpError) throw signUpError;
+      setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#020617] text-white px-4">
+        <div className="w-full max-w-md text-center">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 flex items-center justify-center mx-auto mb-6">
+            <Brain size={28} className="text-emerald-400" />
+          </div>
+          <h2 className="text-2xl font-bold mb-3">Check your email</h2>
+          <p className="text-slate-400 text-sm mb-8">
+            We sent a confirmation link to <strong className="text-slate-200">{email}</strong>.
+            Click the link to activate your account.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+          >
+            <ArrowLeft size={14} />
+            Back to login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen items-center justify-center bg-[#020617] text-white px-4">
@@ -48,8 +84,8 @@ export default function LoginPage() {
               <Brain size={20} className="text-emerald-400" />
             </div>
           </Link>
-          <h2 className="text-2xl font-bold">Welcome back</h2>
-          <p className="text-sm text-slate-400 mt-2">Sign in to your Donna workspace</p>
+          <h2 className="text-2xl font-bold">Create your account</h2>
+          <p className="text-sm text-slate-400 mt-2">Get started with Donna for free</p>
         </div>
 
         <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-8 shadow-xl backdrop-blur-sm">
@@ -59,7 +95,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          <form onSubmit={handleSignUp} className="flex flex-col gap-4">
             <div>
               <label className="block text-sm text-slate-400 mb-1.5">Email address</label>
               <input
@@ -78,7 +114,18 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="At least 6 characters"
+                className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-600"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-slate-400 mb-1.5">Confirm password</label>
+              <input
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your password"
                 className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-600"
               />
             </div>
@@ -88,15 +135,15 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white py-3 rounded-xl font-semibold transition-colors mt-2 shadow-lg shadow-emerald-500/10"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
         </div>
 
         <p className="mt-6 text-center text-sm text-slate-400">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
-            Sign up
+          Already have an account?{" "}
+          <Link href="/login" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
+            Log in
           </Link>
         </p>
       </div>

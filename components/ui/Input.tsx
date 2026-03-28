@@ -32,7 +32,7 @@ export default function Input({
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown}
-        className={`w-full border border-border rounded-lg bg-white px-4 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all ${icon ? "pl-10" : ""} ${className}`}
+        className={`w-full border border-slate-700 rounded-lg bg-slate-950 px-4 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all ${icon ? "pl-10" : ""} ${className}`}
       />
     </div>
   );

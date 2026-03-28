@@ -212,7 +212,7 @@ export default function ChatWindow({
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-border px-6 py-4 bg-white/80 backdrop-blur-sm relative z-10">
+      <div className="border-t border-border px-6 py-4 bg-slate-950/80 backdrop-blur-sm relative z-10">
         <div className="flex items-center gap-3 bg-surface/50 border border-border rounded-2xl px-4 py-3 focus-within:border-spark/40 focus-within:shadow-[0_0_0_3px_rgba(249,115,22,0.06)] transition-all">
           {/* File upload */}
           <motion.button
