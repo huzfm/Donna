@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export default function SignUpPage() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,6 +41,11 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
 
+    if (!fullName.trim()) {
+      setError("Please enter your name");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -56,6 +62,11 @@ export default function SignUpPage() {
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+          },
+        },
       });
       if (signUpError) throw signUpError;
       setSuccess(true);

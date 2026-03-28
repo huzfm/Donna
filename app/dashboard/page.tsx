@@ -3,827 +3,437 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  MessageSquare,
-  FileText,
-  Mail,
-  User,
-  Send,
-  Upload,
-  Paperclip,
-  Brain,
-  LogOut,
-  Trash2,
-  Settings,
-  ChevronRight,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
+  LogOut, Settings, Plus, MessageSquare, Trash2,
+  PanelLeftClose, PanelLeft, Mail, FileText, Sparkles,
 } from "lucide-react";
 
-interface UploadedFile {
-  file_name: string;
-  uploaded_at: string;
-}
-
-interface ChatMessage {
-  id: number;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: string;
-}
-
-function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "Just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
-function fileIcon(name: string) {
-  const ext = name.split(".").pop()?.toLowerCase();
-  if (ext === "pdf") return <FileText size={16} className="text-red-400" />;
-  if (ext === "doc" || ext === "docx") return <FileText size={16} className="text-blue-400" />;
-  if (ext === "xls" || ext === "xlsx" || ext === "csv") return <FileText size={16} className="text-emerald-400" />;
-  return <FileText size={16} className="text-slate-400" />;
-}
-
-type TabId = "chat" | "files" | "gmail" | "account";
-
-const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
-  { id: "chat", label: "Chat", icon: MessageSquare },
-  { id: "files", label: "Files", icon: FileText },
-  { id: "gmail", label: "Gmail Settings", icon: Mail },
-  { id: "account", label: "Account", icon: User },
-];
-
-function timeNow() {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
+import { UploadedFile, ChatMessage, ChatSession, TABS, TabId, timeNow, preprocessSlashCommand } from "./_components/types";
+import ChatPanel from "./_components/ChatPanel";
+import FilesPanel from "./_components/FilesPanel";
+import GmailPanel from "./_components/GmailPanel";
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabId>("chat");
   const supabase = createClient();
   const router = useRouter();
 
-  // User state
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [userCreated, setUserCreated] = useState<string | null>(null);
+  const [showAccountPopup, setShowAccountPopup] = useState(false);
 
-  // Chat state
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const nextMsgId = useRef(1);
+  const abortRef = useRef<AbortController | null>(null);
 
-  // Files state
   const [savedFiles, setSavedFiles] = useState<UploadedFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Gmail settings state
   const [gmailUser, setGmailUser] = useState("");
   const [gmailPassword, setGmailPassword] = useState("");
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsMsg, setSettingsMsg] = useState<string | null>(null);
 
+  const persistMessage = useCallback((sessionId: string, role: "user" | "assistant", content: string, status?: string) => {
+    fetch("/api/chat-history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, role, content, status: status ?? "done" }),
+    }).catch(() => {});
+  }, []);
+
+  const loadSessionMessages = useCallback(async (sessionId: string) => {
+    try {
+      const res = await fetch(`/api/chat-history?session_id=${sessionId}`);
+      const { messages: msgs } = await res.json();
+      if (Array.isArray(msgs) && msgs.length > 0) {
+        const loaded: ChatMessage[] = msgs.map((m: { id: number; role: "user" | "assistant"; content: string; status?: string; created_at: string }) => ({
+          id: nextMsgId.current++,
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          status: m.status as ChatMessage["status"],
+        }));
+        setMessages(loaded);
+      } else {
+        setMessages([]);
+      }
+    } catch { setMessages([]); }
+  }, []);
+
+  const createNewSession = useCallback(async (title?: string) => {
+    try {
+      const res = await fetch("/api/chat-sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title || "New Chat" }),
+      });
+      const { session } = await res.json();
+      if (session) {
+        setSessions(prev => [session, ...prev]);
+        setActiveSessionId(session.id);
+        setMessages([]);
+        setActiveTab("chat");
+        return session.id as string;
+      }
+    } catch {}
+    return null;
+  }, []);
+
+  const autoTitleSession = useCallback((sessionId: string, firstMessage: string) => {
+    const title = firstMessage.length > 38 ? firstMessage.slice(0, 38) + "…" : firstMessage;
+    fetch("/api/chat-sessions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, title }),
+    }).catch(() => {});
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, title } : s));
+  }, []);
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUserEmail(user?.email ?? null);
       setUserCreated(user?.created_at ?? null);
+      setUserName(user?.user_metadata?.full_name ?? null);
     });
-
-    fetch("/api/upload")
-      .then((r) => r.json())
-      .then(({ files }) => {
-        if (Array.isArray(files)) setSavedFiles(files);
-      })
-      .finally(() => setFilesLoading(false));
-
-    fetch("/api/settings")
-      .then((r) => r.json())
-      .then(({ settings }) => {
-        if (settings) {
-          setGmailUser(settings.gmail_user ?? "");
-          setGmailPassword(settings.gmail_app_password ?? "");
-        }
-      });
+    fetch("/api/upload").then(r => r.json()).then(({ files }) => { if (Array.isArray(files)) setSavedFiles(files); }).finally(() => setFilesLoading(false));
+    fetch("/api/settings").then(r => r.json()).then(({ settings }) => {
+      if (settings) { setGmailUser(settings.gmail_user ?? ""); setGmailPassword(settings.gmail_app_password ?? ""); }
+    });
+    fetch("/api/chat-sessions").then(r => r.json()).then(({ sessions: s }) => {
+      if (Array.isArray(s) && s.length > 0) { setSessions(s); setActiveSessionId(s[0].id); }
+    }).finally(() => setSessionsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, chatLoading]);
+    if (activeSessionId) loadSessionMessages(activeSessionId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSessionId]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, chatLoading]);
 
-  // ── Chat ──
-  const sendMessage = useCallback(async () => {
-    if (!chatInput.trim()) return;
-    const userMsg: ChatMessage = {
-      id: nextMsgId.current++,
-      role: "user",
-      content: chatInput.trim(),
-      timestamp: timeNow(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    const question = chatInput.trim();
+  const handleLogout = async () => { await supabase.auth.signOut(); router.push("/login"); };
+  const handleNewChat = useCallback(async () => { await createNewSession(); }, [createNewSession]);
+
+  const handleSelectSession = useCallback(async (sessionId: string) => {
+    setActiveSessionId(sessionId);
+    setMessages([]);
+    setActiveTab("chat");
+    await loadSessionMessages(sessionId);
+  }, [loadSessionMessages]);
+
+  const handleDeleteSession = useCallback(async (sessionId: string) => {
+    try {
+      await fetch("/api/chat-sessions", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+      setSessions(prev => {
+        const updated = prev.filter(s => s.id !== sessionId);
+        if (activeSessionId === sessionId) {
+          setActiveSessionId(updated.length > 0 ? updated[0].id : null);
+          setMessages([]);
+        }
+        return updated;
+      });
+    } catch {}
+  }, [activeSessionId]);
+
+  const stopGeneration = useCallback(() => {
+    if (abortRef.current) { abortRef.current.abort(); abortRef.current = null; }
+    setChatLoading(false);
+    const content = "Generation stopped.";
+    setMessages(prev => [...prev, { id: nextMsgId.current++, role: "assistant", content, timestamp: timeNow(), status: "cancelled" }]);
+    if (activeSessionId) persistMessage(activeSessionId, "assistant", content, "cancelled");
+  }, [persistMessage, activeSessionId]);
+
+  const sendMessage = useCallback(async (overrideInput?: string) => {
+    const raw = (overrideInput ?? chatInput).trim();
+    if (!raw) return;
+    let sessionId = activeSessionId;
+    if (!sessionId) {
+      sessionId = await createNewSession(raw.length > 38 ? raw.slice(0, 38) + "…" : raw);
+      if (!sessionId) return;
+    }
+    const processed = preprocessSlashCommand(raw);
+    const isFirstMessage = messages.length === 0;
+    setMessages(prev => [...prev, { id: nextMsgId.current++, role: "user", content: raw, timestamp: timeNow() }]);
+    persistMessage(sessionId, "user", raw);
+    if (isFirstMessage) autoTitleSession(sessionId, raw);
     setChatInput("");
     setChatLoading(true);
-
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
-      const res = await fetch("/api/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
-      });
+      const res = await fetch("/api/query", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: processed }), signal: controller.signal });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Query failed");
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: nextMsgId.current++,
-          role: "assistant",
-          content: data.answer,
-          timestamp: timeNow(),
-        },
-      ]);
+      setMessages(prev => [...prev, { id: nextMsgId.current++, role: "assistant", content: data.answer, timestamp: timeNow() }]);
+      persistMessage(sessionId, "assistant", data.answer);
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : "Something went wrong";
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: nextMsgId.current++,
-          role: "assistant",
-          content: `Sorry, I encountered an error: ${errMsg}`,
-          timestamp: timeNow(),
-        },
-      ]);
-    } finally {
-      setChatLoading(false);
-    }
-  }, [chatInput]);
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      const m = err instanceof Error ? err.message : "Something went wrong";
+      const errContent = `Sorry, I hit an error: ${m}`;
+      setMessages(prev => [...prev, { id: nextMsgId.current++, role: "assistant", content: errContent, timestamp: timeNow() }]);
+      persistMessage(sessionId, "assistant", errContent);
+    } finally { abortRef.current = null; setChatLoading(false); }
+  }, [chatInput, persistMessage, activeSessionId, createNewSession, autoTitleSession, messages.length]);
 
-  // ── Upload ──
+  const clearChat = useCallback(() => {
+    setMessages([]);
+    if (activeSessionId) {
+      fetch("/api/chat-history", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: activeSessionId }) }).catch(() => {});
+    }
+  }, [activeSessionId]);
+
   const handleUpload = async (file: File) => {
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+    const fd = new FormData(); fd.append("file", file);
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) {
-        alert(data.error || "Upload failed");
-        return;
-      }
-      const newEntry: UploadedFile = {
-        file_name: file.name,
-        uploaded_at: new Date().toISOString(),
-      };
-      setSavedFiles((prev) => {
-        const filtered = prev.filter((f) => f.file_name !== file.name);
-        return [newEntry, ...filtered];
-      });
-    } catch {
-      alert("Upload failed");
-    } finally {
-      setUploading(false);
-    }
+      if (!res.ok) { alert(data.error || "Upload failed"); return; }
+      setSavedFiles(prev => [{ file_name: file.name, uploaded_at: new Date().toISOString() }, ...prev.filter(f => f.file_name !== file.name)]);
+    } catch { alert("Upload failed"); } finally { setUploading(false); }
   };
 
-  // ── Gmail settings ──
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSettingsSaving(true);
-    setSettingsMsg(null);
+  const handleDelete = async (fileName: string) => {
     try {
-      const res = await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gmail_user: gmailUser, gmail_app_password: gmailPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setSettingsMsg(`error:${data.error}`);
-      } else {
-        setSettingsMsg("success:Settings saved successfully");
-      }
-    } catch {
-      setSettingsMsg("error:Failed to save settings");
-    } finally {
-      setSettingsSaving(false);
-    }
+      const res = await fetch("/api/upload", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file_name: fileName }) });
+      if (!res.ok) { const d = await res.json(); alert(d.error || "Delete failed"); return; }
+      setSavedFiles(prev => prev.filter(f => f.file_name !== fileName));
+    } catch { alert("Delete failed"); }
   };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault(); setSettingsSaving(true); setSettingsMsg(null);
+    try {
+      const res = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gmail_user: gmailUser, gmail_app_password: gmailPassword }) });
+      const data = await res.json();
+      setSettingsMsg(res.ok ? "success:Settings saved successfully" : `error:${data.error}`);
+    } catch { setSettingsMsg("error:Failed to save settings"); } finally { setSettingsSaving(false); }
+  };
+
+  /* ── group sessions by date ── */
+  const groupedSessions = sessions.reduce<Record<string, ChatSession[]>>((acc, s) => {
+    const d = new Date(s.updated_at);
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
+    const group = diff < 86400000 ? "Today" : diff < 172800000 ? "Yesterday" : diff < 604800000 ? "This week" : "Older";
+    return { ...acc, [group]: [...(acc[group] ?? []), s] };
+  }, {});
+  const groupOrder = ["Today", "Yesterday", "This week", "Older"];
 
   return (
-    <div className="flex h-screen bg-[#020617] text-white overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-[260px] border-r border-slate-800 flex flex-col shrink-0 bg-slate-950">
-        {/* Logo */}
-        <div className="px-5 py-5 border-b border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-              <Brain size={18} className="text-emerald-400" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight">Donna</span>
-          </div>
-        </div>
+    <div className="flex h-screen overflow-hidden" style={{ background: "hsl(240,10%,9%)", color: "hsl(0,0%,90%)" }}>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {tabs.map((tab) => {
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                  active
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800/50 border border-transparent"
-                }`}
-              >
-                <tab.icon size={18} />
-                {tab.label}
-                {active && (
-                  <ChevronRight size={14} className="ml-auto opacity-60" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* User footer */}
-        <div className="border-t border-slate-800 p-4">
-          {userEmail && (
-            <div className="flex items-center gap-3 mb-3 px-1">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 font-medium text-sm shrink-0">
-                {userEmail[0]?.toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-200 truncate">{userEmail}</p>
-              </div>
-            </div>
-          )}
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2 justify-center text-xs text-red-400 hover:text-red-300 border border-red-900/50 hover:border-red-700/50 rounded-xl py-2.5 transition-colors"
+      {/* ═══ Sidebar ═══ */}
+      <AnimatePresence initial={false}>
+        {sidebarOpen && (
+          <motion.aside
+            key="sidebar"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 268, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+            className="flex flex-col shrink-0 overflow-hidden border-r"
+            style={{ borderColor: "hsl(240,6%,15%)", background: "hsl(240,10%,7%)" }}
           >
-            <LogOut size={14} />
-            Log out
-          </button>
-        </div>
-      </aside>
+            {/* Top: Logo + collapse */}
+            <div className="flex items-center justify-between px-3 pt-4 pb-2">
+              <div className="flex items-center gap-2.5 px-2">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
+                  <Sparkles size={14} className="text-white" />
+                </div>
+                <span className="text-sm font-semibold tracking-tight" style={{ color: "hsl(0,0%,92%)" }}>Donna</span>
+              </div>
+              <button onClick={() => setSidebarOpen(false)}
+                className="p-1.5 rounded-lg transition-colors"
+                style={{ color: "hsl(240,5%,45%)" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "hsl(240,6%,15%)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              >
+                <PanelLeftClose size={16} />
+              </button>
+            </div>
 
-      {/* Main content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            {/* New Chat */}
+            <div className="px-3 pb-2">
+              <button onClick={handleNewChat}
+                className="w-full flex items-center gap-2 text-[13px] font-medium px-3 py-2.5 rounded-xl transition-all"
+                style={{ color: "hsl(0,0%,80%)", border: "1px solid hsl(240,6%,18%)" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "hsl(240,6%,14%)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+              >
+                <Plus size={15} style={{ color: "hsl(240,5%,55%)" }} /> New chat
+              </button>
+            </div>
+
+            {/* Non-chat nav */}
+            <div className="px-3 pb-2 space-y-0.5">
+              {TABS.filter(t => t.id !== "chat").map(tab => {
+                const active = activeTab === tab.id;
+                return (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                    className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-all"
+                    style={{
+                      background: active ? "hsl(240,6%,15%)" : "transparent",
+                      color: active ? "hsl(0,0%,90%)" : "hsl(240,5%,50%)",
+                    }}
+                    onMouseEnter={e => { if (!active) e.currentTarget.style.background = "hsl(240,6%,13%)"; e.currentTarget.style.color = "hsl(0,0%,85%)"; }}
+                    onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "hsl(240,5%,50%)"; } }}
+                  >
+                    <tab.icon size={14} />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Sessions */}
+            <div className="flex-1 overflow-y-auto px-2 pt-1" style={{ borderTop: "1px solid hsl(240,6%,13%)" }}>
+              {sessionsLoading ? (
+                <div className="space-y-1 px-2 py-2">
+                  {[1,2,3,4].map(i => <div key={i} className="h-8 rounded-lg animate-pulse" style={{ background: "hsl(240,6%,14%)" }} />)}
+                </div>
+              ) : sessions.length === 0 ? (
+                <p className="text-xs text-center py-8" style={{ color: "hsl(240,5%,35%)" }}>No conversations yet</p>
+              ) : (
+                <div className="py-2">
+                  {groupOrder.map(group => {
+                    const groupSessions = groupedSessions[group];
+                    if (!groupSessions?.length) return null;
+                    return (
+                      <div key={group} className="mb-3">
+                        <p className="text-[10px] uppercase tracking-widest font-semibold px-3 mb-1.5" style={{ color: "hsl(240,5%,35%)" }}>{group}</p>
+                        {groupSessions.map(session => {
+                          const isActive = activeSessionId === session.id && activeTab === "chat";
+                          return (
+                            <div key={session.id}
+                              className="group flex items-center gap-2 rounded-lg px-3 py-2 cursor-pointer transition-all"
+                              style={{ background: isActive ? "hsl(240,6%,16%)" : "transparent" }}
+                              onClick={() => handleSelectSession(session.id)}
+                              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "hsl(240,6%,13%)"; }}
+                              onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
+                            >
+                              <p className="text-[12.5px] truncate flex-1 leading-tight"
+                                style={{ color: isActive ? "hsl(0,0%,92%)" : "hsl(240,5%,55%)" }}>
+                                {session.title}
+                              </p>
+                              <button
+                                onClick={e => { e.stopPropagation(); handleDeleteSession(session.id); }}
+                                className="opacity-0 group-hover:opacity-100 p-1 rounded transition-all shrink-0"
+                                style={{ color: "hsl(240,5%,45%)" }}
+                                onMouseEnter={e => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "hsl(0,60%,15%)"; }}
+                                onMouseLeave={e => { e.currentTarget.style.color = "hsl(240,5%,45%)"; e.currentTarget.style.background = "transparent"; }}
+                              >
+                                <Trash2 size={11} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Account */}
+            <div className="p-2 relative" style={{ borderTop: "1px solid hsl(240,6%,13%)" }}>
+              <button onClick={() => setShowAccountPopup(v => !v)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group"
+                onMouseEnter={e => e.currentTarget.style.background = "hsl(240,6%,14%)"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              >
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+                  style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
+                  {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="text-[12.5px] font-medium truncate" style={{ color: "hsl(0,0%,85%)" }}>{userName ?? userEmail ?? "…"}</p>
+                </div>
+                <Settings size={13} style={{ color: "hsl(240,5%,38%)" }} />
+              </button>
+
+              <AnimatePresence>
+                {showAccountPopup && (
+                  <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                    transition={{ duration: 0.14 }}
+                    className="absolute bottom-full left-2 right-2 mb-2 rounded-2xl shadow-2xl overflow-hidden z-50"
+                    style={{ background: "hsl(240,10%,12%)", border: "1px solid hsl(240,6%,20%)" }}
+                  >
+                    <div className="px-4 py-3.5" style={{ borderBottom: "1px solid hsl(240,6%,16%)" }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
+                          style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
+                          {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
+                        </div>
+                        <div className="min-w-0">
+                          {userName && <p className="text-sm font-semibold truncate" style={{ color: "hsl(0,0%,92%)" }}>{userName}</p>}
+                          <p className="text-xs truncate" style={{ color: "hsl(240,5%,50%)" }}>{userEmail}</p>
+                          {userCreated && <p className="text-[10px] mt-0.5" style={{ color: "hsl(240,5%,38%)" }}>Since {new Date(userCreated).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</p>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <button onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 text-[13px] px-3 py-2 rounded-lg transition-all"
+                        style={{ color: "#f87171" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "hsl(0,60%,12%)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <LogOut size={14} /> Log out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar toggle when closed */}
+      {!sidebarOpen && (
+        <button onClick={() => setSidebarOpen(true)}
+          className="absolute top-3.5 left-3.5 z-30 p-2 rounded-lg transition-all"
+          style={{ color: "hsl(240,5%,50%)" }}
+          onMouseEnter={e => { e.currentTarget.style.background = "hsl(240,6%,15%)"; e.currentTarget.style.color = "hsl(0,0%,85%)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "hsl(240,5%,50%)"; }}
+        >
+          <PanelLeft size={17} />
+        </button>
+      )}
+
+      {/* ═══ Main ═══ */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ background: "hsl(240,10%,9%)" }}>
         <AnimatePresence mode="wait">
           {activeTab === "chat" && (
-            <ChatPanel
-              key="chat"
-              messages={messages}
-              input={chatInput}
-              onInputChange={setChatInput}
-              onSend={sendMessage}
-              loading={chatLoading}
-              chatEndRef={chatEndRef}
-              fileInputRef={fileInputRef}
-              onFileSelect={(e) => {
-                const files = e.target.files;
-                if (files) Array.from(files).forEach(handleUpload);
-                e.target.value = "";
-              }}
-              fileCount={savedFiles.length}
-            />
+            <ChatPanel key="chat" messages={messages} input={chatInput} onInputChange={setChatInput}
+              onSend={sendMessage} onStop={stopGeneration} onClear={clearChat} loading={chatLoading}
+              chatEndRef={chatEndRef} fileInputRef={fileInputRef}
+              onFileSelect={e => { if (e.target.files) Array.from(e.target.files).forEach(handleUpload); e.target.value = ""; }}
+              fileCount={savedFiles.length} />
           )}
-          {activeTab === "files" && (
-            <FilesPanel
-              key="files"
-              files={savedFiles}
-              filesLoading={filesLoading}
-              uploading={uploading}
-              onUpload={handleUpload}
-            />
-          )}
-          {activeTab === "gmail" && (
-            <GmailPanel
-              key="gmail"
-              gmailUser={gmailUser}
-              gmailPassword={gmailPassword}
-              onGmailUserChange={setGmailUser}
-              onGmailPasswordChange={setGmailPassword}
-              onSave={handleSaveSettings}
-              saving={settingsSaving}
-              message={settingsMsg}
-            />
-          )}
-          {activeTab === "account" && (
-            <AccountPanel
-              key="account"
-              email={userEmail}
-              createdAt={userCreated}
-              onLogout={handleLogout}
-            />
-          )}
+          {activeTab === "files" && <FilesPanel key="files" files={savedFiles} filesLoading={filesLoading} uploading={uploading} onUpload={handleUpload} onDelete={handleDelete} />}
+          {activeTab === "gmail" && <GmailPanel key="gmail" gmailUser={gmailUser} gmailPassword={gmailPassword} onGmailUserChange={setGmailUser} onGmailPasswordChange={setGmailPassword} onSave={handleSaveSettings} saving={settingsSaving} message={settingsMsg} />}
         </AnimatePresence>
       </main>
     </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/*  Chat Panel                                                               */
-/* ═══════════════════════════════════════════════════════════════════════════ */
-
-function ChatPanel({
-  messages,
-  input,
-  onInputChange,
-  onSend,
-  loading,
-  chatEndRef,
-  fileInputRef,
-  onFileSelect,
-  fileCount,
-}: {
-  messages: ChatMessage[];
-  input: string;
-  onInputChange: (v: string) => void;
-  onSend: () => void;
-  loading: boolean;
-  chatEndRef: React.RefObject<HTMLDivElement | null>;
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
-  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  fileCount: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.2 }}
-      className="flex flex-col flex-1 overflow-hidden"
-    >
-      {/* Header */}
-      <div className="border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 bg-slate-950/50">
-        <div>
-          <h1 className="text-lg font-semibold">Chat</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {fileCount > 0
-              ? `${fileCount} file(s) in your knowledge base`
-              : "Upload files to get started, or ask about your emails"}
-          </p>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
-              <Brain size={28} className="text-emerald-400" />
-            </div>
-            <h2 className="text-lg font-semibold mb-2">Ask Donna anything</h2>
-            <p className="text-sm text-slate-500 max-w-sm">
-              Ask about your documents, check emails, or send messages — all through natural conversation.
-            </p>
-            <div className="flex flex-wrap gap-2 mt-6 justify-center max-w-md">
-              {[
-                "Summarize my resume",
-                "Check my emails",
-                "Send a mail to team",
-              ].map((prompt) => (
-                <button
-                  key={prompt}
-                  onClick={() => onInputChange(prompt)}
-                  className="text-xs border border-slate-700 hover:border-emerald-500/40 text-slate-400 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition-colors"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {messages.map((msg) => (
-          <motion.div
-            key={msg.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-xl px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-emerald-600 text-white rounded-tr-sm"
-                  : "bg-slate-800 text-slate-200 rounded-tl-sm"
-              }`}
-            >
-              {msg.content}
-              <div className={`text-[10px] mt-1.5 ${msg.role === "user" ? "text-emerald-200/60" : "text-slate-500"}`}>
-                {msg.timestamp}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-slate-800 px-4 py-3 rounded-2xl rounded-tl-sm text-sm text-slate-400 flex items-center gap-2">
-              <Loader2 size={14} className="animate-spin" />
-              Thinking...
-            </div>
-          </div>
-        )}
-
-        <div ref={chatEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="border-t border-slate-800 px-6 py-4 bg-slate-950/50 shrink-0">
-        <div className="flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 focus-within:border-emerald-500/40 transition-all">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="text-slate-500 hover:text-emerald-400 transition-colors"
-          >
-            <Paperclip size={18} />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.csv"
-            multiple
-            onChange={onFileSelect}
-          />
-          <input
-            value={input}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                onSend();
-              }
-            }}
-            placeholder="Ask about your files, check emails, send a message..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-600"
-          />
-          <button
-            onClick={onSend}
-            disabled={!input.trim() || loading}
-            className="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
-          >
-            <Send size={15} />
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/*  Files Panel                                                              */
-/* ═══════════════════════════════════════════════════════════════════════════ */
-
-function FilesPanel({
-  files,
-  filesLoading,
-  uploading,
-  onUpload,
-}: {
-  files: UploadedFile[];
-  filesLoading: boolean;
-  uploading: boolean;
-  onUpload: (file: File) => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.2 }}
-      className="flex flex-col flex-1 overflow-hidden"
-    >
-      <div className="border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 bg-slate-950/50">
-        <div>
-          <h1 className="text-lg font-semibold">Files</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Manage your uploaded documents and knowledge base
-          </p>
-        </div>
-        <label className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-xl cursor-pointer transition-colors">
-          <Upload size={16} />
-          {uploading ? "Uploading..." : "Upload"}
-          <input
-            type="file"
-            className="hidden"
-            accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.csv"
-            multiple
-            onChange={(e) => Array.from(e.target.files || []).forEach(onUpload)}
-          />
-        </label>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6">
-        {/* Upload drop zone */}
-        <label className="block border-2 border-dashed border-slate-700 hover:border-emerald-500/40 rounded-2xl p-8 text-center cursor-pointer transition-colors mb-6 group">
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.csv"
-            className="hidden"
-            multiple
-            onChange={(e) => Array.from(e.target.files || []).forEach(onUpload)}
-          />
-          <div className="w-12 h-12 rounded-xl bg-slate-800 group-hover:bg-emerald-500/10 flex items-center justify-center mx-auto mb-3 transition-colors">
-            <Upload size={22} className="text-slate-500 group-hover:text-emerald-400 transition-colors" />
-          </div>
-          <p className="text-sm text-slate-400 mb-1">
-            {uploading ? (
-              <span className="text-emerald-400 animate-pulse">Processing files...</span>
-            ) : (
-              "Click to upload or drag files here"
-            )}
-          </p>
-          <p className="text-xs text-slate-600">PDF, Word, Excel, CSV, TXT</p>
-        </label>
-
-        {/* Files list */}
-        <div className="space-y-2">
-          {filesLoading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-16 shimmer-bg rounded-xl" />
-            ))
-          ) : files.length === 0 ? (
-            <div className="text-center py-12">
-              <FileText size={32} className="text-slate-700 mx-auto mb-3" />
-              <p className="text-sm text-slate-500">No files uploaded yet</p>
-              <p className="text-xs text-slate-600 mt-1">
-                Upload documents to build your knowledge base
-              </p>
-            </div>
-          ) : (
-            files.map((f, i) => (
-              <motion.div
-                key={`${f.file_name}-${i}`}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-                className="flex items-center gap-4 bg-slate-900/50 border border-slate-800 hover:border-slate-700 rounded-xl px-5 py-4 transition-colors group"
-              >
-                <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                  {fileIcon(f.file_name)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-200 truncate">
-                    {f.file_name}
-                  </p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <Clock size={10} className="text-slate-600" />
-                    <span className="text-xs text-slate-500">{timeAgo(f.uploaded_at)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-emerald-500">
-                  <CheckCircle2 size={14} />
-                  <span className="text-xs">Indexed</span>
-                </div>
-              </motion.div>
-            ))
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/*  Gmail Settings Panel                                                     */
-/* ═══════════════════════════════════════════════════════════════════════════ */
-
-function GmailPanel({
-  gmailUser,
-  gmailPassword,
-  onGmailUserChange,
-  onGmailPasswordChange,
-  onSave,
-  saving,
-  message,
-}: {
-  gmailUser: string;
-  gmailPassword: string;
-  onGmailUserChange: (v: string) => void;
-  onGmailPasswordChange: (v: string) => void;
-  onSave: (e: React.FormEvent) => void;
-  saving: boolean;
-  message: string | null;
-}) {
-  const isError = message?.startsWith("error:");
-  const msgText = message?.replace(/^(error|success):/, "") ?? null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.2 }}
-      className="flex flex-col flex-1 overflow-hidden"
-    >
-      <div className="border-b border-slate-800 px-6 py-4 shrink-0 bg-slate-950/50">
-        <h1 className="text-lg font-semibold">Gmail Settings</h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Connect your Gmail to read and send emails through Donna
-        </p>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-lg">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 mb-6">
-            <div className="flex items-start gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <Mail size={18} className="text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-slate-200">Gmail Integration</h3>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Credentials are stored privately — only you can see them.
-                  Use a Gmail <strong className="text-slate-300">App Password</strong>, not your real password.
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={onSave} className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm text-slate-400 mb-1.5">Gmail address</label>
-                <input
-                  type="email"
-                  required
-                  value={gmailUser}
-                  onChange={(e) => onGmailUserChange(e.target.value)}
-                  placeholder="you@gmail.com"
-                  className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-600"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1.5">App Password</label>
-                <input
-                  type="password"
-                  required
-                  value={gmailPassword}
-                  onChange={(e) => onGmailPasswordChange(e.target.value)}
-                  placeholder="xxxx xxxx xxxx xxxx"
-                  className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-600"
-                />
-              </div>
-
-              {msgText && (
-                <div
-                  className={`text-sm px-4 py-3 rounded-xl flex items-center gap-2 ${
-                    isError
-                      ? "bg-red-500/10 border border-red-500/20 text-red-300"
-                      : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
-                  }`}
-                >
-                  {isError ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />}
-                  {msgText}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white py-3 rounded-xl font-semibold transition-colors shadow-lg shadow-emerald-500/10"
-              >
-                {saving ? "Saving..." : "Save Settings"}
-              </button>
-            </form>
-          </div>
-
-          <div className="bg-slate-900/30 border border-slate-800/50 rounded-xl p-5">
-            <h4 className="text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
-              <Settings size={14} className="text-slate-500" />
-              How to get an App Password
-            </h4>
-            <ol className="text-xs text-slate-500 space-y-1.5 list-decimal list-inside leading-relaxed">
-              <li>Go to your Google Account security settings</li>
-              <li>Enable 2-Step Verification if not already enabled</li>
-              <li>Search for &ldquo;App Passwords&rdquo; in your account settings</li>
-              <li>Generate a new app password for &ldquo;Mail&rdquo;</li>
-              <li>Paste the 16-character code above</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/*  Account Panel                                                            */
-/* ═══════════════════════════════════════════════════════════════════════════ */
-
-function AccountPanel({
-  email,
-  createdAt,
-  onLogout,
-}: {
-  email: string | null;
-  createdAt: string | null;
-  onLogout: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.2 }}
-      className="flex flex-col flex-1 overflow-hidden"
-    >
-      <div className="border-b border-slate-800 px-6 py-4 shrink-0 bg-slate-950/50">
-        <h1 className="text-lg font-semibold">Account</h1>
-        <p className="text-xs text-slate-500 mt-0.5">Manage your account details</p>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-lg">
-          {/* Profile card */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 mb-6">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-2xl font-bold shrink-0">
-                {email?.[0]?.toUpperCase() ?? "?"}
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-lg font-semibold text-white truncate">{email ?? "—"}</h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {createdAt
-                    ? `Member since ${new Date(createdAt).toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric",
-                      })}`
-                    : ""}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-slate-800/50 rounded-xl p-4">
-                <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
-                  Email Address
-                </label>
-                <p className="text-sm text-slate-200">{email ?? "—"}</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-xl p-4">
-                <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
-                  Authentication
-                </label>
-                <p className="text-sm text-slate-200">Email &amp; Password (Supabase)</p>
-              </div>
-              {createdAt && (
-                <div className="bg-slate-800/50 rounded-xl p-4">
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
-                    Account Created
-                  </label>
-                  <p className="text-sm text-slate-200">
-                    {new Date(createdAt).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Danger zone */}
-          <div className="border border-red-900/30 rounded-2xl p-6">
-            <h4 className="text-sm font-semibold text-red-400 mb-2 flex items-center gap-2">
-              <AlertCircle size={14} />
-              Session
-            </h4>
-            <p className="text-xs text-slate-500 mb-4">
-              Sign out of your current session on this device.
-            </p>
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 hover:text-red-300 px-5 py-2.5 rounded-xl text-sm font-medium transition-colors"
-            >
-              <LogOut size={14} />
-              Sign out
-            </button>
-          </div>
-        </div>
-      </div>
-    </motion.div>
   );
 }
