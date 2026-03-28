@@ -62,13 +62,9 @@ const TONES: { id: Tone; label: string;  }[] = [
 function EmailComposeModal({
   onSend,
   onClose,
-  gmailUser,
-  gmailPassword,
 }: {
   onSend: (msg: string) => void;
   onClose: () => void;
-  gmailUser?: string;
-  gmailPassword?: string;
 }) {
   const [draft, setDraft] = useState<EmailDraft>({ to: "", subject: "", body: "" });
   const [focused, setFocused] = useState<keyof EmailDraft | null>(null);
@@ -130,8 +126,7 @@ function EmailComposeModal({
     }
   };
 
-  const isConfigured = !!gmailUser && !!gmailPassword;
-  const canSend = isConfigured && draft.to.trim() && draft.subject.trim() && draft.body.trim();
+  const canSend = draft.to.trim() && draft.subject.trim() && draft.body.trim();
 
   const submit = () => {
     if (!canSend) return;
@@ -415,11 +410,7 @@ function EmailComposeModal({
 
       {/* Footer */}
       <div className="flex items-center justify-between px-4 pb-4">
-        <p className={`text-[11px] ${!isConfigured ? "font-semibold text-red-500" : "text-slate-500"}`}>
-          {!isConfigured 
-            ? "⚠️ Please add your Gmail credentials in Settings first" 
-            : "Email will be sent via your configured Gmail"}
-        </p>
+        <p className="text-[11px] text-slate-500">Email will be sent via your configured Gmail</p>
         <button
           onClick={submit}
           disabled={!canSend}
@@ -554,8 +545,6 @@ export default function ChatPanel({
   fileInputRef,
   onFileSelect,
   fileCount,
-  gmailUser,
-  gmailPassword,
 }: {
   messages: ChatMessage[];
   input: string;
@@ -568,8 +557,6 @@ export default function ChatPanel({
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileCount: number;
-  gmailUser?: string;
-  gmailPassword?: string;
 }) {
   const showSlash = input.startsWith("/") && !input.includes(" ");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -766,8 +753,6 @@ export default function ChatPanel({
               <EmailComposeModal
                 onClose={() => setEmailOpen(false)}
                 onSend={onSend}
-                gmailUser={gmailUser}
-                gmailPassword={gmailPassword}
               />
             )}
             {!emailOpen && showSlash && (

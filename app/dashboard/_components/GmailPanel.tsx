@@ -40,7 +40,7 @@ function EmailChart() {
   } = require("recharts");
 
   return (
-    <div className="h-[180px] min-h-[180px] min-w-0 sm:h-[200px]">
+    <div className="h-45 min-h-45 min-w-0 sm:h-50">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={DEMO_WEEKLY} barGap={2} margin={{ top: 4, right: 4, left: -8, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />

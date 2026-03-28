@@ -7,7 +7,8 @@ import { sendEmail } from "@/lib/email";
 import { getRecentEmails } from "@/lib/gmail";
 
 // Detect "send a mail / email" intent   also catches structured /email shortcuts
-const EMAIL_INTENT = /(send\s+(a\s+|an\s+)?e?mail|^send an email to)/i;
+// Detect "send a mail / email" intent   catches direct commands
+const EMAIL_INTENT = /^(send\s+(an?\s+)?e?mail\s+|email\s+|mail\s+to\s+)/i;
 
 // Detect "check inbox / read my emails / summarize emails" intent
 const GMAIL_INTENT =
@@ -227,53 +228,68 @@ Be clear and structured. Use bullet points where helpful.
     if (EMAIL_INTENT.test(question)) {
       const extractionPrompt = `
 You are a helpful assistant. The user wants to send an email.
-Extract the email details from their message and return ONLY valid JSON in this exact format:
+Extract the email details from their message using the conversation history for context if needed (e.g., if they mention a name or email earlier).
+
+Return ONLY valid JSON in this exact format:
 {
   "to": "recipient@example.com",
   "subject": "Subject line here",
-  "body": "Email body here"
+  "body": "Email body here",
+  "can_extract": true,
+  "reason": "" 
 }
 
-If any field is missing or unclear, use a sensible default (e.g. subject: "Hello", body: the full message).
+If you cannot extract a recipient email address, set "can_extract" to false and provide a helpful "reason" (e.g., "I need a recipient email address").
+If subject or body is missing, use a sensible default (e.g. subject: "Hello", body: the full message).
+
+Recent history:
+${historyBlock || "No history"}
 
 User message: "${question}"
 
 JSON:`;
 
-      const raw = await askGroq(extractionPrompt);
-      let to: string, subject: string, body: string;
+      const raw = await askGroq(extractionPrompt, { temperature: 0 });
+      let to = "", subject = "", body = "";
 
       try {
+        // Robust JSON extraction
         const jsonMatch = raw?.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error("No JSON found");
         const parsed = JSON.parse(jsonMatch[0]);
+
+        if (parsed.can_extract === false) {
+          return Response.json({
+            answer: `❌ I couldn't send that email: ${parsed.reason || "Missing details"}. You can also type \`/email\` to open the manual compose form.`,
+          });
+        }
+
         to = parsed.to;
         subject = parsed.subject;
         body = parsed.body;
 
-        if (!to || !subject || !body) throw new Error("Incomplete fields");
+        if (!to || !to.includes("@")) throw new Error("Invalid or missing recipient email");
+        if (!subject) subject = "Hello";
+        if (!body) body = question;
+
       } catch (parseErr) {
         console.error("Email extraction failed:", parseErr, "Raw:", raw);
-        return Response.json({
-          answer:
-            '❌I couldn\'t understand the email details. Try: "Send a mail to name@email.com with subject Hello and message How are you?"',
-        });
+        
+        // Fallback: simple regex extraction for common "send email to X" patterns
+        const emailMatch = question.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/i);
+        if (emailMatch) {
+          to = emailMatch[0];
+          subject = "Hello";
+          body = question;
+        } else {
+          return Response.json({
+            answer:
+              '❌ I couldn\'t understand the email details. Please specify a recipient (e.g., "Send an email to name@email.com") or type `/email` to use the manual form.',
+          });
+        }
       }
 
       try {
-        const { data: settings } = await supabase
-          .from("user_settings")
-          .select("gmail_user, gmail_app_password")
-          .eq("user_id", user.id)
-          .single();
-
-        if (!settings?.gmail_user || !settings?.gmail_app_password) {
-          return Response.json({
-            answer:
-              "⚙️ Your Gmail is not configured. Click the Settings icon in the sidebar to add your Gmail and App Password to enable sending emails.",
-          });
-        }
-
         await sendEmail(to, subject, body);
         return Response.json({
           answer: `Email sent to **${to}**".`,
