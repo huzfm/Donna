@@ -562,6 +562,18 @@ export default function ChatPanel({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [emailOpen, setEmailOpen] = useState(false);
 
+  const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
+  let loadingText = "Thinking";
+  if (lastUserMsg && loading) {
+    const text = lastUserMsg.content.toLowerCase();
+    if (text.includes("/email") || text.includes("mail")) loadingText = "Drafting email";
+    else if (text.includes("/diagram") || text.includes("diagram") || text.includes("chart") || text.includes("mermaid")) loadingText = "Generating diagram";
+    else if (text.includes("/doc") || text.includes("document") || text.includes("file") || text.includes("report") || text.includes("pdf")) loadingText = "Analyzing document";
+    else if (text.includes("/search") || text.includes("search") || text.includes("find")) loadingText = "Searching";
+    else if (text.includes("code") || text.includes("debug") || text.includes("fix") || text.includes("error")) loadingText = "Analyzing code";
+    else if (text.includes("/jira") || text.includes("ticket") || text.includes("issue") || text.includes("task")) loadingText = "Updating tasks";
+  }
+
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
@@ -589,7 +601,7 @@ export default function ChatPanel({
       className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
       {/* ── Topbar ── */}
-      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 px-6 py-3 backdrop-blur-md">
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 pl-14 md:pl-6 pr-6 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div>
             <span className="font-(family-name:--font-doto) text-xl font-black tracking-tight text-slate-950">
@@ -629,15 +641,15 @@ export default function ChatPanel({
            
               <div className="relative">
                 <h2 className="font-(family-name:--font-doto) mb-2 text-2xl font-black tracking-tight text-slate-950 md:text-3xl">
-                  Hello — I&apos;m{" "}
+                  Hello, I&apos;m{" "}
                   <span className="bg-slate-900 bg-clip-text text-transparent">
                     Donna
                   </span>
                 </h2>
-                <p className="mx-auto mb-3 max-w-md text-sm leading-relaxed text-slate-600">
+                <p className="mx-auto mb-3 font-mono max-w-md text-sm leading-relaxed text-slate-600">
                   Your personal AI assistant for documents, email, and calendar.
                 </p>
-                <p className="mx-auto max-w-md text-sm text-slate-500">
+                <p className="mx-auto  font-mono max-w-md text-sm text-slate-500">
                   Type a message below or use <span className="font-mono text-xs text-black">/</span> commands.
                 </p>
               </div>
@@ -696,7 +708,7 @@ export default function ChatPanel({
                 </div>
                 <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-slate-300/90 bg-slate-50 px-4 py-3 ring-1 ring-slate-300/[0.06]">
                   <span className="mr-1 text-[10px] font-semibold tracking-wider text-black uppercase">
-                    Thinking
+                    {loadingText}
                   </span>
                   {[0, 1, 2].map((i) => (
                     <motion.div
@@ -743,7 +755,7 @@ export default function ChatPanel({
                   }
                   if (e.key === "Escape") onInputChange("");
                 }}
-                placeholder="Message Donna or type / for commands"
+                placeholder="Talk to Donna or type / for commands"
                 rows={1}
                 className="max-h-[180px] w-full resize-none bg-transparent text-[14px] leading-relaxed text-slate-900 outline-none caret-black placeholder:text-slate-400"
               />

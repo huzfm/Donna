@@ -33,7 +33,12 @@ export default function DashboardPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      setSidebarOpen(true);
+    }
+  }, []);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userCreated, setUserCreated] = useState<string | null>(null);
@@ -393,14 +398,22 @@ export default function DashboardPage() {
       {/* ═══ Sidebar ═══ */}
       <AnimatePresence initial={false}>
         {sidebarOpen && (
-          <motion.aside
-            key="sidebar"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 280, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-            className="my-4 ml-4 flex h-[calc(100vh-2rem)] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xl relative z-20"
-          >
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+              className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm md:hidden"
+            />
+            <motion.aside
+              key="sidebar"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 280, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+              className="absolute inset-y-0 left-0 z-50 md:static md:my-4 md:ml-4 flex h-full md:h-[calc(100vh-2rem)] shrink-0 flex-col overflow-hidden rounded-r-2xl md:rounded-2xl border-r md:border border-slate-200/90 bg-white shadow-2xl md:shadow-xl transition-transform"
+            >
             {/* Top: Logo + collapse */}
             <div className="flex items-center justify-between px-3 pt-4 pb-2">
               <Link href="/" className="px-2 font-(family-name:--font-doto) text-2xl font-black tracking-tight text-slate-900">
@@ -578,6 +591,7 @@ export default function DashboardPage() {
               </AnimatePresence>
             </div>
           </motion.aside>
+          </>
         )}
       </AnimatePresence>
 
@@ -594,8 +608,8 @@ export default function DashboardPage() {
       )}
 
       {/* ═══ Main ═══ */}
-      <div className="relative z-10 p-4 flex min-w-0 flex-1 items-center justify-center">
-        <main className="relative z-10 flex h-full max-h-212.5 w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+      <div className="relative z-10 p-0 md:p-4 flex min-w-0 flex-1 items-center justify-center">
+        <main className="relative z-10 flex h-full max-h-none md:max-h-212.5 w-full max-w-5xl flex-col overflow-hidden rounded-none md:rounded-2xl border-0 md:border border-slate-200 bg-white shadow-none md:shadow-xl">
           <div className="chat-mesh pointer-events-none absolute inset-0" />
           <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col">
         <AnimatePresence mode="wait">

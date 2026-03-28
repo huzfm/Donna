@@ -65,7 +65,7 @@ export default function GmailPanel({
         transition={{ duration: 0.2 }}
         className="flex flex-1 flex-col overflow-hidden bg-transparent"
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 px-6 py-4 backdrop-blur-md">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 pl-14 md:pl-6 pr-6 py-4 backdrop-blur-md">
           <div className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-200 text-black ring-1 ring-slate-300/60">
               <Mail size={15} strokeWidth={2} />
@@ -226,7 +226,7 @@ export default function GmailPanel({
       transition={{ duration: 0.2 }}
       className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
-      <div className="shrink-0 border-b border-slate-200/90 bg-white/60 px-6 py-4 backdrop-blur-md">
+      <div className="shrink-0 border-b border-slate-200/90 bg-white/60 pl-14 md:pl-6 pr-6 py-4 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 ring-1 ring-slate-200/60">
             <Mail size={15} strokeWidth={2} />
