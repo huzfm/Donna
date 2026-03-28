@@ -32,27 +32,31 @@ export default function ChatPage() {
     setActiveSession((prev) => (prev === id ? null : prev));
   }, []);
 
-  const handleFilesUploaded = useCallback((newFiles: UploadedFile[]) => {
-    setFiles((prev) => [...prev, ...newFiles]);
-    if (!contextOpen) setContextOpen(true);
-  }, [contextOpen]);
+  const handleFilesUploaded = useCallback(
+    (newFiles: UploadedFile[]) => {
+      setFiles((prev) => [...prev, ...newFiles]);
+      if (!contextOpen) setContextOpen(true);
+    },
+    [contextOpen]
+  );
 
   const handleUpdateFile = useCallback((index: number, update: Partial<UploadedFile>) => {
-    setFiles((prev) =>
-      prev.map((f, i) => (i === index ? { ...f, ...update } : f))
-    );
+    setFiles((prev) => prev.map((f, i) => (i === index ? { ...f, ...update } : f)));
   }, []);
 
   const handleRemoveFile = useCallback((index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const handleFeaturePrompt = useCallback((_prompt: string) => {
-    handleNewChat();
-  }, [handleNewChat]);
+  const handleFeaturePrompt = useCallback(
+    (_prompt: string) => {
+      handleNewChat();
+    },
+    [handleNewChat]
+  );
 
   return (
-    <div className="flex h-screen bg-[#020617] overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-[#020617]">
       <Sidebar />
       <ChatSidebar
         sessions={sessions}
@@ -62,7 +66,7 @@ export default function ChatPage() {
         onDeleteSession={handleDeleteSession}
         onFeaturePrompt={handleFeaturePrompt}
       />
-      <div className="flex-1 flex relative min-w-0">
+      <div className="relative flex min-w-0 flex-1">
         <ChatWindow
           onToggleContext={() => setContextOpen((v) => !v)}
           contextOpen={contextOpen}

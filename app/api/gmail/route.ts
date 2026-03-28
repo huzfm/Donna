@@ -25,28 +25,20 @@ export async function GET() {
     if (!settings?.gmail_user || !settings?.gmail_app_password) {
       return Response.json(
         {
-          error:
-            "Gmail not configured. Please add your Gmail credentials in Settings.",
+          error: "Gmail not configured. Please add your Gmail credentials in Settings.",
         },
         { status: 400 }
       );
     }
 
-    const emails = await getRecentEmails(
-      settings.gmail_user,
-      settings.gmail_app_password,
-      15
-    );
+    const emails = await getRecentEmails(settings.gmail_user, settings.gmail_app_password, 15);
 
     if (emails.length === 0) {
       return Response.json({ summary: "Your inbox is empty." });
     }
 
     const emailList = emails
-      .map(
-        (e, i) =>
-          `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`
-      )
+      .map((e, i) => `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`)
       .join("\n\n");
 
     const prompt = `

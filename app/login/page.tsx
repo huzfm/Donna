@@ -118,7 +118,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right: login form */}
-        <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+        <div className="flex flex-1 items-center justify-center p-6 md:p-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -176,23 +176,33 @@ export default function LoginPage() {
 
               <form onSubmit={handleLogin} className="flex flex-col gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Email address</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Email address
+                  </label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Mail
+                      size={16}
+                      className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-slate-400"
+                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Password
+                  </label>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Lock
+                      size={16}
+                      className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type={showPassword ? "text" : "password"}
                       required
@@ -220,7 +230,10 @@ export default function LoginPage() {
 
             <p className="mt-6 text-center text-sm text-slate-500">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors">
+              <Link
+                href="/signup"
+                className="font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
+              >
                 Sign up
               </Link>
             </p>

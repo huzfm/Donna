@@ -10,7 +10,7 @@ export async function extractText(file: File) {
   // 📄 PDF
   // ==============================
   if (fileName.endsWith(".pdf")) {
-    const pdf = require("@cyber2024/pdf-parse-fixed"); // ✅ stable
+    const pdf = require("@cyber2024/pdf-parse-fixed"); //  stable
     const data = await pdf(buffer);
     text = data.text;
   }
@@ -35,11 +35,7 @@ export async function extractText(file: File) {
   // ==============================
   // 📊 EXCEL / CSV
   // ==============================
-  else if (
-    fileName.endsWith(".xlsx") ||
-    fileName.endsWith(".xls") ||
-    fileName.endsWith(".csv")
-  ) {
+  else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls") || fileName.endsWith(".csv")) {
     const workbook = XLSX.read(buffer, { type: "buffer" });
 
     let allText = "";
@@ -54,9 +50,7 @@ export async function extractText(file: File) {
       allText += `Sheet: ${sheetName}\n`;
 
       for (const row of rows) {
-        const cleaned = row.filter(
-          (cell) => cell !== null && cell !== undefined && cell !== ""
-        );
+        const cleaned = row.filter((cell) => cell !== null && cell !== undefined && cell !== "");
 
         if (cleaned.length > 0) {
           allText += cleaned.join(" | ") + "\n";
@@ -70,7 +64,7 @@ export async function extractText(file: File) {
   }
 
   // ==============================
-  // ❌ Unsupported
+  // Unsupported
   // ==============================
   else {
     throw new Error("Unsupported file type");

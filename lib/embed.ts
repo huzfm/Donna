@@ -17,7 +17,7 @@ export async function embed(texts: string[]) {
     throw new Error("Embedding failed: " + JSON.stringify(data));
   }
 
-  // ✅ Always normalize to array of flat embeddings
+  // Always normalize to array of flat embeddings
   return data.map((item: any) => {
     // If item is nested [[...]], unwrap it
     if (Array.isArray(item[0])) return item[0];

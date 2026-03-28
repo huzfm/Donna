@@ -98,12 +98,12 @@ export default function SignUpPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4 relative">
+      <div className="relative flex min-h-screen items-center justify-center bg-white px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md text-center relative z-10"
+          className="relative z-10 w-full max-w-md text-center"
         >
           {successAnimation && (
             <Lottie
@@ -120,7 +120,7 @@ export default function SignUpPage() {
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
           >
             <ArrowLeft size={14} />
             Back to login
@@ -176,7 +176,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Right: signup form */}
-        <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+        <div className="flex flex-1 items-center justify-center p-6 md:p-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -205,7 +205,7 @@ export default function SignUpPage() {
 
             <div className="rounded-2xl border border-slate-200 bg-white p-8">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-5 text-sm">
+                <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                   {error}
                 </div>
               )}
@@ -234,23 +234,33 @@ export default function SignUpPage() {
 
               <form onSubmit={handleSignUp} className="flex flex-col gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Email address</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Email address
+                  </label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Mail
+                      size={16}
+                      className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-slate-400"
+                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Password
+                  </label>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Lock
+                      size={16}
+                      className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type={showPassword ? "text" : "password"}
                       required
@@ -265,9 +275,14 @@ export default function SignUpPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirm password</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Confirm password
+                  </label>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Lock
+                      size={16}
+                      className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type={showConfirm ? "text" : "password"}
                       required
@@ -295,7 +310,10 @@ export default function SignUpPage() {
 
             <p className="mt-6 text-center text-sm text-slate-500">
               Already have an account?{" "}
-              <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors">
+              <Link
+                href="/login"
+                className="font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
+              >
                 Log in
               </Link>
             </p>

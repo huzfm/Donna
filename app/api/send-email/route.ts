@@ -7,10 +7,7 @@ export async function POST(req: Request) {
     const { to, subject, body } = await req.json();
 
     if (!to || !subject || !body) {
-      return Response.json(
-        { error: "Missing to, subject, or body" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Missing to, subject, or body" }, { status: 400 });
     }
 
     await sendEmail(to, subject, body);

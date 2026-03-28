@@ -46,7 +46,9 @@ export async function GET() {
 export async function DELETE(req: Request) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -76,7 +78,9 @@ export async function DELETE(req: Request) {
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -121,11 +125,7 @@ export async function POST(req: Request) {
     // ==============================
     // 📊 EXCEL / CSV
     // ==============================
-    else if (
-      fileName.endsWith(".xlsx") ||
-      fileName.endsWith(".xls") ||
-      fileName.endsWith(".csv")
-    ) {
+    else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls") || fileName.endsWith(".csv")) {
       const XLSX = require("xlsx");
       const workbook = XLSX.read(buffer, { type: "buffer" });
 
@@ -141,9 +141,7 @@ export async function POST(req: Request) {
         allText += `Sheet: ${sheetName}\n`;
 
         for (const row of rows) {
-          const cleaned = row.filter(
-            (cell) => cell !== null && cell !== undefined && cell !== ""
-          );
+          const cleaned = row.filter((cell) => cell !== null && cell !== undefined && cell !== "");
 
           if (cleaned.length > 0) {
             allText += cleaned.join(" | ") + "\n";
@@ -157,13 +155,10 @@ export async function POST(req: Request) {
     }
 
     // ==============================
-    // ❌ Unsupported
+    //  Unsupported
     // ==============================
     else {
-      return Response.json(
-        { error: "Unsupported file type" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Unsupported file type" }, { status: 400 });
     }
 
     // ==============================
@@ -172,10 +167,7 @@ export async function POST(req: Request) {
     text = text.replace(/\s+/g, " ").trim();
 
     if (!text) {
-      return Response.json(
-        { error: "Could not extract text" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Could not extract text" }, { status: 400 });
     }
 
     // ==============================
@@ -220,7 +212,6 @@ export async function POST(req: Request) {
       success: true,
       chunks: chunks.length,
     });
-
   } catch (e: any) {
     console.error("UPLOAD ERROR:", e);
     return Response.json({ error: e.message }, { status: 500 });

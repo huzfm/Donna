@@ -15,14 +15,7 @@ import {
   Paperclip,
 } from "lucide-react";
 
-type DemoPhase =
-  | "idle"
-  | "uploading"
-  | "uploaded"
-  | "typing"
-  | "thinking"
-  | "responding"
-  | "done";
+type DemoPhase = "idle" | "uploading" | "uploaded" | "typing" | "thinking" | "responding" | "done";
 
 const DEMO_PROMPT = "Summarize the key findings from the report";
 const DEMO_RESPONSE =
@@ -101,16 +94,16 @@ export default function DashboardDemo() {
         className="relative"
       >
         <div className="relative rounded-2xl border border-slate-200 bg-white p-1">
-          <div className="rounded-xl bg-slate-950 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800/80 bg-slate-900">
+          <div className="overflow-hidden rounded-xl bg-slate-950">
+            <div className="flex items-center gap-2 border-b border-slate-800/80 bg-slate-900 px-4 py-2.5">
               <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
               </div>
-              <div className="flex-1 flex justify-center">
-                <div className="text-[10px] text-slate-500 bg-slate-800 px-3 py-0.5 rounded-md flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <div className="flex flex-1 justify-center">
+                <div className="flex items-center gap-1.5 rounded-md bg-slate-800 px-3 py-0.5 text-[10px] text-slate-500">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   donna.ai/dashboard
                 </div>
               </div>
@@ -118,53 +111,67 @@ export default function DashboardDemo() {
             </div>
 
             <div className="flex h-[380px]">
-              <div className="w-44 border-r border-slate-800/80 p-3 hidden lg:flex flex-col bg-slate-900/50">
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+              <div className="hidden w-44 flex-col border-r border-slate-800/80 bg-slate-900/50 p-3 lg:flex">
+                <div className="mb-5 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/15">
                     <Brain size={11} className="text-emerald-400" />
                   </div>
                   <span className="text-xs font-semibold text-slate-300">Donna</span>
                 </div>
                 <div className="space-y-0.5">
-                  <div className="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 text-[11px] font-medium">
+                  <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-[11px] font-medium text-emerald-400">
                     <MessageSquare size={12} /> Chat
                   </div>
-                  <div className="flex items-center gap-2 px-2.5 py-2 text-slate-500 text-[11px] rounded-lg hover:bg-slate-800/50">
+                  <div className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] text-slate-500 hover:bg-slate-800/50">
                     <FileText size={12} /> Files
                   </div>
-                  <div className="flex items-center gap-2 px-2.5 py-2 text-slate-500 text-[11px] rounded-lg hover:bg-slate-800/50">
+                  <div className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] text-slate-500 hover:bg-slate-800/50">
                     <Mail size={12} /> Gmail
                   </div>
-                  <div className="flex items-center gap-2 px-2.5 py-2 text-slate-500 text-[11px] rounded-lg hover:bg-slate-800/50">
+                  <div className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] text-slate-500 hover:bg-slate-800/50">
                     <User size={12} /> Account
                   </div>
                 </div>
-                <div className="mt-auto pt-3 border-t border-slate-800/80">
+                <div className="mt-auto border-t border-slate-800/80 pt-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-[9px] font-bold">J</div>
-                    <span className="text-[10px] text-slate-500 truncate">john@email.com</span>
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 text-[9px] font-bold text-emerald-400">
+                      J
+                    </div>
+                    <span className="truncate text-[10px] text-slate-500">john@email.com</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col min-w-0">
-                <div className="px-4 py-2.5 border-b border-slate-800/80 shrink-0">
+              <div className="flex min-w-0 flex-1 flex-col">
+                <div className="shrink-0 border-b border-slate-800/80 px-4 py-2.5">
                   <p className="text-xs font-semibold text-slate-200">Chat</p>
                   <p className="text-[10px] text-slate-500">
                     {showFile ? "1 file in your knowledge base" : "Upload files to get started"}
                   </p>
                 </div>
 
-                <div className="flex-1 overflow-hidden px-4 py-3 space-y-3">
+                <div className="flex-1 space-y-3 overflow-hidden px-4 py-3">
                   <AnimatePresence mode="wait">
                     {phase === "uploading" && (
-                      <motion.div key="uploading" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                        className="flex items-center gap-2.5 bg-slate-800/60 border border-slate-700/40 rounded-xl px-3 py-2.5">
-                        <Loader2 size={14} className="text-emerald-400 animate-spin" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] text-slate-200 font-medium truncate">Q1-Report-2026.pdf</p>
-                          <div className="mt-1.5 h-1 bg-slate-700 rounded-full overflow-hidden">
-                            <motion.div className="h-full bg-emerald-500 rounded-full" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2.2, ease: "easeInOut" }} />
+                      <motion.div
+                        key="uploading"
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-2.5 rounded-xl border border-slate-700/40 bg-slate-800/60 px-3 py-2.5"
+                      >
+                        <Loader2 size={14} className="animate-spin text-emerald-400" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[11px] font-medium text-slate-200">
+                            Q1-Report-2026.pdf
+                          </p>
+                          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-slate-700">
+                            <motion.div
+                              className="h-full rounded-full bg-emerald-500"
+                              initial={{ width: "0%" }}
+                              animate={{ width: "100%" }}
+                              transition={{ duration: 2.2, ease: "easeInOut" }}
+                            />
                           </div>
                         </div>
                       </motion.div>
@@ -173,16 +180,25 @@ export default function DashboardDemo() {
 
                   <AnimatePresence>
                     {showFile && phase !== "uploading" && (
-                      <motion.div key="uploaded" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex justify-start">
-                        <div className="bg-slate-800/70 rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[85%]">
-                          <div className="flex items-center gap-1.5 mb-1">
+                      <motion.div
+                        key="uploaded"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="flex justify-start"
+                      >
+                        <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-slate-800/70 px-3.5 py-2.5">
+                          <div className="mb-1 flex items-center gap-1.5">
                             <Sparkles size={10} className="text-orange-400" />
-                            <span className="text-[9px] font-bold text-orange-400 uppercase tracking-wider">Donna AI</span>
+                            <span className="text-[9px] font-bold tracking-wider text-orange-400 uppercase">
+                              Donna AI
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                            <CheckCircle2 size={12} className="shrink-0 text-emerald-400" />
                             <p className="text-[11px] text-slate-300">
-                              Processed <strong className="text-white">Q1-Report-2026.pdf</strong> — 12 chunks indexed.
+                              Processed <strong className="text-white">Q1-Report-2026.pdf</strong> —
+                              12 chunks indexed.
                             </p>
                           </div>
                         </div>
@@ -190,38 +206,66 @@ export default function DashboardDemo() {
                     )}
 
                     {showPromptBubble && (
-                      <motion.div key="prompt" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex justify-end">
-                        <div className="bg-emerald-600 text-white text-[11px] px-3.5 py-2.5 rounded-2xl rounded-tr-sm max-w-[80%] font-medium shadow-md shadow-emerald-500/20">
+                      <motion.div
+                        key="prompt"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="flex justify-end"
+                      >
+                        <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-emerald-600 px-3.5 py-2.5 text-[11px] font-medium text-white shadow-md shadow-emerald-500/20">
                           {DEMO_PROMPT}
                         </div>
                       </motion.div>
                     )}
 
                     {showThinking && (
-                      <motion.div key="thinking" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex justify-start">
-                        <div className="bg-slate-800/70 rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex items-center gap-2">
-                          <span className="text-[9px] font-bold text-orange-400 uppercase tracking-wider">Thinking</span>
+                      <motion.div
+                        key="thinking"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="flex justify-start"
+                      >
+                        <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm bg-slate-800/70 px-3.5 py-2.5">
+                          <span className="text-[9px] font-bold tracking-wider text-orange-400 uppercase">
+                            Thinking
+                          </span>
                           {[0, 1, 2].map((i) => (
-                            <motion.div key={i} className="w-1.5 h-1.5 rounded-full bg-orange-400"
+                            <motion.div
+                              key={i}
+                              className="h-1.5 w-1.5 rounded-full bg-orange-400"
                               animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
-                              transition={{ delay: i * 0.15, duration: 0.6, repeat: Infinity }} />
+                              transition={{ delay: i * 0.15, duration: 0.6, repeat: Infinity }}
+                            />
                           ))}
                         </div>
                       </motion.div>
                     )}
 
                     {showResponse && (
-                      <motion.div key="response" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex justify-start">
-                        <div className="bg-slate-800/70 rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[90%]">
-                          <div className="flex items-center gap-1.5 mb-1">
+                      <motion.div
+                        key="response"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="flex justify-start"
+                      >
+                        <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-slate-800/70 px-3.5 py-2.5">
+                          <div className="mb-1 flex items-center gap-1.5">
                             <Sparkles size={10} className="text-orange-400" />
-                            <span className="text-[9px] font-bold text-orange-400 uppercase tracking-wider">Donna AI</span>
+                            <span className="text-[9px] font-bold tracking-wider text-orange-400 uppercase">
+                              Donna AI
+                            </span>
                           </div>
-                          <p className="text-[11px] text-slate-300 whitespace-pre-wrap leading-relaxed">
+                          <p className="text-[11px] leading-relaxed whitespace-pre-wrap text-slate-300">
                             {DEMO_RESPONSE.slice(0, responseChars)}
                             {phase === "responding" && (
-                              <motion.span className="inline-block w-[2px] h-3.5 bg-emerald-400 ml-0.5 align-middle rounded-full"
-                                animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }} />
+                              <motion.span
+                                className="ml-0.5 inline-block h-3.5 w-[2px] rounded-full bg-emerald-400 align-middle"
+                                animate={{ opacity: [1, 0] }}
+                                transition={{ duration: 0.5, repeat: Infinity }}
+                              />
                             )}
                           </p>
                         </div>
@@ -230,24 +274,34 @@ export default function DashboardDemo() {
                   </AnimatePresence>
                 </div>
 
-                <div className="border-t border-slate-800/80 px-3 py-2.5 shrink-0">
-                  <div className="flex items-center gap-2 bg-slate-900 border border-slate-700/40 rounded-xl px-3 py-2">
-                    <Paperclip size={13} className="text-slate-600 shrink-0" />
-                    <div className="flex-1 text-[11px] text-slate-500 min-w-0 truncate">
+                <div className="shrink-0 border-t border-slate-800/80 px-3 py-2.5">
+                  <div className="flex items-center gap-2 rounded-xl border border-slate-700/40 bg-slate-900 px-3 py-2">
+                    <Paperclip size={13} className="shrink-0 text-slate-600" />
+                    <div className="min-w-0 flex-1 truncate text-[11px] text-slate-500">
                       {phase === "typing" ? (
                         <span className="text-slate-200">
                           {DEMO_PROMPT.slice(0, typedChars)}
-                          <motion.span className="inline-block w-[2px] h-3.5 bg-emerald-400 ml-0.5 align-middle rounded-full"
-                            animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }} />
+                          <motion.span
+                            className="ml-0.5 inline-block h-3.5 w-[2px] rounded-full bg-emerald-400 align-middle"
+                            animate={{ opacity: [1, 0] }}
+                            transition={{ duration: 0.5, repeat: Infinity }}
+                          />
                         </span>
                       ) : (
                         "Ask about your files, check emails..."
                       )}
                     </div>
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${
-                      phase === "typing" ? "bg-emerald-600 shadow-sm shadow-emerald-500/30" : "bg-slate-800"
-                    }`}>
-                      <Send size={12} className={phase === "typing" ? "text-white" : "text-slate-600"} />
+                    <div
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all ${
+                        phase === "typing"
+                          ? "bg-emerald-600 shadow-sm shadow-emerald-500/30"
+                          : "bg-slate-800"
+                      }`}
+                    >
+                      <Send
+                        size={12}
+                        className={phase === "typing" ? "text-white" : "text-slate-600"}
+                      />
                     </div>
                   </div>
                 </div>
@@ -260,11 +314,11 @@ export default function DashboardDemo() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3 py-1.5"
+          className="absolute -bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5"
         >
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
           </span>
           <span className="text-[10px] font-medium text-slate-500">Live demo</span>
         </motion.div>

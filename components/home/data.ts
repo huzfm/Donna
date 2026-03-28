@@ -78,17 +78,42 @@ export const features = [
 ];
 
 export const stats = [
-  { value: "10+", label: "File formats supported", icon: FileText, color: "text-blue-600", bg: "bg-blue-50" },
-  { value: "< 3s", label: "Average response time", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
-  { value: "100%", label: "Private & encrypted", icon: Lock, color: "text-emerald-600", bg: "bg-emerald-50" },
-  { value: "24/7", label: "Always available", icon: Clock, color: "text-violet-600", bg: "bg-violet-50" },
+  {
+    value: "10+",
+    label: "File formats supported",
+    icon: FileText,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+  },
+  {
+    value: "< 3s",
+    label: "Average response time",
+    icon: Zap,
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+  },
+  {
+    value: "100%",
+    label: "Private & encrypted",
+    icon: Lock,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+  },
+  {
+    value: "24/7",
+    label: "Always available",
+    icon: Clock,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+  },
 ];
 
 export const useCases = [
   {
     icon: BarChart3,
     title: "Research & Analysis",
-    description: "Upload research papers and reports. Ask Donna to summarize findings, compare data, and extract key takeaways.",
+    description:
+      "Upload research papers and reports. Ask Donna to summarize findings, compare data, and extract key takeaways.",
     color: "text-blue-600",
     bg: "bg-blue-50",
     accent: "#2563eb",
@@ -97,7 +122,8 @@ export const useCases = [
   {
     icon: Mail,
     title: "Email Productivity",
-    description: "Connect your Gmail and let Donna read, summarize, draft replies, and send emails through simple chat commands.",
+    description:
+      "Connect your Gmail and let Donna read, summarize, draft replies, and send emails through simple chat commands.",
     color: "text-amber-600",
     bg: "bg-amber-50",
     accent: "#d97706",
@@ -106,7 +132,8 @@ export const useCases = [
   {
     icon: Users,
     title: "Team Knowledge Base",
-    description: "Build a shared knowledge base from your team's documents. Anyone can ask questions and get instant answers.",
+    description:
+      "Build a shared knowledge base from your team's documents. Anyone can ask questions and get instant answers.",
     color: "text-violet-600",
     bg: "bg-violet-50",
     accent: "#7c3aed",
@@ -189,9 +216,39 @@ export const teamMembers = [
 
 export const techStack = [
   { name: "Groq", desc: "LLM inference", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
-  { name: "Hugging Face", desc: "Embeddings", icon: Brain, color: "text-emerald-600", bg: "bg-emerald-50" },
-  { name: "Supabase", desc: "Auth & database", icon: Lock, color: "text-blue-600", bg: "bg-blue-50" },
-  { name: "Next.js", desc: "App framework", icon: Globe, color: "text-slate-900", bg: "bg-slate-100" },
-  { name: "TypeScript", desc: "Type safety", icon: FileText, color: "text-blue-600", bg: "bg-blue-50" },
-  { name: "Tailwind CSS", desc: "Styling", icon: Sparkles, color: "text-cyan-600", bg: "bg-cyan-50" },
+  {
+    name: "Hugging Face",
+    desc: "Embeddings",
+    icon: Brain,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+  },
+  {
+    name: "Supabase",
+    desc: "Auth & database",
+    icon: Lock,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+  },
+  {
+    name: "Next.js",
+    desc: "App framework",
+    icon: Globe,
+    color: "text-slate-900",
+    bg: "bg-slate-100",
+  },
+  {
+    name: "TypeScript",
+    desc: "Type safety",
+    icon: FileText,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+  },
+  {
+    name: "Tailwind CSS",
+    desc: "Styling",
+    icon: Sparkles,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+  },
 ];

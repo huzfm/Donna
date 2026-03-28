@@ -40,6 +40,7 @@ export default function TerminalField() {
       "#059669", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed",
       "#059669", "#0d9488", "#0891b2", "#0f172a", "#7c3aed",
     ];
+    const colors = ["#059669", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed", "#0f172a"];
     return Array.from({ length: COUNT }, (_, i) => {
       const col = Math.floor(i / 10);
       const row = i % 10;
@@ -99,7 +100,10 @@ export default function TerminalField() {
         }
       }
 
-      if (!box) { rafRef.current = requestAnimationFrame(tick); return; }
+      if (!box) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
       const cw = box.offsetWidth;
       const ch = box.offsetHeight;
 
@@ -126,8 +130,8 @@ export default function TerminalField() {
           s.vy += (dy / dist) * force;
         }
 
-        s.vx = (s.vx + (-s.cx * SPRING)) * DAMPING;
-        s.vy = (s.vy + (-s.cy * SPRING)) * DAMPING;
+        s.vx = (s.vx + -s.cx * SPRING) * DAMPING;
+        s.vy = (s.vy + -s.cy * SPRING) * DAMPING;
         s.cx += s.vx;
         s.cy += s.vy;
 
@@ -206,8 +210,10 @@ export default function TerminalField() {
       {particles.map((p, i) => (
         <span
           key={i}
-          ref={(el) => { elRefs.current[i] = el; }}
-          className="absolute will-change-transform select-none font-mono font-bold"
+          ref={(el) => {
+            elRefs.current[i] = el;
+          }}
+          className="absolute font-mono font-bold will-change-transform select-none"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,

@@ -28,12 +28,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${doto.variable}`}>
       <body>
-        <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="pointer-events-none fixed inset-0 z-0">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-size-[60px_60px]" />
         </div>
-        <Suspense fallback={<RootLoading />}>
-          {children}
-        </Suspense>
+        <Suspense fallback={<RootLoading />}>{children}</Suspense>
       </body>
     </html>
   );

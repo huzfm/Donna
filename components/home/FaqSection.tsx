@@ -7,25 +7,27 @@ import FaqItem from "./FaqItem";
 
 export default function FaqSection() {
   return (
-    <section className="py-28 px-6 bg-slate-50">
-      <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12 lg:gap-16">
+    <section className="bg-slate-50 px-6 py-28">
+      <div className="mx-auto max-w-5xl">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="lg:sticky lg:top-32 self-start"
+            className="self-start lg:sticky lg:top-32"
           >
-            <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">FAQ</span>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-950 mb-4 font-(family-name:--font-doto)">
-              Frequently asked{" "}
-              <span className="text-emerald-600">questions</span>
+            <span className="mb-3 block text-xs font-semibold tracking-widest text-emerald-600 uppercase">
+              FAQ
+            </span>
+            <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
+              Frequently asked <span className="text-emerald-600">questions</span>
             </h2>
-            <p className="text-slate-500 text-[15px] leading-relaxed mb-6">
-              Everything you need to know about Donna. Can&apos;t find what you&apos;re looking for? Reach out to our team.
+            <p className="mb-6 text-[15px] leading-relaxed text-slate-500">
+              Everything you need to know about Donna. Can&apos;t find what you&apos;re looking for?
+              Reach out to our team.
             </p>
-            <div className="hidden lg:flex items-center gap-2 text-sm text-slate-400">
+            <div className="hidden items-center gap-2 text-sm text-slate-400 lg:flex">
               <MessageSquare size={14} />
               <span>{faqs.length} questions answered</span>
             </div>

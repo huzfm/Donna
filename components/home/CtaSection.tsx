@@ -13,46 +13,49 @@ export default function CtaSection() {
   ];
 
   return (
-    <section className="py-28 px-6 bg-white relative overflow-hidden">
-      <div className="max-w-5xl mx-auto">
+    <section className="relative overflow-hidden bg-white px-6 py-28">
+      <div className="mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="rounded-3xl border border-slate-200 relative overflow-hidden"
+          className="relative overflow-hidden rounded-3xl border border-slate-200"
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+          <div className="absolute top-0 right-0 left-0 h-1 bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500" />
 
           <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="p-10 md:p-14 flex flex-col justify-center">
+            <div className="flex flex-col justify-center p-10 md:p-14">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.15, duration: 0.5 }}
               >
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-6">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50">
                   <Sparkles size={22} className="text-emerald-600" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-4 tracking-tight text-slate-950 font-(family-name:--font-doto)">
-                  Ready to work{" "}
-                  <span className="text-emerald-600">smarter?</span>
+                <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
+                  Ready to work <span className="text-emerald-600">smarter?</span>
                 </h2>
-                <p className="text-slate-500 mb-8 text-[15px] leading-relaxed max-w-sm">
-                  Join Donna and let AI handle the heavy lifting — from document analysis to email management.
+                <p className="mb-8 max-w-sm text-[15px] leading-relaxed text-slate-500">
+                  Join Donna and let AI handle the heavy lifting — from document analysis to email
+                  management.
                 </p>
-                <div className="flex flex-col sm:flex-row items-start gap-3">
+                <div className="flex flex-col items-start gap-3 sm:flex-row">
                   <Link
                     href="/signup"
-                    className="group inline-flex items-center gap-2 bg-slate-900 text-white px-7 py-3 rounded-full font-semibold transition-all text-sm hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
+                    className="group inline-flex items-center gap-2 rounded-full bg-slate-900 px-7 py-3 text-sm font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
                   >
                     Get started free
-                    <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+                    <ArrowRight
+                      size={15}
+                      className="transition-transform group-hover:translate-x-0.5"
+                    />
                   </Link>
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-2 border border-slate-300 text-slate-600 px-7 py-3 rounded-full font-medium transition-all text-sm hover:border-slate-900 hover:text-slate-900"
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-7 py-3 text-sm font-medium text-slate-600 transition-all hover:border-slate-900 hover:text-slate-900"
                   >
                     Sign in
                   </Link>
@@ -60,7 +63,7 @@ export default function CtaSection() {
               </motion.div>
             </div>
 
-            <div className="bg-slate-50 p-10 md:p-14 border-t lg:border-t-0 lg:border-l border-slate-200">
+            <div className="border-t border-slate-200 bg-slate-50 p-10 md:p-14 lg:border-t-0 lg:border-l">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -68,7 +71,9 @@ export default function CtaSection() {
                 transition={{ delay: 0.25, duration: 0.5 }}
                 className="space-y-5"
               >
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">What you get</p>
+                <p className="mb-6 text-xs font-semibold tracking-widest text-slate-400 uppercase">
+                  What you get
+                </p>
                 {highlights.map((item, i) => {
                   const ItemIcon = item.icon;
                   return (
@@ -80,10 +85,10 @@ export default function CtaSection() {
                       transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
                       className="flex items-start gap-3"
                     >
-                      <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-50">
                         <ItemIcon size={14} className="text-emerald-600" />
                       </div>
-                      <span className="text-sm text-slate-600 leading-relaxed">{item.text}</span>
+                      <span className="text-sm leading-relaxed text-slate-600">{item.text}</span>
                     </motion.div>
                   );
                 })}

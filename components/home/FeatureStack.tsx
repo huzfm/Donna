@@ -37,9 +37,9 @@ export default function FeatureStack() {
   const activeFeature = features[active];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+    <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-2">
       <div
-        className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50 min-h-[420px]"
+        className="relative min-h-[420px] overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -55,21 +55,21 @@ export default function FeatureStack() {
             className="absolute inset-0 flex flex-col justify-center p-10"
           >
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+              className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
               style={{ backgroundColor: `${activeFeature.accent}15` }}
             >
               <activeFeature.icon size={26} className={activeFeature.color} />
             </div>
             <span
-              className="text-[11px] font-bold uppercase tracking-widest mb-2 block font-(family-name:--font-doto)"
+              className="mb-2 block font-(family-name:--font-doto) text-[11px] font-bold tracking-widest uppercase"
               style={{ color: activeFeature.accent }}
             >
               {activeFeature.tag}
             </span>
-            <h3 className="text-2xl font-extrabold text-slate-950 tracking-tight mb-4 font-(family-name:--font-doto)">
+            <h3 className="mb-4 font-(family-name:--font-doto) text-2xl font-extrabold tracking-tight text-slate-950">
               {activeFeature.title}
             </h3>
-            <p className="text-[15px] text-slate-500 leading-relaxed max-w-sm">
+            <p className="max-w-sm text-[15px] leading-relaxed text-slate-500">
               {activeFeature.description}
             </p>
           </motion.div>
@@ -90,22 +90,22 @@ export default function FeatureStack() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-between gap-1.5 py-1 rounded-2xl border border-slate-200 px-2">
+      <div className="flex flex-col justify-between gap-1.5 rounded-2xl border border-slate-200 px-2 py-1">
         {features.map((feature, i) => (
           <button
             key={feature.title}
             onClick={() => goTo(i)}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
-            className={`w-full text-left rounded-xl px-5 py-4 transition-all duration-300 border ${
+            className={`w-full rounded-xl border px-5 py-4 text-left transition-all duration-300 ${
               i === active
-                ? "bg-white border-slate-300"
-                : "bg-transparent border-transparent hover:bg-slate-50"
+                ? "border-slate-300 bg-white"
+                : "border-transparent bg-transparent hover:bg-slate-50"
             }`}
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors duration-300 ${
+                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-300 ${
                   i === active ? feature.bg : "bg-slate-100"
                 }`}
               >
@@ -114,24 +114,26 @@ export default function FeatureStack() {
                   className={`transition-colors duration-300 ${i === active ? feature.color : "text-slate-400"}`}
                 />
               </div>
-              <div className="flex-1 min-w-0">
-                <span className={`text-sm font-bold transition-colors duration-300 font-(family-name:--font-doto) block ${
-                  i === active ? "text-slate-950" : "text-slate-700"
-                }`}>
+              <div className="min-w-0 flex-1">
+                <span
+                  className={`block font-(family-name:--font-doto) text-sm font-bold transition-colors duration-300 ${
+                    i === active ? "text-slate-950" : "text-slate-700"
+                  }`}
+                >
                   {feature.title}
                 </span>
                 {i === active && (
                   <motion.span
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
-                    className="text-xs text-slate-400 mt-0.5 block leading-snug"
+                    className="mt-0.5 block text-xs leading-snug text-slate-400"
                   >
                     {feature.description.slice(0, 60)}...
                   </motion.span>
                 )}
               </div>
               {i === active && (
-                <div className="h-1.5 w-14 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                <div className="h-1.5 w-14 shrink-0 overflow-hidden rounded-full bg-slate-200">
                   <motion.div
                     className="h-full rounded-full"
                     style={{ backgroundColor: feature.accent }}
