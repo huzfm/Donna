@@ -2,38 +2,53 @@
 
 import { useState, useEffect, useRef } from "react";
 
-const COUNT = 90;
-const ATTRACT_RADIUS = 180;
-const ATTRACT_FORCE = 0.8;
-const SPRING = 0.06;
-const DAMPING = 0.82;
-const MAX_DISPLACEMENT = 25;
+const COUNT = 100;
+const ATTRACT_RADIUS = 200;
+const ATTRACT_FORCE = 1.2;
+const SPRING = 0.045;
+const DAMPING = 0.84;
+const MAX_DISPLACEMENT = 35;
+const LINE_RADIUS = 160;
+
+interface ParticleState {
+  vx: number;
+  vy: number;
+  ox: number;
+  oy: number;
+  cx: number;
+  cy: number;
+  floatPhase: number;
+  floatSpeed: number;
+  floatAmp: number;
+}
 
 export default function TerminalField() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef({ x: -9999, y: -9999 });
+  const smoothMouseRef = useRef({ x: -9999, y: -9999 });
   const glowRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const rafRef = useRef<number>(0);
-  const stateRef = useRef<{ vx: number; vy: number; ox: number; oy: number; cx: number; cy: number }[]>([]);
-
+  const stateRef = useRef<ParticleState[]>([]);
   const [particles] = useState(() => {
     const glyphs = [
       ">_", "~/", "./", "$", "#", ">>", "|", "&&", "=>", "//",
       "{}", "[]", "()", "</>", "fn", "::", "++", "!=", "===", "**",
-      "0x", "...", ";", "/*", "*/", "->", "<<", "let", "if", ">>>"
+      "0x", "...", ";", "/*", "*/", "->", "<<", "let", "if", ">>>",
     ];
     const colors = [
-      "#059669", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed", "#0f172a",
+      "#059669", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed",
+      "#059669", "#0d9488", "#0891b2", "#0f172a", "#7c3aed",
     ];
     return Array.from({ length: COUNT }, (_, i) => {
       const col = Math.floor(i / 10);
       const row = i % 10;
       return {
-        x: (col * 11.1 + ((row % 2) * 5.5) + (((i * 7 + 3) % 11) * 0.45)) % 98 + 1,
-        y: (row * 10 + (((i * 13 + 5) % 9) * 0.9)) % 96 + 2,
+        x: (col * 10 + ((row % 2) * 5) + (((i * 7 + 3) % 11) * 0.4)) % 98 + 1,
+        y: (row * 10 + (((i * 13 + 5) % 9) * 0.8)) % 96 + 2,
         glyph: glyphs[i % glyphs.length],
         color: colors[i % colors.length],
-        fontSize: 10 + (i % 4) * 2,
+        fontSize: 10 + (i % 5) * 1.5,
       };
     });
   });
@@ -42,13 +57,22 @@ export default function TerminalField() {
   const initRef = useRef(false);
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
-    const onLeave = () => { mouseRef.current = { x: -9999, y: -9999 }; };
+    const onMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    };
+    const onLeave = () => {
+      mouseRef.current = { x: -9999, y: -9999 };
+    };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseleave", onLeave);
 
     if (!initRef.current) {
-      stateRef.current = particles.map((p) => ({ vx: 0, vy: 0, ox: p.x, oy: p.y, cx: 0, cy: 0 }));
+      stateRef.current = particles.map((p, i) => ({
+        vx: 0, vy: 0, ox: p.x, oy: p.y, cx: 0, cy: 0,
+        floatPhase: (i * 2.39) % (Math.PI * 2),
+        floatSpeed: 0.008 + (i % 7) * 0.003,
+        floatAmp: 1.5 + (i % 5) * 0.6,
+      }));
       initRef.current = true;
     }
 
@@ -57,10 +81,19 @@ export default function TerminalField() {
       const my = mouseRef.current.y;
       const box = containerRef.current;
 
+      const sm = smoothMouseRef.current;
+      if (mx > -9000) {
+        sm.x += (mx - sm.x) * 0.12;
+        sm.y += (my - sm.y) * 0.12;
+      } else {
+        sm.x = -9999;
+        sm.y = -9999;
+      }
+
       if (glowRef.current) {
-        if (mx > -9000) {
+        if (sm.x > -9000) {
           glowRef.current.style.opacity = "1";
-          glowRef.current.style.transform = `translate(${mx - 140}px, ${my - 140}px)`;
+          glowRef.current.style.transform = `translate(${sm.x - 160}px, ${sm.y - 160}px)`;
         } else {
           glowRef.current.style.opacity = "0";
         }
@@ -70,14 +103,20 @@ export default function TerminalField() {
       const cw = box.offsetWidth;
       const ch = box.offsetHeight;
 
+      const activePositions: { x: number; y: number; color: string; proximity: number }[] = [];
+
       stateRef.current.forEach((s, i) => {
         const el = elRefs.current[i];
         if (!el) return;
 
+        s.floatPhase += s.floatSpeed;
+        const floatX = Math.sin(s.floatPhase) * s.floatAmp;
+        const floatY = Math.cos(s.floatPhase * 0.7 + 1.2) * s.floatAmp * 0.6;
+
         const px = (s.ox / 100) * cw + s.cx;
         const py = (s.oy / 100) * ch + s.cy;
-        const dx = mx - px;
-        const dy = my - py;
+        const dx = sm.x - px;
+        const dy = sm.y - py;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < ATTRACT_RADIUS && dist > 1) {
@@ -102,15 +141,40 @@ export default function TerminalField() {
         }
 
         const proximity = dist < ATTRACT_RADIUS ? (1 - dist / ATTRACT_RADIUS) : 0;
-        const scale = 1 + proximity * 0.3;
-        const opacity = proximity * 0.35;
+        const scale = 1 + proximity * 0.5;
+        const opacity = proximity * 0.6;
         const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        const rotateAmount = proximity * 15;
+        const rotate = proximity * angle * 0.05;
 
-        el.style.transform = `translate(${s.cx}px, ${s.cy}px) scale(${scale}) rotate(${rotateAmount > 0 ? angle * 0.1 : 0}deg)`;
+        el.style.transform = `translate(${s.cx + floatX}px, ${s.cy + floatY}px) scale(${scale}) rotate(${rotate}deg)`;
         el.style.opacity = `${Math.min(opacity, 1)}`;
-        el.style.textShadow = proximity > 0.3 ? `0 0 ${proximity * 12}px ${particles[i].color}` : "none";
+
+        if (proximity > 0.2) {
+          el.style.textShadow = `0 0 ${proximity * 16}px ${particles[i].color}`;
+          el.style.color = particles[i].color;
+          activePositions.push({ x: px + s.cx, y: py + s.cy, color: particles[i].color, proximity });
+        } else {
+          el.style.textShadow = "none";
+        }
       });
+
+      if (svgRef.current) {
+        let lines = "";
+        for (let a = 0; a < activePositions.length; a++) {
+          for (let b = a + 1; b < activePositions.length; b++) {
+            const pa = activePositions[a];
+            const pb = activePositions[b];
+            const ddx = pa.x - pb.x;
+            const ddy = pa.y - pb.y;
+            const dd = Math.sqrt(ddx * ddx + ddy * ddy);
+            if (dd < LINE_RADIUS) {
+              const lineOpacity = (1 - dd / LINE_RADIUS) * Math.min(pa.proximity, pb.proximity) * 0.35;
+              lines += `<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${pa.color}" stroke-opacity="${lineOpacity}" stroke-width="0.8"/>`;
+            }
+          }
+        }
+        svgRef.current.innerHTML = lines;
+      }
 
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -125,13 +189,20 @@ export default function TerminalField() {
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
+      {/* Ambient glow */}
       <div
         ref={glowRef}
-        className="absolute w-[280px] h-[280px] rounded-full opacity-0 transition-opacity duration-300"
+        className="absolute w-[320px] h-[320px] rounded-full opacity-0"
         style={{
-          background: "radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.04) 40%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 35%, transparent 65%)",
+          transition: "opacity 0.4s ease",
         }}
       />
+
+      {/* Connection lines */}
+      <svg ref={svgRef} className="absolute inset-0 w-full h-full" />
+
+      {/* Glyphs */}
       {particles.map((p, i) => (
         <span
           key={i}
