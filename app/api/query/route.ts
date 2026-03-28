@@ -326,25 +326,25 @@ Answer:`;
       .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
       .join("\n\n---\n\n");
 
-    const prompt = `
-You are Donna, a knowledgeable AI assistant. Answer the user's question thoroughly and completely using the context below.
+    const prompt = `You are Donna. Answer the user's question using ONLY the document context below.
 
 RULES:
-- Use ALL relevant information from the context — do NOT truncate or cut short your answer.
-- If multiple sources provide related info, combine them into a complete answer.
-- Use markdown formatting: headers, bullet points, bold text, and code blocks where appropriate.
-- If the answer is genuinely not in the context, say "I don't have that information in your uploaded files."
-- Take conversation history into account for follow-up questions.
+- Include every relevant fact from the context that directly answers the question.
+- Do NOT add information not present in the context.
+- Do NOT repeat the same point more than once.
+- Do NOT pad with filler phrases like "Great question" or "Certainly".
+- Use markdown (bullet points, bold, headers) only when it genuinely improves clarity.
+- If the answer is not in the context, say exactly: "I don't have that information in your uploaded files."
+- For follow-up questions, use the conversation history to maintain context.
 
 ${historyBlock ? `## Conversation History\n${historyBlock}\n` : ""}
-
 ## Document Context
 ${context}
 
-## Current Question
+## Question
 ${question}
 
-## Answer (be thorough and complete):`;
+## Answer:`;
 
     const answer = await askGroq(prompt);
 
