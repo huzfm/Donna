@@ -1,32 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { BrandMark } from "@/components/brand/BrandLogo";
 
 export default function TypingIndicator() {
   return (
     <motion.div
+      layout
       className="flex gap-3"
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.2 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
     >
-      <div className="from-accent-light to-spark-light relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br">
-        <Sparkles size={15} className="text-spark" />
-      </div>
-      <div className="ai-bubble-gradient border-border/60 flex items-center gap-2 rounded-2xl rounded-bl-md border px-5 py-3.5">
-        <span className="text-spark mr-1 text-[10px] font-semibold tracking-wider uppercase">
+      <motion.div
+        className="relative shrink-0 shadow-sm shadow-emerald-500/10"
+        whileHover={{ scale: 1.05 }}
+        transition={{ type: "spring", stiffness: 400, damping: 22 }}
+      >
+        <BrandMark size="bubble" floating />
+      </motion.div>
+      <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-emerald-100/90 bg-linear-to-r from-white to-emerald-50/40 px-5 py-3.5 shadow-[0_2px_14px_-4px_rgba(16,185,129,0.12)] ring-1 ring-emerald-500/[0.06]">
+        <span className="mr-1 text-[10px] font-semibold tracking-wider text-emerald-700 uppercase">
           Thinking
         </span>
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="bg-spark h-1.5 w-1.5 rounded-full"
-            animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
+            className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+            animate={{ y: [0, -6, 0], opacity: [0.35, 1, 0.35] }}
             transition={{
-              delay: i * 0.15,
-              duration: 0.6,
+              delay: i * 0.12,
+              duration: 0.55,
               repeat: Infinity,
               ease: "easeInOut" as const,
             }}

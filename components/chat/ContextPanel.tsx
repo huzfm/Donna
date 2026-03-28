@@ -22,68 +22,72 @@ export default function ContextPanel({ files, onRemoveFile, onClose, isOpen }: C
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="border-border flex w-[300px] shrink-0 flex-col border-l bg-slate-950"
+          className="flex w-[300px] shrink-0 flex-col overflow-hidden border-l border-slate-200 bg-slate-50"
           initial={{ width: 0, opacity: 0 }}
           animate={{ width: 300, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" as const }}
+          transition={{ type: "spring", stiffness: 380, damping: 38 }}
         >
-          <div className="border-border flex items-center justify-between border-b px-5 py-4">
+          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
             <div>
-              <h3 className="text-primary text-sm font-semibold">Context Window</h3>
-              <p className="text-muted mt-0.5 text-[10px]">
+              <h3 className="font-(family-name:--font-doto) text-sm font-black text-slate-950">
+                Context
+              </h3>
+              <p className="mt-0.5 text-[10px] text-slate-500">
                 {files.length} document{files.length !== 1 ? "s" : ""} loaded
               </p>
             </div>
             <motion.button
               onClick={onClose}
-              className="hover:bg-surface-2 text-muted flex h-7 w-7 items-center justify-center rounded-lg"
-              whileTap={{ scale: 0.9 }}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              whileTap={{ scale: 0.92 }}
+              whileHover={{ rotate: 90 }}
             >
               <X size={14} />
             </motion.button>
           </div>
 
           <div className="flex-1 space-y-2 overflow-y-auto p-4">
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
               {files.map((file, i) => (
                 <motion.div
                   key={`${file.name}-${i}`}
+                  layout
                   className={`flex items-start gap-3 rounded-xl border p-3 transition-colors ${
                     file.status === "error"
-                      ? "border-destructive/20 bg-red-50/50"
+                      ? "border-red-200 bg-red-50"
                       : file.status === "uploading"
-                        ? "border-spark/20 bg-spark-light/50"
-                        : "border-border bg-surface/50 hover:bg-surface"
+                        ? "border-violet-200 bg-violet-50/80"
+                        : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
+                  initial={{ opacity: 0, x: 16, scale: 0.98 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -12, scale: 0.96 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 >
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
                       file.status === "uploading"
-                        ? "bg-spark-light"
+                        ? "bg-violet-100"
                         : file.status === "error"
-                          ? "bg-red-50"
-                          : "bg-accent-light"
+                          ? "bg-red-100"
+                          : "bg-emerald-100"
                     }`}
                   >
                     <FileText
                       size={14}
                       className={
                         file.status === "uploading"
-                          ? "text-spark"
+                          ? "text-violet-700"
                           : file.status === "error"
-                            ? "text-destructive"
-                            : "text-accent"
+                            ? "text-red-600"
+                            : "text-emerald-700"
                       }
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-primary truncate text-xs font-medium">{file.name}</p>
-                    <p className="text-muted text-[10px]">
+                    <p className="truncate text-xs font-medium text-slate-900">{file.name}</p>
+                    <p className="text-[10px] text-slate-500">
                       {file.status === "uploading"
                         ? "Processing..."
                         : file.status === "error"
@@ -91,9 +95,9 @@ export default function ContextPanel({ files, onRemoveFile, onClose, isOpen }: C
                           : `${(file.size / 1024).toFixed(1)} KB${file.chunks ? ` · ${file.chunks} chunks` : ""}`}
                     </p>
                     {file.status === "uploading" && (
-                      <div className="bg-surface-2 mt-1.5 h-1 overflow-hidden rounded-full">
+                      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-slate-200">
                         <motion.div
-                          className="bg-spark h-full rounded-full"
+                          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-emerald-500"
                           initial={{ width: "0%" }}
                           animate={{ width: "100%" }}
                           transition={{ duration: 3, ease: "easeInOut" as const }}
@@ -104,7 +108,7 @@ export default function ContextPanel({ files, onRemoveFile, onClose, isOpen }: C
                   {file.status === "ready" && (
                     <motion.button
                       onClick={() => onRemoveFile(i)}
-                      className="text-muted hover:text-destructive flex h-6 w-6 shrink-0 items-center justify-center rounded-md hover:bg-red-50"
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-600"
                       whileTap={{ scale: 0.85 }}
                     >
                       <Trash2 size={12} />
@@ -115,13 +119,18 @@ export default function ContextPanel({ files, onRemoveFile, onClose, isOpen }: C
             </AnimatePresence>
 
             {files.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="bg-surface-2 mb-3 flex h-12 w-12 items-center justify-center rounded-xl">
-                  <FileText size={20} className="text-muted" />
+              <motion.div
+                className="flex flex-col items-center justify-center py-12 text-center"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 28 }}
+              >
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white">
+                  <FileText size={20} className="text-slate-400" />
                 </div>
-                <p className="text-muted text-xs">No documents uploaded yet</p>
-                <p className="text-muted/60 mt-1 text-[10px]">Attach files to add context</p>
-              </div>
+                <p className="text-xs text-slate-600">No documents uploaded yet</p>
+                <p className="mt-1 text-[10px] text-slate-400">Attach files to add context</p>
+              </motion.div>
             )}
           </div>
         </motion.div>

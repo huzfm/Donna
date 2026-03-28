@@ -11,7 +11,6 @@ import {
   FaqSection,
   CtaSection,
   Footer,
-  TerminalField,
 } from "@/components/home";
 import { motion } from "framer-motion";
 
@@ -22,7 +21,7 @@ export default function HomePage() {
 
       {/* Full-page grid overlay   sits above content, below navbar */}
       <div className="pointer-events-none fixed inset-0 z-40">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.06)_1px,transparent_1px)] bg-size-[48px_48px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.04)_1px,transparent_1px)] bg-size-[48px_48px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-size-[240px_240px]" />
       </div>
 

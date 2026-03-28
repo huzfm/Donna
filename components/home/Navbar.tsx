@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -43,6 +43,15 @@ function NavAuthButton() {
 }
 
 export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 30);
+  });
+
   return (
     <div className="fixed top-0 right-0 left-0 z-50 flex justify-center px-4 pt-4">
       <motion.header
@@ -99,9 +108,50 @@ className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transit
             </a>
           </nav>
 
-          <NavAuthButton />
+          {/* Right side */}
+          <div className="flex items-center gap-2">
+            <NavAuthButton />
+
+            {/* Mobile toggle */}
+            <motion.button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-800 md:hidden"
+              whileTap={{ scale: 0.9 }}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            </motion.button>
+          </div>
         </div>
       </motion.header>
+
+      {/* Mobile dropdown */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.97 }}
+            transition={{ duration: 0.18 }}
+            className="absolute top-18 right-4 left-4 z-50 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 p-3 shadow-2xl backdrop-blur-xl md:hidden"
+          >
+            {NAV_LINKS.map((link) => {
+              const Tag = link.isRoute ? Link : "a";
+              return (
+                <Tag
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex w-full items-center rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-emerald-50 hover:text-emerald-800"
+                >
+                  {link.label}
+                </Tag>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
