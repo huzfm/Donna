@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 
 function NavAuthButton() {
@@ -90,19 +91,19 @@ export default function Navbar() {
           <nav className="hidden items-center gap-5 md:flex font-mono">
             <a
               href="#features"
-className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"            >
+              className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"            >
               Features
             </a>
             <a
               href="#how-it-works"
-className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"            >
+              className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"            >
               How it works
             </a>
-        
-         
+
+
             <a
               href="#"
-className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"
+              className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"
             >
               About
             </a>

@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 export default function HomePage() {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <TerminalField />
+      {/* <TerminalField /> */}
 
       {/* Full-page grid overlay   sits above content, below navbar */}
       <div className="pointer-events-none fixed inset-0 z-40">
