@@ -12,15 +12,25 @@
     "@cyber2024/pdf-parse-fixed": "^1.2.5",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.100.1",
+    "framer-motion": "^12.38.0",
     "groq-sdk": "^1.1.2",
+<<<<<<< HEAD
     "imapflow": "^1.2.18",
+=======
+    "lottie-react": "^2.4.1",
+    "lucide-react": "^1.7.0",
+>>>>>>> 06560cc9553af80130e6d269e8412f4539cee16e
     "mammoth": "^1.12.0",
     "next": "16.2.1",
     "openai": "^6.33.0",
     "pdf-parse": "^2.4.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+<<<<<<< HEAD
     "resend": "^6.9.4",
+=======
+    "recharts": "^3.8.1",
+>>>>>>> 06560cc9553af80130e6d269e8412f4539cee16e
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
