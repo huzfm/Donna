@@ -302,23 +302,18 @@ JSON:`;
     console.log("MATCHED CHUNKS:", data?.length ?? 0);
 
     if (!data || data.length === 0) {
-      // If no file context, fall back to a general LLM answer using conversation history
-      if (recentHistory.length > 0) {
-        const generalPrompt = `
-You are Donna, a helpful AI assistant. You have no uploaded documents to reference for this question.
-Answer based on general knowledge and the conversation history below.
+      const generalPrompt = `
+You are Donna, a helpful AI workspace assistant. The user hasn't uploaded any documents relevant to this question (or hasn't uploaded any files yet).
+
+Answer based on your general knowledge. Be helpful, concise, and accurate.
+If the question seems to be about a specific document, let them know they can upload files for better answers.
 
 ${historyBlock ? `Conversation history:\n${historyBlock}\n` : ""}
 User: ${question}
 
 Answer:`;
-        const answer = await askGroq(generalPrompt);
-        return Response.json({ answer });
-      }
-      return Response.json({
-        answer:
-          "I couldn't find anything relevant in your uploaded files. Try uploading a document first.",
-      });
+      const answer = await askGroq(generalPrompt);
+      return Response.json({ answer });
     }
 
     // Build context from matched chunks   include file name as a header
@@ -326,16 +321,15 @@ Answer:`;
       .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
       .join("\n\n---\n\n");
 
-    const prompt = `You are Donna. Answer the user's question using ONLY the document context below.
+    const prompt = `Answer the user's question using the document context below. Prioritize information from the documents, but you may supplement with general knowledge when helpful.
 
-RULES:
-- Include every relevant fact from the context that directly answers the question.
-- Do NOT add information not present in the context.
-- Do NOT repeat the same point more than once.
-- Do NOT pad with filler phrases like "Great question" or "Certainly".
-- Use markdown (bullet points, bold, headers) only when it genuinely improves clarity.
-- If the answer is not in the context, say exactly: "I don't have that information in your uploaded files."
-- For follow-up questions, use the conversation history to maintain context.
+Rules:
+- Include every relevant fact from the context that answers the question
+- Mention source file names when citing specific information (e.g. "According to report.pdf...")
+- Don't repeat the same point — be concise
+- Use markdown formatting when it improves readability
+- If the specific answer isn't in the documents, say so and offer what you can from general knowledge
+- Maintain conversation continuity using the history below
 
 ${historyBlock ? `## Conversation History\n${historyBlock}\n` : ""}
 ## Document Context
