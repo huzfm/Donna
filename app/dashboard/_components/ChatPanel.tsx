@@ -713,7 +713,7 @@ export default function ChatPanel({
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
-                      className="h-1.5 w-1.5 rounded-full bg-slate-1000"
+                      className="h-1.5 w-1.5 rounded-full bg-slate-900"
                       animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
                       transition={{ delay: i * 0.18, duration: 1, repeat: Infinity }}
                     />
