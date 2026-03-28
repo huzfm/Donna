@@ -6,8 +6,8 @@ import { askGroq } from "@/lib/groq";
 import { sendEmail } from "@/lib/email";
 import { getRecentEmails } from "@/lib/gmail";
 
-// Detect "send a mail / email" intent
-const EMAIL_INTENT = /send\s+(a\s+|an\s+)?e?mail/i;
+// Detect "send a mail / email" intent — also catches structured /email shortcuts
+const EMAIL_INTENT = /(send\s+(a\s+|an\s+)?e?mail|^send an email to)/i;
 
 // Detect "check inbox / read my emails / summarize emails" intent
 const GMAIL_INTENT = /(check|read|show|summarize|what.{0,20}in)\s+(my\s+)?(inbox|emails?|mails?|gmail)/i;

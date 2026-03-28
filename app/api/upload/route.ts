@@ -42,6 +42,37 @@ export async function GET() {
   }
 }
 
+// DELETE — remove a file (all its chunks) from the knowledge base
+export async function DELETE(req: Request) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { file_name } = await req.json();
+
+    if (!file_name || typeof file_name !== "string") {
+      return Response.json({ error: "file_name is required" }, { status: 400 });
+    }
+
+    const { error, count } = await supabase
+      .from("documents")
+      .delete({ count: "exact" })
+      .eq("user_id", user.id)
+      .eq("file_name", file_name);
+
+    if (error) throw new Error(error.message);
+
+    return Response.json({ success: true, deleted: count });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
