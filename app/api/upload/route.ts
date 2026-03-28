@@ -4,7 +4,7 @@ import { chunkText } from "@/lib/chunk";
 import { embed } from "@/lib/embed";
 import { createClient } from "@/lib/supabase-server";
 
-// GET — return the list of files this user has already uploaded
+// GET   return the list of files this user has already uploaded
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -42,7 +42,7 @@ export async function GET() {
   }
 }
 
-// DELETE — remove a file (all its chunks) from the knowledge base
+// DELETE   remove a file (all its chunks) from the knowledge base
 export async function DELETE(req: Request) {
   try {
     const supabase = await createClient();

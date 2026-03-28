@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { createClient } from "@/lib/supabase-server";
 
-// GET — load current user's settings
+// GET   load current user's settings
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -24,7 +24,7 @@ export async function GET() {
   }
 }
 
-// POST — save / update user's Gmail credentials
+// POST   save / update user's Gmail credentials
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();

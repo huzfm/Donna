@@ -65,7 +65,7 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
           {!isUser && (
             <div className="mb-1.5 flex items-center gap-1.5">
               <span className="text-spark text-[10px] font-semibold tracking-wider uppercase">
-                Donna AI
+                <span className="font-doto normal-case tracking-tight text-[11px]">Donna</span> AI
               </span>
               <div className="bg-spark/50 h-1 w-1 rounded-full" />
             </div>

@@ -14,7 +14,7 @@ import {
 /* ── Module-level Mermaid singleton ─────────────────────────────────────────
    Mermaid is imported and initialized ONCE for the lifetime of the page.
    Calling initialize() on every render() is what caused the first-render
-   race condition — the module loads async while parse/render already run.
+   race condition   the module loads async while parse/render already run.
 ── */
 type MermaidType = (typeof import("mermaid"))["default"];
 let mermaidSingleton: MermaidType | null = null;
@@ -111,7 +111,7 @@ function sanitize(raw: string): string {
         line = line.replace(/->>/g, "-->");
         line = line.replace(/==>>/g, "==>");
 
-        // 'end' reserved keyword — replace as arrow target
+        // 'end' reserved keyword   replace as arrow target
         line = line.replace(
           /(-->|==>|-.->)\s*end\b(\s*:[^\n]*)?/g,
           (_, arrow, label) => `${arrow} EndNode[End${label ? label.trim() : ""}]`
@@ -139,7 +139,7 @@ function sanitize(raw: string): string {
 /* ── Remove all Mermaid error divs Mermaid appended to <body> ──────────── */
 function cleanMermaidBodyArtifacts(renderId: string) {
   // Mermaid v10/v11 appends #d{renderId} to document.body during render
-  // On error it's never removed — we must do it ourselves
+  // On error it's never removed   we must do it ourselves
   try {
     const byId = document.getElementById(`d${renderId}`);
     byId?.remove();
@@ -155,14 +155,14 @@ function cleanMermaidBodyArtifacts(renderId: string) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MermaidDiagram — ALL hooks unconditionally before any early return
+   MermaidDiagram   ALL hooks unconditionally before any early return
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function MermaidDiagram({ chart }: { chart: string }) {
   /* ── 1. Pure computations (not hooks) ── */
   const rawChart = stripFences(chart);
   const valid = isValidMermaid(rawChart);
 
-  /* ── 2. ALL hooks — unconditional ── */
+  /* ── 2. ALL hooks   unconditional ── */
   const containerRef = useRef<HTMLDivElement>(null);
   const renderCount = useRef(0);
   const [error, setError] = useState<string | null>(null);
@@ -183,12 +183,12 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
     const renderId = `mermaid-${Date.now()}-${renderCount.current}`;
 
     try {
-      // Use the singleton — already initialized, no race condition
+      // Use the singleton   already initialized, no race condition
       const mermaid = await getMermaid();
 
       const clean = sanitize(rawChart);
 
-      // Pre-validate — throws immediately if syntax is wrong
+      // Pre-validate   throws immediately if syntax is wrong
       // without creating any DOM artifacts
       await mermaid.parse(clean);
 
@@ -217,7 +217,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chart]); // only chart — valid/rawChart are derived from it
+  }, [chart]); // only chart   valid/rawChart are derived from it
 
   useEffect(() => {
     render();
@@ -338,7 +338,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         </div>
       </div>
 
-      {/* Canvas — always mounted */}
+      {/* Canvas   always mounted */}
       <div
         className="relative overflow-auto"
         style={{ background: "hsl(240,10%,10%)", minHeight: error ? 0 : 120 }}
@@ -355,7 +355,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           </div>
         )}
 
-        {/* SVG target — always in DOM, hidden when errored */}
+        {/* SVG target   always in DOM, hidden when errored */}
         <div
           ref={containerRef}
           className="p-4"
@@ -367,7 +367,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         />
       </div>
 
-      {/* Collapsible error — compact, non-intrusive */}
+      {/* Collapsible error   compact, non-intrusive */}
       {error && (
         <div style={{ borderTop: "1px solid hsl(240,6%,20%)" }}>
           <button
@@ -379,7 +379,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           >
             <AlertTriangle size={12} />
             <span className="flex-1 text-[11px] font-medium">
-              Diagram syntax error — click to inspect
+              Diagram syntax error   click to inspect
             </span>
             {showErr ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           </button>

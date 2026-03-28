@@ -16,13 +16,13 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-[240px] shrink-0 flex-col border-r border-slate-800 bg-slate-950">
+    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-950">
       <div className="px-5 py-5">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15">
             <Brain size={16} className="text-emerald-400" />
           </div>
-          <span className="text-lg font-semibold tracking-tight text-white">Donna</span>
+          <span className="text-lg font-semibold tracking-tight text-white font-doto">Donna</span>
         </Link>
       </div>
 

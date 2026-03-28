@@ -32,26 +32,29 @@ export default function HeroSection() {
 
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-7 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-semibold text-slate-600 shadow-sm"
-          >
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Powered by Groq &amp; Hugging Face
-          </motion.div>
+        <motion.div
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="mb-6 flex justify-start"
+>
+  <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-xs text-gray-500 shadow-sm">
+    <span className="text-gray-400">Built with</span>
+    <span className="font-semibold font-mono text-orange-500">Groq</span>
+    <span className="text-gray-300">+</span>
+    <span className="font-semibold font-mono text-yellow-400">Hugging Face</span>
+  </div>
+</motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-6 font-(family-name:--font-doto) text-4xl leading-[1.08] font-black tracking-tight text-slate-950 md:text-5xl lg:text-[3.5rem]"
+            className="mb-6 font-(family-name:--font-doto) text-5xl leading-[1.08] font-black tracking-tight text-slate-950 md:text-6xl lg:text-[4.1rem]"
           >
-            Your AI-Powered
+            Your Perosnal
             <br />
-            <span className="bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
-              Workspace Brain
+            <span className=" text-black font-black">
+              AI Assistant
             </span>
           </motion.h1>
 
@@ -61,7 +64,7 @@ export default function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mb-9 max-w-md font-mono text-[15px] leading-relaxed text-slate-600 md:text-base"
           >
-            Upload documents, ask questions, manage emails — all in one intelligent workspace. Donna
+            Upload documents, ask questions, manage emails   all in one intelligent workspace. Donna
             understands your files and helps you work smarter.
           </motion.p>
 
@@ -73,7 +76,7 @@ export default function HeroSection() {
           >
             <Link
               href="/signup"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-mono font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
             >
               Get Started
               <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />

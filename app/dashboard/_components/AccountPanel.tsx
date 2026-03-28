@@ -32,7 +32,7 @@ export default function AccountPanel({
                 {email?.[0]?.toUpperCase() ?? "?"}
               </div>
               <div className="min-w-0">
-                <h3 className="truncate text-sm font-semibold text-neutral-900">{email ?? "—"}</h3>
+                <h3 className="truncate text-sm font-semibold text-neutral-900">{email ?? " "}</h3>
                 <p className="mt-0.5 text-xs text-neutral-400">
                   {createdAt
                     ? `Member since ${new Date(createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`
@@ -42,7 +42,7 @@ export default function AccountPanel({
             </div>
             <div className="space-y-2">
               {[
-                { label: "Email Address", value: email ?? "—" },
+                { label: "Email Address", value: email ?? " " },
                 { label: "Authentication", value: "Email / Password (Supabase)" },
                 ...(createdAt
                   ? [

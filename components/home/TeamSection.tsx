@@ -15,13 +15,13 @@ export default function TeamSection() {
           transition={{ duration: 0.5 }}
           className="mb-16 text-center"
         >
-          <span className="mb-3 block text-xs font-semibold tracking-widest text-emerald-600 uppercase">
+          <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
             The Team
           </span>
-          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-            Meet the <span className="text-emerald-600">builders</span>
+          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">
+            Meet the <span className="text-black">builders</span>
           </h2>
-          <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-slate-500">
+          <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">
             Two full-stack developers passionate about building AI-powered tools that make work
             easier.
           </p>
@@ -38,35 +38,35 @@ export default function TeamSection() {
               className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-300 hover:border-slate-400"
             >
               <div
-                className={`absolute top-0 right-0 left-0 h-1 bg-linear-to-r ${member.gradient}`}
+                className="absolute top-0 right-0 left-0 h-1 bg-black"
               />
 
               <div className="mb-6 flex items-start gap-5">
                 <div
-                  className={`h-16 w-16 rounded-2xl bg-linear-to-br ${member.gradient} flex shrink-0 items-center justify-center`}
+                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-900"
                 >
                   <span className="font-(family-name:--font-doto) text-2xl font-black text-white">
                     {member.initial}
                   </span>
                 </div>
                 <div className="pt-1">
-                  <h3 className="font-(family-name:--font-doto) text-xl font-black tracking-tight text-slate-950">
+                  <h3 className="font-(family-name:--font-doto) text-xl font-black tracking-tight text-black">
                     {member.name}
                   </h3>
                   <div className="mt-0.5 flex items-center gap-2">
                     <Code2 size={13} className="text-slate-400" />
-                    <span className="text-sm font-medium text-slate-500">{member.role}</span>
+                    <span className="font-mono text-sm font-medium text-slate-500">{member.role}</span>
                   </div>
                 </div>
               </div>
 
-              <p className="mb-6 text-sm leading-relaxed text-slate-500">{member.bio}</p>
+              <p className="mb-6 font-mono text-sm leading-relaxed text-slate-500">{member.bio}</p>
 
               <div className="flex flex-wrap gap-2">
                 {member.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-500 transition-colors group-hover:border-slate-300"
+                    className="rounded-full border border-slate-200 px-3 py-1 font-mono text-[11px] font-semibold text-slate-500 transition-colors group-hover:border-slate-300"
                   >
                     {skill}
                   </span>

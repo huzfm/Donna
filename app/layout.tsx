@@ -15,7 +15,7 @@ const doto = Doto({
 });
 
 export const metadata: Metadata = {
-  title: "Donna — Your AI-Powered Workspace",
+  title: "Donna   Your AI-Powered Workspace",
   description:
     "AI-powered workspace for email & meetings. Send emails, schedule meetings, and chat with your AI assistant.",
 };

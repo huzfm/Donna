@@ -51,7 +51,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /* ══════════════════════════════════════════════
-   Email Compose Modal — with AI Suggestions
+   Email Compose Modal   with AI Suggestions
 ══════════════════════════════════════════════ */
 interface EmailDraft {
   to: string;
@@ -153,7 +153,13 @@ function EmailComposeModal({
       const res = await fetch("/api/email-suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "improve_body", to: draft.to, subject: draft.subject, body: draft.body, tone }),
+        body: JSON.stringify({
+          type: "improve_body",
+          to: draft.to,
+          subject: draft.subject,
+          body: draft.body,
+          tone,
+        }),
       });
       const data = await res.json();
       if (data.result) {
@@ -249,10 +255,13 @@ function EmailComposeModal({
         style={{ borderBottom: "1px solid hsl(240,6%,16%)", background: "hsl(240,6%,12%)" }}
       >
         <Sparkles size={10} style={{ color: "#a78bfa", flexShrink: 0 }} />
-        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "hsl(240,5%,40%)" }}>
+        <span
+          className="text-[10px] font-semibold tracking-wider uppercase"
+          style={{ color: "hsl(240,5%,40%)" }}
+        >
           Tone
         </span>
-        <div className="flex gap-1.5 ml-1">
+        <div className="ml-1 flex gap-1.5">
           {TONES.map((t) => (
             <button
               key={t.id}
@@ -276,7 +285,10 @@ function EmailComposeModal({
         <div className="overflow-hidden rounded-xl" style={fieldStyle("to")}>
           <div className="flex items-center gap-2.5 px-4 py-2.5">
             <AtSign size={13} style={{ color: "hsl(240,5%,45%)", flexShrink: 0 }} />
-            <span className="w-12 shrink-0 text-[11px] font-medium" style={{ color: "hsl(240,5%,45%)" }}>
+            <span
+              className="w-12 shrink-0 text-[11px] font-medium"
+              style={{ color: "hsl(240,5%,45%)" }}
+            >
               To
             </span>
             <input
@@ -297,7 +309,10 @@ function EmailComposeModal({
         <div className="overflow-hidden rounded-xl" style={fieldStyle("subject")}>
           <div className="flex items-center gap-2.5 px-4 py-2.5">
             <AlignLeft size={13} style={{ color: "hsl(240,5%,45%)", flexShrink: 0 }} />
-            <span className="w-12 shrink-0 text-[11px] font-medium" style={{ color: "hsl(240,5%,45%)" }}>
+            <span
+              className="w-12 shrink-0 text-[11px] font-medium"
+              style={{ color: "hsl(240,5%,45%)" }}
+            >
               Subject
             </span>
             <input
@@ -324,7 +339,10 @@ function EmailComposeModal({
               }}
             >
               {suggestingSubject ? (
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
                   <Sparkles size={9} />
                 </motion.div>
               ) : (
@@ -343,8 +361,11 @@ function EmailComposeModal({
                 className="border-t px-4 py-2"
                 style={{ borderColor: "hsl(240,6%,18%)" }}
               >
-                <p className="mb-1.5 text-[9.5px] uppercase tracking-wider" style={{ color: "hsl(240,5%,38%)" }}>
-                  AI Suggestions — click to use
+                <p
+                  className="mb-1.5 text-[9.5px] tracking-wider uppercase"
+                  style={{ color: "hsl(240,5%,38%)" }}
+                >
+                  AI Suggestions   click to use
                 </p>
                 <div className="flex flex-col gap-1">
                   {subjectSuggestions.map((s, i) => (
@@ -355,7 +376,11 @@ function EmailComposeModal({
                         setSubjectSuggestions([]);
                       }}
                       className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] transition-all"
-                      style={{ background: "hsl(240,6%,15%)", color: "hsl(0,0%,80%)", border: "1px solid hsl(240,6%,19%)" }}
+                      style={{
+                        background: "hsl(240,6%,15%)",
+                        color: "hsl(0,0%,80%)",
+                        border: "1px solid hsl(240,6%,19%)",
+                      }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background = "hsl(240,6%,19%)";
                         e.currentTarget.style.borderColor = "#7c3aed44";
@@ -406,7 +431,10 @@ function EmailComposeModal({
               >
                 {improving ? (
                   <>
-                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                    >
                       <Sparkles size={9} />
                     </motion.div>
                     Improving…
@@ -428,7 +456,10 @@ function EmailComposeModal({
                 onChange={handle("body")}
                 onKeyDown={handleBodyKeyDown}
                 onFocus={() => setFocused("body")}
-                onBlur={() => { setFocused(null); setGhostText(""); }}
+                onBlur={() => {
+                  setFocused(null);
+                  setGhostText("");
+                }}
                 placeholder="Write your message here…"
                 rows={5}
                 className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed outline-none"
@@ -439,7 +470,7 @@ function EmailComposeModal({
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="pointer-events-none absolute bottom-0 right-0 left-0 text-[11px] leading-relaxed"
+                  className="pointer-events-none absolute right-0 bottom-0 left-0 text-[11px] leading-relaxed"
                   style={{ color: "hsl(240,5%,40%)" }}
                 >
                   <span className="italic">{ghostText}</span>
@@ -588,7 +619,7 @@ function SlashPopup({
                 onSelect(
                   hoveredCmd.trigger === "/email"
                     ? hoveredCmd.fill // open compose modal instead
-                    : s              // use the suggestion as-is — it IS the query
+                    : s // use the suggestion as-is   it IS the query
                 )
               }
               className="flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left transition-all"
@@ -613,8 +644,6 @@ function SlashPopup({
     </motion.div>
   );
 }
-
-
 
 /* ══════════════════════════════════════════════
    ChatPanel
@@ -666,8 +695,6 @@ export default function ChatPanel({
     }
   };
 
-
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -692,7 +719,7 @@ export default function ChatPanel({
           <span className="text-sm font-medium" style={{ color: "hsl(0,0%,70%)" }}>
             {fileCount > 0
               ? `${fileCount} file${fileCount !== 1 ? "s" : ""} in knowledge base`
-              : "Donna AI"}
+              : <><span className="font-(family-name:--font-doto) tracking-tight">Donna</span> AI</>}
           </span>
         </div>
         {messages.length > 0 && (
@@ -735,21 +762,19 @@ export default function ChatPanel({
                 <Sparkles size={28} className="text-white" />
               </motion.div>
               <h2 className="mb-2 text-2xl font-semibold" style={{ color: "hsl(0,0%,90%)" }}>
-                Hello! my name is Donna
+                Hello! my name is <span className="font-(family-name:--font-doto) tracking-tight">Donna</span>
               </h2>
               <p
                 className="mx-auto mb-10 max-w-sm text-sm leading-relaxed"
                 style={{ color: "hsl(240,5%,45%)" }}
               >
                 I am your personal AI Assitant
-               
               </p>
               <p
                 className="mx-auto mb-10 max-w-sm text-sm leading-relaxed"
                 style={{ color: "hsl(240,5%,45%)" }}
               >
                 How may i help you
-               
               </p>
             </motion.div>
           </div>
@@ -857,7 +882,7 @@ export default function ChatPanel({
             className="overflow-hidden rounded-2xl transition-all"
             style={{ background: "hsl(240,6%,13%)", border: "1px solid hsl(240,6%,20%)" }}
           >
-            {/* Row 1 — Textarea */}
+            {/* Row 1   Textarea */}
             <div className="px-4 pt-3.5 pb-2">
               <textarea
                 ref={textareaRef}
@@ -878,7 +903,7 @@ export default function ChatPanel({
               <style>{`textarea::placeholder { color: hsl(240,5%,36%); }`}</style>
             </div>
 
-            {/* Row 2 — Actions bar */}
+            {/* Row 2   Actions bar */}
             <div className="flex items-center justify-between px-3 pb-3">
               {/* Left: attach + command chips */}
               <div className="flex flex-wrap items-center gap-1.5">
@@ -910,7 +935,7 @@ export default function ChatPanel({
                 {/* Divider */}
                 <div className="mx-0.5 h-3.5 w-px" style={{ background: "hsl(240,6%,22%)" }} />
 
-                {/* Command chips — email opens modal, others fill input */}
+                {/* Command chips   email opens modal, others fill input */}
                 {SLASH_COMMANDS.map((cmd) => (
                   <button
                     key={cmd.trigger}

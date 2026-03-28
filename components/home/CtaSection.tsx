@@ -6,10 +6,10 @@ import { ArrowRight, Brain, FileText, Mail, Lock, Sparkles } from "lucide-react"
 
 export default function CtaSection() {
   const highlights = [
-    { icon: Brain, text: "AI chat powered by Groq — blazing fast responses" },
-    { icon: FileText, text: "Upload PDFs, Word, Excel — 10+ formats supported" },
-    { icon: Mail, text: "Gmail integration — read, draft & send from chat" },
-    { icon: Lock, text: "100% private — your data never leaves your workspace" },
+    { icon: Brain, text: "AI chat powered by Groq   blazing fast responses" },
+    { icon: FileText, text: "Upload PDFs, Word, Excel   10+ formats supported" },
+    { icon: Mail, text: "Gmail integration   read, draft & send from chat" },
+    { icon: Lock, text: "100% private   your data never leaves your workspace" },
   ];
 
   return (
@@ -22,7 +22,7 @@ export default function CtaSection() {
           transition={{ duration: 0.6 }}
           className="relative overflow-hidden rounded-3xl border border-slate-200"
         >
-          <div className="absolute top-0 right-0 left-0 h-1 bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+          <div className="absolute top-0 right-0 left-0 h-1 bg-black" />
 
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="flex flex-col justify-center p-10 md:p-14">
@@ -32,14 +32,14 @@ export default function CtaSection() {
                 viewport={{ once: true }}
                 transition={{ delay: 0.15, duration: 0.5 }}
               >
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50">
-                  <Sparkles size={22} className="text-emerald-600" />
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
+                  <Sparkles size={22} className="text-black" />
                 </div>
-                <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-                  Ready to work <span className="text-emerald-600">smarter?</span>
+                <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">
+                  Ready to work <span className="text-black">smarter?</span>
                 </h2>
-                <p className="mb-8 max-w-sm text-[15px] leading-relaxed text-slate-500">
-                  Join Donna and let AI handle the heavy lifting — from document analysis to email
+                <p className="mb-8 max-w-sm font-mono text-[15px] leading-relaxed text-slate-500">
+                  Join Donna and let AI handle the heavy lifting   from document analysis to email
                   management.
                 </p>
                 <div className="flex flex-col items-start gap-3 sm:flex-row">
@@ -85,10 +85,10 @@ export default function CtaSection() {
                       transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
                       className="flex items-start gap-3"
                     >
-                      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-50">
-                        <ItemIcon size={14} className="text-emerald-600" />
+                      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                        <ItemIcon size={14} className="text-black" />
                       </div>
-                      <span className="text-sm leading-relaxed text-slate-600">{item.text}</span>
+                      <span className="font-mono text-sm leading-relaxed text-slate-600">{item.text}</span>
                     </motion.div>
                   );
                 })}
