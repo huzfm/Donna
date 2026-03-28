@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Brain, ArrowLeft } from "lucide-react";
 
 export default function SignUpPage() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,6 +21,11 @@ export default function SignUpPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!fullName.trim()) {
+      setError("Please enter your name");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -37,6 +43,11 @@ export default function SignUpPage() {
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+          },
+        },
       });
       if (signUpError) throw signUpError;
       setSuccess(true);
@@ -92,6 +103,17 @@ export default function SignUpPage() {
           )}
 
           <form onSubmit={handleSignUp} className="flex flex-col gap-3.5">
+            <div>
+              <label className="block text-xs font-medium text-neutral-600 mb-1.5">Full name</label>
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="John Doe"
+                className="w-full px-3 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm outline-none focus:border-neutral-400 focus:ring-2 focus:ring-neutral-100 transition-all placeholder:text-neutral-300"
+              />
+            </div>
             <div>
               <label className="block text-xs font-medium text-neutral-600 mb-1.5">Email address</label>
               <input
