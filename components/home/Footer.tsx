@@ -16,7 +16,7 @@ export default function Footer() {
               <span className="text-sm font-bold">Donna</span>
             </div>
             <p className="text-xs leading-relaxed text-slate-500">
-              Your AI-powered workspace brain. Upload, ask, and automate.
+              Your personal AI assistant 
             </p>
           </div>
           <div>

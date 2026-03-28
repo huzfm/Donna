@@ -75,14 +75,18 @@ export default function TeamSection() {
 
               <div className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-5">
                 <a
-                  href="#"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
+                  href={member.github || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
                 >
                   <Code2 size={12} /> GitHub
                 </a>
                 <a
-                  href="#"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
+                  href={member.linkedin || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
                 >
                   <ExternalLink size={12} /> LinkedIn
                 </a>

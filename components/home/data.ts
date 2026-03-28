@@ -202,7 +202,9 @@ export const teamMembers = [
     bio: "Passionate about building seamless user experiences and scalable backend systems. Focused on AI integration and real-time features.",
     skills: ["React", "Next.js", "Node.js", "AI/ML"],
     gradient: "from-emerald-500 to-teal-500",
-    initial: "H",
+    initial: "Huz",
+    github: "https://github.com/huzfm",
+    linkedin: "https://linkedin.com/in/huzfm",
   },
   {
     name: "Faisal",
@@ -211,6 +213,8 @@ export const teamMembers = [
     skills: ["TypeScript", "Supabase", "Python", "DevOps"],
     gradient: "from-blue-500 to-indigo-500",
     initial: "Fab",
+    github: "https://github.com/fab-c14",
+    linkedin: "https://linkedin.com/in/fab-c14",
   },
 ];
 
