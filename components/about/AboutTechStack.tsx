@@ -20,13 +20,8 @@ export default function AboutTechStack() {
           <h2 className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
             Built on the <span className="text-slate-400">best stack</span>
           </h2>
-<<<<<<< HEAD
-          <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-slate-500">
-            Modern, fast, and reliable   every layer is chosen for performance and developer
-=======
           <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">
             Modern, fast, and reliable — every layer is chosen for performance and developer
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
             experience.
           </p>
         </motion.div>

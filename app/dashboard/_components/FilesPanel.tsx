@@ -272,11 +272,7 @@ function FilesPanel({
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
 
-<<<<<<< HEAD
-          {/* Stats row   only when files exist */}
-=======
           {/* Stats row */}
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
           {files.length > 0 && (
             <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
@@ -302,72 +298,19 @@ function FilesPanel({
           )}
 
           {/* Chart + Upload row */}
-<<<<<<< HEAD
-          <div className={`mb-6 grid gap-4 ${files.length > 0 && pieData.length > 0 ? "grid-cols-5" : "grid-cols-1"}`}>
-            {/* Pie chart   2/5 width */}
-            {files.length > 0 && pieData.length > 0 && (
-              <div className="col-span-2 flex flex-col rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
-=======
           <div className={`mb-6 grid gap-4 ${hasPie ? "grid-cols-1 md:grid-cols-5" : "grid-cols-1"}`}>
             {hasPie && (
               <div className="flex flex-col rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm md:col-span-2">
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
                 <p className="mb-3 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
                   File breakdown
                 </p>
                 <div className="flex-1">
-<<<<<<< HEAD
-                  <div className="mx-auto h-35 w-35">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={pieData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={36}
-                          outerRadius={58}
-                          paddingAngle={3}
-                          dataKey="value"
-                          strokeWidth={0}
-                        >
-                          {pieData.map((_, i) => (
-                            <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          contentStyle={{
-                            borderRadius: "12px",
-                            border: "1px solid #e2e8f0",
-                            fontSize: "12px",
-                            boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1.5">
-                  {pieData.map((d, i) => (
-                    <span key={d.name} className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700">
-                      <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
-                        style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
-                      />
-                      {d.name} · {d.value}
-                    </span>
-                  ))}
-=======
                   <PieChartSection pieData={pieData} />
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
                 </div>
               </div>
             )}
 
-<<<<<<< HEAD
-            {/* Upload drop zone   3/5 or full */}
-=======
             {/* Upload drop zone */}
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
             <label
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -431,11 +374,7 @@ function FilesPanel({
             </div>
           ) : files.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-<<<<<<< HEAD
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-300 bg-slate-100/80 ring-1 ring-slate-300/50">
-=======
               <div className="flex h-24 w-24 items-center justify-center rounded-[24px] bg-slate-50 text-slate-300 ring-2 ring-slate-100 sm:h-32 sm:w-32 sm:rounded-[32px]">
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
                 <FolderOpen size={26} className="text-black" />
               </div>
               <p className="font-(family-name:--font-doto) text-base font-black tracking-tight text-slate-900">
@@ -464,11 +403,7 @@ function FilesPanel({
                 )}
               </div>
 
-<<<<<<< HEAD
-              {/* File grid   cards instead of rows */}
-=======
               {/* File grid */}
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 <AnimatePresence>
                   {filteredFiles.map((f, i) => (

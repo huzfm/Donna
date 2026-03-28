@@ -6,15 +6,9 @@ import { X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const NAV_LINKS = [
-<<<<<<< HEAD
-  { label: "Features", href: "#features", isRoute: false },
-  { label: "How it works", href: "#how-it-works", isRoute: false },
-  { label: "About", href: "#", isRoute: false },
-=======
   { label: "Features", href: "#features" },
   { label: "How it works", href: "#how-it-works" },
   { label: "About", href: "/about", isRoute: true },
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
 ];
 
 function NavAuthButton() {
@@ -149,11 +143,7 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-<<<<<<< HEAD
-                  className="flex w-full items-center rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 hover:text-slate-900"
-=======
                   className="flex w-full items-center rounded-xl px-4 py-2.5 font-mono text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 hover:text-black"
->>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
                 >
                   {link.label}
                 </Tag>
