@@ -1041,8 +1041,8 @@ export default function HomePage() {
       </section>
 
       {/* ─── Tech Stack ─── */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-4xl mx-auto">
+      <section className="py-20 px-6 bg-white overflow-hidden">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1051,33 +1051,44 @@ export default function HomePage() {
             className="text-center mb-12"
           >
             <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">Powered By</span>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 font-(family-name:--font-doto)">
               Built on cutting-edge technology
             </h2>
           </motion.div>
+        </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { name: "Groq", desc: "LLM inference", icon: Zap },
-              { name: "Hugging Face", desc: "Embeddings", icon: Brain },
-              { name: "Supabase", desc: "Auth & database", icon: ShieldCheck },
-              { name: "Next.js", desc: "App framework", icon: Globe },
-            ].map((tech, i) => (
-              <motion.div
-                key={tech.name}
-                initial={{ opacity: 0, y: 16, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-                className="group rounded-xl border border-slate-200 bg-white p-5 text-center hover:border-slate-400 transition-all duration-300"
-              >
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-emerald-50 transition-colors">
-                  <tech.icon size={18} className="text-slate-400 group-hover:text-emerald-600 transition-colors" />
-                </div>
-                <div className="text-sm font-semibold mb-0.5 text-slate-900">{tech.name}</div>
-                <div className="text-[11px] text-slate-400">{tech.desc}</div>
-              </motion.div>
-            ))}
+        {/* Marquee track */}
+        <div className="relative">
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-linear-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-linear-to-l from-white to-transparent z-10 pointer-events-none" />
+
+          <div className="flex animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused] w-max gap-5">
+            {[...Array(3)].map((_, setIdx) =>
+              [
+                { name: "Groq", desc: "LLM inference", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
+                { name: "Hugging Face", desc: "Embeddings", icon: Brain, color: "text-emerald-600", bg: "bg-emerald-50" },
+                { name: "Supabase", desc: "Auth & database", icon: ShieldCheck, color: "text-blue-600", bg: "bg-blue-50" },
+                { name: "Next.js", desc: "App framework", icon: Globe, color: "text-slate-900", bg: "bg-slate-100" },
+                { name: "TypeScript", desc: "Type safety", icon: Code2, color: "text-blue-600", bg: "bg-blue-50" },
+                { name: "Tailwind CSS", desc: "Styling", icon: Sparkles, color: "text-cyan-600", bg: "bg-cyan-50" },
+              ].map((tech) => {
+                const TechIcon = tech.icon;
+                return (
+                  <div
+                    key={`${setIdx}-${tech.name}`}
+                    className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-4 shrink-0 hover:border-slate-400 transition-all duration-300"
+                  >
+                    <div className={`w-10 h-10 rounded-xl ${tech.bg} flex items-center justify-center shrink-0`}>
+                      <TechIcon size={18} className={tech.color} />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-sm font-bold text-slate-900 font-(family-name:--font-doto)">{tech.name}</div>
+                      <div className="text-[11px] text-slate-400">{tech.desc}</div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </section>
