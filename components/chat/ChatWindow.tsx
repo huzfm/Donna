@@ -1,12 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Send,
-  Paperclip,
-  Sparkles,
-  Layers,
-} from "lucide-react";
+import { Send, Paperclip, Sparkles, Layers } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
@@ -155,15 +150,15 @@ export default function ChatWindow({
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 relative">
+    <div className="relative flex min-w-0 flex-1 flex-col">
       {/* Subtle background mesh */}
-      <div className="absolute inset-0 chat-mesh pointer-events-none" />
+      <div className="chat-mesh pointer-events-none absolute inset-0" />
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 relative z-10">
+      <div className="relative z-10 flex-1 space-y-5 overflow-y-auto px-6 py-6">
         {!hasMessages && (
           <motion.div
-            className="flex-1 flex flex-col items-center justify-center py-16"
+            className="flex flex-1 flex-col items-center justify-center py-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -174,23 +169,25 @@ export default function ChatWindow({
               animate={{ rotate: [0, 5, -5, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" as const }}
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-spark-light via-white to-accent-light flex items-center justify-center border border-spark/10">
+              <div className="from-spark-light to-accent-light border-spark/10 flex h-16 w-16 items-center justify-center rounded-2xl border bg-gradient-to-br via-white">
                 <Sparkles size={28} className="text-spark" />
               </div>
               <motion.div
-                className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-spark"
+                className="bg-spark absolute -top-1 -right-1 h-3 w-3 rounded-full"
                 animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
               <motion.div
-                className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-accent"
+                className="bg-accent absolute -bottom-1 -left-1 h-2 w-2 rounded-full"
                 animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.8, 0.3] }}
                 transition={{ duration: 2.5, repeat: Infinity }}
               />
             </motion.div>
 
-            <h2 className="text-xl font-semibold text-primary mb-1">What can I help you with?</h2>
-            <p className="text-sm text-muted mb-8">Upload documents & ask anything, or try a feature below</p>
+            <h2 className="text-primary mb-1 text-xl font-semibold">What can I help you with?</h2>
+            <p className="text-muted mb-8 text-sm">
+              Upload documents & ask anything, or try a feature below
+            </p>
 
             <FeatureCards onSelectFeature={sendFeaturePrompt} />
           </motion.div>
@@ -212,8 +209,8 @@ export default function ChatWindow({
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-border px-6 py-4 bg-slate-950/80 backdrop-blur-sm relative z-10">
-        <div className="flex items-center gap-3 bg-surface/50 border border-border rounded-2xl px-4 py-3 focus-within:border-spark/40 focus-within:shadow-[0_0_0_3px_rgba(249,115,22,0.06)] transition-all">
+      <div className="border-border relative z-10 border-t bg-slate-950/80 px-6 py-4 backdrop-blur-sm">
+        <div className="bg-surface/50 border-border focus-within:border-spark/40 flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all focus-within:shadow-[0_0_0_3px_rgba(249,115,22,0.06)]">
           {/* File upload */}
           <motion.button
             onClick={() => fileInputRef.current?.click()}
@@ -243,14 +240,16 @@ export default function ChatWindow({
               }
             }}
             placeholder="Ask anything about your documents..."
-            className="flex-1 bg-transparent text-sm text-primary placeholder:text-muted outline-none"
+            className="text-primary placeholder:text-muted flex-1 bg-transparent text-sm outline-none"
           />
 
           {/* Context toggle */}
           <motion.button
             onClick={onToggleContext}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-              contextOpen ? "bg-spark-light text-spark" : "text-muted hover:text-secondary hover:bg-surface-2"
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+              contextOpen
+                ? "bg-spark-light text-spark"
+                : "text-muted hover:text-secondary hover:bg-surface-2"
             }`}
             whileTap={{ scale: 0.9 }}
           >
@@ -261,7 +260,7 @@ export default function ChatWindow({
           <motion.button
             onClick={sendMessage}
             disabled={!input.trim() || isTyping}
-            className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent-hover text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed shadow-sm shadow-accent/20"
+            className="from-accent to-accent-hover shadow-accent/20 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-30"
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.05 }}
           >
@@ -272,11 +271,14 @@ export default function ChatWindow({
         {/* File count hint */}
         {files.filter((f) => f.status === "ready").length > 0 && (
           <motion.p
-            className="text-[10px] text-muted mt-2 text-center"
+            className="text-muted mt-2 text-center text-[10px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <span className="text-spark font-medium">{files.filter((f) => f.status === "ready").length}</span> document{files.filter((f) => f.status === "ready").length !== 1 ? "s" : ""} in context
+            <span className="text-spark font-medium">
+              {files.filter((f) => f.status === "ready").length}
+            </span>{" "}
+            document{files.filter((f) => f.status === "ready").length !== 1 ? "s" : ""} in context
           </motion.p>
         )}
       </div>

@@ -2,18 +2,27 @@ import { Brain } from "lucide-react";
 
 export default function RootLoading() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center animate-pulse">
+          <div className="flex h-14 w-14 animate-pulse items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50">
             <Brain size={28} className="text-emerald-600" />
           </div>
-          <div className="absolute inset-0 rounded-2xl border-2 border-emerald-300 animate-ping opacity-30" />
+          <div className="absolute inset-0 animate-ping rounded-2xl border-2 border-emerald-300 opacity-30" />
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "0ms" }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "150ms" }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+          <div
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500"
+            style={{ animationDelay: "0ms" }}
+          />
+          <div
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500"
+            style={{ animationDelay: "150ms" }}
+          />
+          <div
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500"
+            style={{ animationDelay: "300ms" }}
+          />
         </div>
       </div>
     </div>

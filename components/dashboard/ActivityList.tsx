@@ -27,10 +27,10 @@ const statusMap: Record<string, { label: string; variant: "success" | "warning" 
 
 export default function ActivityList() {
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-base font-semibold text-primary">Recent Activity</h3>
-        <button className="text-sm text-accent hover:text-accent-hover transition-colors">
+    <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-sm">
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-primary text-base font-semibold">Recent Activity</h3>
+        <button className="text-accent hover:text-accent-hover text-sm transition-colors">
           View all
         </button>
       </div>
@@ -47,14 +47,16 @@ export default function ActivityList() {
             <motion.div
               key={i}
               variants={staggerItem}
-              className="flex items-center gap-4 rounded-lg px-3 py-3 hover:bg-surface transition-colors"
+              className="hover:bg-surface flex items-center gap-4 rounded-lg px-3 py-3 transition-colors"
             >
-              <div className="w-9 h-9 rounded-full bg-accent-light flex items-center justify-center text-accent font-medium text-sm shrink-0">
+              <div className="bg-accent-light text-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-medium">
                 {a.name[0]}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-primary truncate">{a.action}</p>
-                <p className="text-xs text-muted">{a.name} &middot; {a.time}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-primary truncate text-sm font-medium">{a.action}</p>
+                <p className="text-muted text-xs">
+                  {a.name} &middot; {a.time}
+                </p>
               </div>
               <Badge variant={s.variant}>{s.label}</Badge>
             </motion.div>

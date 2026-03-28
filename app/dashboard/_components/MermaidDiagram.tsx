@@ -2,8 +2,13 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import {
-  Download, RefreshCw, ZoomIn, ZoomOut,
-  AlertTriangle, ChevronDown, ChevronUp,
+  Download,
+  RefreshCw,
+  ZoomIn,
+  ZoomOut,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 /* ── Module-level Mermaid singleton ─────────────────────────────────────────
@@ -11,39 +16,39 @@ import {
    Calling initialize() on every render() is what caused the first-render
    race condition — the module loads async while parse/render already run.
 ── */
-type MermaidType = typeof import("mermaid")["default"];
+type MermaidType = (typeof import("mermaid"))["default"];
 let mermaidSingleton: MermaidType | null = null;
 let initPromise: Promise<MermaidType> | null = null;
 
 async function getMermaid(): Promise<MermaidType> {
   if (mermaidSingleton) return mermaidSingleton;
-  if (initPromise)      return initPromise;
+  if (initPromise) return initPromise;
 
   initPromise = (async () => {
     const mod = await import("mermaid");
-    const m   = mod.default;
+    const m = mod.default;
     m.initialize({
-      startOnLoad:            false,
+      startOnLoad: false,
       suppressErrorRendering: true,
-      theme:                  "dark",
+      theme: "dark",
       themeVariables: {
-        darkMode:            true,
-        background:          "hsl(240,10%,9%)",
-        primaryColor:        "#7c3aed",
-        primaryTextColor:    "hsl(0,0%,90%)",
-        primaryBorderColor:  "#7c3aed",
-        lineColor:           "hsl(240,5%,45%)",
-        secondaryColor:      "hsl(240,6%,16%)",
-        tertiaryColor:       "hsl(240,6%,13%)",
-        clusterBkg:          "hsl(240,6%,13%)",
-        titleColor:          "hsl(0,0%,90%)",
+        darkMode: true,
+        background: "hsl(240,10%,9%)",
+        primaryColor: "#7c3aed",
+        primaryTextColor: "hsl(0,0%,90%)",
+        primaryBorderColor: "#7c3aed",
+        lineColor: "hsl(240,5%,45%)",
+        secondaryColor: "hsl(240,6%,16%)",
+        tertiaryColor: "hsl(240,6%,13%)",
+        clusterBkg: "hsl(240,6%,13%)",
+        titleColor: "hsl(0,0%,90%)",
         edgeLabelBackground: "hsl(240,6%,16%)",
-        nodeTextColor:       "hsl(0,0%,85%)",
-        fontFamily:          "Inter, ui-sans-serif, system-ui, sans-serif",
-        fontSize:            "14px",
+        nodeTextColor: "hsl(0,0%,85%)",
+        fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+        fontSize: "14px",
       },
       flowchart: { curve: "basis", htmlLabels: true },
-      sequence:  { useMaxWidth: true },
+      sequence: { useMaxWidth: true },
     });
     mermaidSingleton = m;
     return m;
@@ -54,12 +59,28 @@ async function getMermaid(): Promise<MermaidType> {
 
 /* ── Known first-line diagram type keywords ─────────────────────────────── */
 const MERMAID_STARTERS = [
-  "flowchart ", "flowchart\n", "flowchart\t",
-  "graph ",     "graph\n",     "graph\t",
-  "sequencediagram", "erdiagram", "mindmap", "classdiagram",
-  "gantt", "pie", "gitgraph", "statediagram", "journey",
-  "quadrantchart", "requirementdiagram", "block",
-  "xychart", "sankey", "timeline", "zenuml",
+  "flowchart ",
+  "flowchart\n",
+  "flowchart\t",
+  "graph ",
+  "graph\n",
+  "graph\t",
+  "sequencediagram",
+  "erdiagram",
+  "mindmap",
+  "classdiagram",
+  "gantt",
+  "pie",
+  "gitgraph",
+  "statediagram",
+  "journey",
+  "quadrantchart",
+  "requirementdiagram",
+  "block",
+  "xychart",
+  "sankey",
+  "timeline",
+  "zenuml",
 ];
 
 function isValidMermaid(raw: string): boolean {
@@ -70,7 +91,10 @@ function isValidMermaid(raw: string): boolean {
 
 /* ── Strip fences the AI sometimes puts inside the block ────────────────── */
 function stripFences(raw: string): string {
-  return raw.replace(/```mermaid\s*/gi, "").replace(/```/g, "").trim();
+  return raw
+    .replace(/```mermaid\s*/gi, "")
+    .replace(/```/g, "")
+    .trim();
 }
 
 /* ── Fix common LLM Mermaid mistakes ────────────────────────────────────── */
@@ -84,7 +108,7 @@ function sanitize(raw: string): string {
       if (isFlow) {
         // Sequence arrows → flowchart arrows (must do -->> before ->>)
         line = line.replace(/-->>/g, "-->");
-        line = line.replace(/->>/g,  "-->");
+        line = line.replace(/->>/g, "-->");
         line = line.replace(/==>>/g, "==>");
 
         // 'end' reserved keyword — replace as arrow target
@@ -105,7 +129,7 @@ function sanitize(raw: string): string {
 
       // Strip **bold** and *italic* from node labels
       line = line.replace(/\*\*([^*\n]+)\*\*/g, "$1");
-      line = line.replace(/\*([^*\n]+)\*/g,     "$1");
+      line = line.replace(/\*([^*\n]+)\*/g, "$1");
 
       return line;
     })
@@ -134,21 +158,23 @@ function cleanMermaidBodyArtifacts(renderId: string) {
    MermaidDiagram — ALL hooks unconditionally before any early return
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function MermaidDiagram({ chart }: { chart: string }) {
-
   /* ── 1. Pure computations (not hooks) ── */
   const rawChart = stripFences(chart);
-  const valid    = isValidMermaid(rawChart);
+  const valid = isValidMermaid(rawChart);
 
   /* ── 2. ALL hooks — unconditional ── */
   const containerRef = useRef<HTMLDivElement>(null);
-  const renderCount  = useRef(0);
-  const [error,   setError]   = useState<string | null>(null);
-  const [loading, setLoading] = useState(valid);   // skip spinner if invalid
-  const [zoom,    setZoom]    = useState(1);
+  const renderCount = useRef(0);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(valid); // skip spinner if invalid
+  const [zoom, setZoom] = useState(1);
   const [showErr, setShowErr] = useState(false);
 
   const render = useCallback(async () => {
-    if (!valid) { setLoading(false); return; }
+    if (!valid) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -175,13 +201,13 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         containerRef.current.innerHTML = svg;
         const el = containerRef.current.querySelector("svg");
         if (el) {
-          el.style.width    = "100%";
-          el.style.height   = "auto";
+          el.style.width = "100%";
+          el.style.height = "auto";
           el.style.maxWidth = "100%";
         }
       }
     } catch (err) {
-      cleanMermaidBodyArtifacts(renderId);   // clean up even on failure
+      cleanMermaidBodyArtifacts(renderId); // clean up even on failure
       const raw = err instanceof Error ? err.message : String(err);
       // Strip the "mermaid version X.Y.Z\n" prefix Mermaid prepends to errors
       const clean = raw.replace(/mermaid version[\s\S]*?(\n|$)/, "").trim();
@@ -190,8 +216,8 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chart]);   // only chart — valid/rawChart are derived from it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chart]); // only chart — valid/rawChart are derived from it
 
   useEffect(() => {
     render();
@@ -204,13 +230,10 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
   const handleDownload = () => {
     const el = containerRef.current?.querySelector("svg");
     if (!el) return;
-    const blob = new Blob(
-      [new XMLSerializer().serializeToString(el)],
-      { type: "image/svg+xml" }
-    );
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href     = url;
+    const blob = new Blob([new XMLSerializer().serializeToString(el)], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
     a.download = "diagram.svg";
     a.click();
     URL.revokeObjectURL(url);
@@ -218,56 +241,100 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
   /* ── 5. Render ── */
   return (
-    <div className="my-4 rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(240,6%,20%)" }}>
-
+    <div
+      className="my-4 overflow-hidden rounded-2xl"
+      style={{ border: "1px solid hsl(240,6%,20%)" }}
+    >
       {/* Toolbar */}
       <div
         className="flex items-center justify-between px-4 py-2.5"
         style={{ background: "hsl(240,6%,14%)", borderBottom: "1px solid hsl(240,6%,20%)" }}
       >
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ background: "#7c3aed" }} />
-          <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "hsl(240,5%,45%)" }}>
+          <div className="h-2 w-2 rounded-full" style={{ background: "#7c3aed" }} />
+          <span
+            className="text-[11px] font-medium tracking-wider uppercase"
+            style={{ color: "hsl(240,5%,45%)" }}
+          >
             Diagram
           </span>
         </div>
 
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setZoom(z => Math.max(0.3, +(z - 0.2).toFixed(1)))}
-            className="p-1.5 rounded-lg transition-all" style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={e => { e.currentTarget.style.color = "hsl(0,0%,80%)"; e.currentTarget.style.background = "hsl(240,6%,20%)"; }}
-            onMouseLeave={e => { e.currentTarget.style.color = "hsl(240,5%,45%)"; e.currentTarget.style.background = "transparent"; }}
+            onClick={() => setZoom((z) => Math.max(0.3, +(z - 0.2).toFixed(1)))}
+            className="rounded-lg p-1.5 transition-all"
+            style={{ color: "hsl(240,5%,45%)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "hsl(0,0%,80%)";
+              e.currentTarget.style.background = "hsl(240,6%,20%)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "hsl(240,5%,45%)";
+              e.currentTarget.style.background = "transparent";
+            }}
             title="Zoom out"
-          ><ZoomOut size={13} /></button>
+          >
+            <ZoomOut size={13} />
+          </button>
 
-          <span className="text-[10px] px-1 min-w-[36px] text-center" style={{ color: "hsl(240,5%,45%)" }}>
+          <span
+            className="min-w-[36px] px-1 text-center text-[10px]"
+            style={{ color: "hsl(240,5%,45%)" }}
+          >
             {Math.round(zoom * 100)}%
           </span>
 
           <button
-            onClick={() => setZoom(z => Math.min(3, +(z + 0.2).toFixed(1)))}
-            className="p-1.5 rounded-lg transition-all" style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={e => { e.currentTarget.style.color = "hsl(0,0%,80%)"; e.currentTarget.style.background = "hsl(240,6%,20%)"; }}
-            onMouseLeave={e => { e.currentTarget.style.color = "hsl(240,5%,45%)"; e.currentTarget.style.background = "transparent"; }}
+            onClick={() => setZoom((z) => Math.min(3, +(z + 0.2).toFixed(1)))}
+            className="rounded-lg p-1.5 transition-all"
+            style={{ color: "hsl(240,5%,45%)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "hsl(0,0%,80%)";
+              e.currentTarget.style.background = "hsl(240,6%,20%)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "hsl(240,5%,45%)";
+              e.currentTarget.style.background = "transparent";
+            }}
             title="Zoom in"
-          ><ZoomIn size={13} /></button>
+          >
+            <ZoomIn size={13} />
+          </button>
 
           <button
             onClick={render}
-            className="p-1.5 rounded-lg transition-all ml-1" style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={e => { e.currentTarget.style.color = "hsl(0,0%,80%)"; e.currentTarget.style.background = "hsl(240,6%,20%)"; }}
-            onMouseLeave={e => { e.currentTarget.style.color = "hsl(240,5%,45%)"; e.currentTarget.style.background = "transparent"; }}
+            className="ml-1 rounded-lg p-1.5 transition-all"
+            style={{ color: "hsl(240,5%,45%)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "hsl(0,0%,80%)";
+              e.currentTarget.style.background = "hsl(240,6%,20%)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "hsl(240,5%,45%)";
+              e.currentTarget.style.background = "transparent";
+            }}
             title="Re-render"
-          ><RefreshCw size={13} className={loading ? "animate-spin" : ""} /></button>
+          >
+            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+          </button>
 
           <button
             onClick={handleDownload}
-            className="p-1.5 rounded-lg transition-all" style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={e => { e.currentTarget.style.color = "hsl(0,0%,80%)"; e.currentTarget.style.background = "hsl(240,6%,20%)"; }}
-            onMouseLeave={e => { e.currentTarget.style.color = "hsl(240,5%,45%)"; e.currentTarget.style.background = "transparent"; }}
+            className="rounded-lg p-1.5 transition-all"
+            style={{ color: "hsl(240,5%,45%)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "hsl(0,0%,80%)";
+              e.currentTarget.style.background = "hsl(240,6%,20%)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "hsl(240,5%,45%)";
+              e.currentTarget.style.background = "transparent";
+            }}
             title="Download SVG"
-          ><Download size={13} /></button>
+          >
+            <Download size={13} />
+          </button>
         </div>
       </div>
 
@@ -293,9 +360,9 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           ref={containerRef}
           className="p-4"
           style={{
-            transform:       `scale(${zoom})`,
+            transform: `scale(${zoom})`,
             transformOrigin: "center top",
-            display:         error ? "none" : "block",
+            display: error ? "none" : "block",
           }}
         />
       </div>
@@ -304,22 +371,30 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
       {error && (
         <div style={{ borderTop: "1px solid hsl(240,6%,20%)" }}>
           <button
-            onClick={() => setShowErr(v => !v)}
-            className="w-full flex items-center gap-2 px-4 py-2 text-left transition-all"
+            onClick={() => setShowErr((v) => !v)}
+            className="flex w-full items-center gap-2 px-4 py-2 text-left transition-all"
             style={{ background: "hsl(240,6%,13%)", color: "hsl(30,90%,60%)" }}
-            onMouseEnter={e => (e.currentTarget.style.background = "hsl(240,6%,16%)")}
-            onMouseLeave={e => (e.currentTarget.style.background = "hsl(240,6%,13%)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(240,6%,16%)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "hsl(240,6%,13%)")}
           >
             <AlertTriangle size={12} />
-            <span className="text-[11px] font-medium flex-1">Diagram syntax error — click to inspect</span>
+            <span className="flex-1 text-[11px] font-medium">
+              Diagram syntax error — click to inspect
+            </span>
             {showErr ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           </button>
           {showErr && (
             <div className="px-4 py-3" style={{ background: "hsl(240,6%,11%)" }}>
-              <pre className="text-[11px] leading-relaxed whitespace-pre-wrap mb-3" style={{ color: "hsl(0,0%,50%)" }}>
+              <pre
+                className="mb-3 text-[11px] leading-relaxed whitespace-pre-wrap"
+                style={{ color: "hsl(0,0%,50%)" }}
+              >
                 {error}
               </pre>
-              <pre className="text-[11px] px-3 py-2 rounded-lg overflow-x-auto" style={{ background: "hsl(240,6%,14%)", color: "hsl(240,5%,50%)" }}>
+              <pre
+                className="overflow-x-auto rounded-lg px-3 py-2 text-[11px]"
+                style={{ background: "hsl(240,6%,14%)", color: "hsl(240,5%,50%)" }}
+              >
                 {rawChart}
               </pre>
             </div>

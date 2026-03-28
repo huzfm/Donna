@@ -7,7 +7,7 @@ import DashboardDemo from "./DashboardDemo";
 
 export default function HeroSection() {
   return (
-    <section className="relative bg-white pt-32 md:pt-40 pb-24 px-6">
+    <section className="relative bg-white px-6 pt-32 pb-24 md:pt-40">
       <div className="lightning-grid">
         <div className="lightning-grid-lines" />
         <div className="lightning-pulse-h" style={{ top: "25%", animationDelay: "0s" }} />
@@ -16,20 +16,29 @@ export default function HeroSection() {
         <div className="lightning-pulse-v" style={{ left: "20%", animationDelay: "0.5s" }} />
         <div className="lightning-pulse-v" style={{ left: "50%", animationDelay: "2s" }} />
         <div className="lightning-pulse-v" style={{ left: "80%", animationDelay: "3.5s" }} />
-        <div className="lightning-flash" style={{ top: "30%", left: "25%", animationDelay: "0s" }} />
-        <div className="lightning-flash" style={{ top: "60%", left: "70%", animationDelay: "1.5s" }} />
-        <div className="lightning-flash" style={{ top: "20%", left: "60%", animationDelay: "2.5s" }} />
+        <div
+          className="lightning-flash"
+          style={{ top: "30%", left: "25%", animationDelay: "0s" }}
+        />
+        <div
+          className="lightning-flash"
+          style={{ top: "60%", left: "70%", animationDelay: "1.5s" }}
+        />
+        <div
+          className="lightning-flash"
+          style={{ top: "20%", left: "60%", animationDelay: "2.5s" }}
+        />
       </div>
 
-      <div className="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-slate-200 bg-white text-xs text-slate-600 font-semibold mb-7 shadow-sm"
+            className="mb-7 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-semibold text-slate-600 shadow-sm"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
             Powered by Groq &amp; Hugging Face
           </motion.div>
 
@@ -37,7 +46,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-(family-name:--font-doto) text-4xl md:text-5xl lg:text-[3.5rem] font-black tracking-tight leading-[1.08] mb-6 text-slate-950"
+            className="mb-6 font-(family-name:--font-doto) text-4xl leading-[1.08] font-black tracking-tight text-slate-950 md:text-5xl lg:text-[3.5rem]"
           >
             Your AI-Powered
             <br />
@@ -50,25 +59,24 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="font-mono text-[15px] md:text-base text-slate-600 max-w-md mb-9 leading-relaxed"
+            className="mb-9 max-w-md font-mono text-[15px] leading-relaxed text-slate-600 md:text-base"
           >
-            Upload documents, ask questions, manage emails — all in one
-            intelligent workspace. Donna understands your files and helps you
-            work smarter.
+            Upload documents, ask questions, manage emails — all in one intelligent workspace. Donna
+            understands your files and helps you work smarter.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-3"
+            className="flex flex-col gap-3 sm:flex-row"
           >
             <Link
               href="/signup"
-              className="group inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full font-semibold transition-all text-sm hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
             >
               Get Started
-              <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </motion.div>
         </div>

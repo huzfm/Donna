@@ -6,11 +6,7 @@ interface BadgeProps {
   className?: string;
 }
 
-export default function Badge({
-  children,
-  variant = "default",
-  className = "",
-}: BadgeProps) {
+export default function Badge({ children, variant = "default", className = "" }: BadgeProps) {
   const variants: Record<string, string> = {
     default: "bg-surface-2 text-secondary",
     success: "bg-accent-light text-accent",

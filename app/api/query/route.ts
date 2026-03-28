@@ -10,30 +10,39 @@ import { getRecentEmails } from "@/lib/gmail";
 const EMAIL_INTENT = /(send\s+(a\s+|an\s+)?e?mail|^send an email to)/i;
 
 // Detect "check inbox / read my emails / summarize emails" intent
-const GMAIL_INTENT = /(check|read|show|summarize|what.{0,20}in)\s+(my\s+)?(inbox|emails?|mails?|gmail)/i;
+const GMAIL_INTENT =
+  /(check|read|show|summarize|what.{0,20}in)\s+(my\s+)?(inbox|emails?|mails?|gmail)/i;
 
 // Detect diagram generation intent — fires on any single diagram-related keyword
 // so phrases like "give me a diagram for X file" are caught correctly
-const DIAGRAM_INTENT = /\b(draw|generate|create|make|show|visualize|diagram|flowchart|flow\s+chart|sequence\s+diagram|er\s+diagram|mindmap|mind\s+map|class\s+diagram|gantt|pie\s+chart|graph|chart)\b/i;
+const DIAGRAM_INTENT =
+  /\b(draw|generate|create|make|show|visualize|diagram|flowchart|flow\s+chart|sequence\s+diagram|er\s+diagram|mindmap|mind\s+map|class\s+diagram|gantt|pie\s+chart|graph|chart)\b/i;
 
 // Detect when the user wants a diagram FROM their uploaded/personal files
 // e.g. "diagram for my files", "visualize my uploaded data", "chart from huzfm.xlsx"
-const FILE_DIAGRAM_INTENT = /(diagram|flowchart|chart|visualize|graph).{0,40}(file|upload|document|data|my\s+data|personal|stored|excel|xlsx|csv|pdf|doc)/i;
+const FILE_DIAGRAM_INTENT =
+  /(diagram|flowchart|chart|visualize|graph).{0,40}(file|upload|document|data|my\s+data|personal|stored|excel|xlsx|csv|pdf|doc)/i;
 
 // Conversation turn shape coming from the frontend
-interface HistoryMessage { role: "user" | "assistant"; content: string; }
+interface HistoryMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Accept optional conversation history from the frontend
-    const { question, history = [] }: { question: string; history?: HistoryMessage[] } = await req.json();
+    const { question, history = [] }: { question: string; history?: HistoryMessage[] } =
+      await req.json();
 
     if (!question) {
       return Response.json({ error: "No question provided" }, { status: 400 });
@@ -41,9 +50,12 @@ export async function POST(req: Request) {
 
     // Build a readable history block for the prompt (last 10 turns max to stay within token limits)
     const recentHistory: HistoryMessage[] = history.slice(-10);
-    const historyBlock = recentHistory.length > 0
-      ? recentHistory.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n")
-      : "";
+    const historyBlock =
+      recentHistory.length > 0
+        ? recentHistory
+            .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
+            .join("\n")
+        : "";
 
     // ==============================
     // 📊 DIAGRAM / MERMAID INTENT
@@ -66,7 +78,10 @@ export async function POST(req: Request) {
 
           if (allChunks && allChunks.length > 0) {
             ragContext = allChunks
-              .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
+              .map(
+                (d: { content: string; file_name: string }) =>
+                  `[Source: ${d.file_name}]\n${d.content}`
+              )
               .join("\n\n---\n\n");
           }
         } else {
@@ -83,7 +98,10 @@ export async function POST(req: Request) {
 
           if (ragData && ragData.length > 0) {
             ragContext = ragData
-              .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
+              .map(
+                (d: { content: string; file_name: string }) =>
+                  `[Source: ${d.file_name}]\n${d.content}`
+              )
               .join("\n\n---\n\n");
           }
         }
@@ -159,21 +177,14 @@ flowchart TD
           });
         }
 
-        const emails = await getRecentEmails(
-          settings.gmail_user,
-          settings.gmail_app_password,
-          15
-        );
+        const emails = await getRecentEmails(settings.gmail_user, settings.gmail_app_password, 15);
 
         if (emails.length === 0) {
           return Response.json({ answer: "📭 Your inbox appears to be empty." });
         }
 
         const emailList = emails
-          .map(
-            (e, i) =>
-              `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`
-          )
+          .map((e, i) => `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`)
           .join("\n\n");
 
         const prompt = `
@@ -298,15 +309,14 @@ Answer:`;
         return Response.json({ answer });
       }
       return Response.json({
-        answer: "I couldn't find anything relevant in your uploaded files. Try uploading a document first.",
+        answer:
+          "I couldn't find anything relevant in your uploaded files. Try uploading a document first.",
       });
     }
 
     // Build context from matched chunks — include file name as a header
     const context = data
-      .map((d: { content: string; file_name: string }) =>
-        `[Source: ${d.file_name}]\n${d.content}`
-      )
+      .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
       .join("\n\n---\n\n");
 
     const prompt = `
@@ -332,7 +342,6 @@ ${question}
     const answer = await askGroq(prompt);
 
     return Response.json({ answer });
-
   } catch (e: unknown) {
     console.error("QUERY ERROR:", e);
     const message = e instanceof Error ? e.message : "Unknown error";

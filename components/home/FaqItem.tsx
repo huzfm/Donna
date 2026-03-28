@@ -22,20 +22,32 @@ export default function FaqItem({ question, answer, index, icon: Icon }: FaqItem
     >
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center gap-4 rounded-2xl border bg-white px-6 py-5 text-left transition-all duration-300 ${
+        className={`flex w-full items-center gap-4 rounded-2xl border bg-white px-6 py-5 text-left transition-all duration-300 ${
           open ? "border-emerald-300" : "border-slate-200 hover:border-slate-400"
         }`}
       >
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300 ${
-          open ? "bg-emerald-50" : "bg-slate-100"
-        }`}>
-          <Icon size={16} className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`} />
+        <div
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-300 ${
+            open ? "bg-emerald-50" : "bg-slate-100"
+          }`}
+        >
+          <Icon
+            size={16}
+            className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`}
+          />
         </div>
-        <span className="flex-1 text-sm font-bold leading-snug text-slate-950 font-(family-name:--font-doto)">{question}</span>
-        <div className={`w-7 h-7 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300 ${
-          open ? "border-emerald-300 bg-emerald-50 rotate-180" : "border-slate-200"
-        }`}>
-          <ChevronDown size={14} className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`} />
+        <span className="flex-1 font-(family-name:--font-doto) text-sm leading-snug font-bold text-slate-950">
+          {question}
+        </span>
+        <div
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
+            open ? "rotate-180 border-emerald-300 bg-emerald-50" : "border-slate-200"
+          }`}
+        >
+          <ChevronDown
+            size={14}
+            className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`}
+          />
         </div>
       </button>
       <AnimatePresence>
@@ -47,7 +59,9 @@ export default function FaqItem({ question, answer, index, icon: Icon }: FaqItem
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="pl-19 pr-6 pt-2 pb-5 text-sm text-slate-500 leading-relaxed">{answer}</div>
+            <div className="pt-2 pr-6 pb-5 pl-19 text-sm leading-relaxed text-slate-500">
+              {answer}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -61,7 +61,7 @@ interface FeatureCardsProps {
 export default function FeatureCards({ onSelectFeature }: FeatureCardsProps) {
   return (
     <motion.div
-      className="grid grid-cols-2 gap-3 max-w-lg mx-auto"
+      className="mx-auto grid max-w-lg grid-cols-2 gap-3"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -71,16 +71,16 @@ export default function FeatureCards({ onSelectFeature }: FeatureCardsProps) {
           key={feature.id}
           variants={staggerItem}
           onClick={() => onSelectFeature(feature.prompt)}
-          className="group flex flex-col items-start gap-3 p-4 rounded-xl border border-border bg-slate-900 hover:border-accent/30 card-glow text-left transition-all"
+          className="group border-border hover:border-accent/30 card-glow flex flex-col items-start gap-3 rounded-xl border bg-slate-900 p-4 text-left transition-all"
           whileHover={{ y: -3, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.97 }}
         >
-          <div className={`w-9 h-9 rounded-lg ${feature.bgClass} flex items-center justify-center`}>
+          <div className={`h-9 w-9 rounded-lg ${feature.bgClass} flex items-center justify-center`}>
             <feature.icon size={16} className={feature.accentClass} />
           </div>
           <div>
-            <p className="text-sm font-medium text-primary">{feature.label}</p>
-            <p className="text-[11px] text-muted mt-0.5 leading-relaxed">{feature.description}</p>
+            <p className="text-primary text-sm font-medium">{feature.label}</p>
+            <p className="text-muted mt-0.5 text-[11px] leading-relaxed">{feature.description}</p>
           </div>
         </motion.button>
       ))}

@@ -21,18 +21,14 @@ export default function Input({
 }: InputProps) {
   return (
     <div className="relative">
-      {icon && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
-          {icon}
-        </div>
-      )}
+      {icon && <div className="text-muted absolute top-1/2 left-3 -translate-y-1/2">{icon}</div>}
       <input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown}
-        className={`w-full border border-slate-700 rounded-lg bg-slate-950 px-4 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all ${icon ? "pl-10" : ""} ${className}`}
+        className={`text-primary placeholder:text-muted focus:ring-accent/20 focus:border-accent w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm transition-all focus:ring-2 focus:outline-none ${icon ? "pl-10" : ""} ${className}`}
       />
     </div>
   );
