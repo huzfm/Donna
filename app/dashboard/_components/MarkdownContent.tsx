@@ -2,8 +2,10 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useState } from "react";
-import { Copy, Check } from "lucide-react";
+import { useState, lazy, Suspense } from "react";
+import { Copy, Check, RefreshCw } from "lucide-react";
+
+const MermaidDiagram = lazy(() => import("./MermaidDiagram"));
 
 /* ── Code block with copy ── */
 function CodeBlock({ children, className }: { children?: React.ReactNode; className?: string }) {
@@ -135,10 +137,27 @@ export default function MarkdownContent({ content }: { content: string }) {
         ),
 
         code: ({ className, children, ...props }) => {
-          const isBlock = className?.startsWith("language-");
+          const language = (className ?? "").replace("language-", "");
+          const code = String(children ?? "").replace(/\n$/, "");
+
+          // ── Mermaid: render as diagram ──
+          if (language === "mermaid") {
+            return (
+              <Suspense fallback={
+                <div className="my-4 flex items-center gap-2 px-4 py-6 rounded-2xl" style={{ background: "hsl(240,6%,13%)", border: "1px solid hsl(240,6%,20%)" }}>
+                  <RefreshCw size={14} className="animate-spin" style={{ color: "hsl(240,5%,45%)" }} />
+                  <span className="text-xs" style={{ color: "hsl(240,5%,45%)" }}>Loading diagram…</span>
+                </div>
+              }>
+                <MermaidDiagram chart={code} />
+              </Suspense>
+            );
+          }
+
+          // ── Code block ──
           // @ts-expect-error – react-markdown passes inline prop but types vary
           const isInline = props.inline;
-          if (!isInline && isBlock) {
+          if (!isInline && className?.startsWith("language-")) {
             return <CodeBlock className={className}>{children}</CodeBlock>;
           }
           return <InlineCode>{children}</InlineCode>;

@@ -1,4 +1,4 @@
-import { Mail, Inbox, FileSearch, Hash, AtSign, HelpCircle, MessageSquare, FileText } from "lucide-react";
+import { Mail, Inbox, FileSearch, Hash, BarChart2, MessageSquare, FileText } from "lucide-react";
 
 /* ─── Types ─── */
 
@@ -20,17 +20,73 @@ export interface SlashCommand {
   icon: React.ElementType;
   description: string;
   fill: string;
+  /** Short AI-generated example suggestions shown below the command */
+  suggestions?: string[];
 }
 
 /* ─── Constants ─── */
 
 export const SLASH_COMMANDS: SlashCommand[] = [
-  { trigger: "/email", label: "/email", icon: Mail, description: "Send an email to someone", fill: "/email to: [recipient] subject: [subject] body: [message]" },
-  { trigger: "/inbox", label: "/inbox", icon: Inbox, description: "Check & summarize your Gmail inbox", fill: "Check my emails and summarize my inbox" },
-  { trigger: "/summarize", label: "/summarize", icon: FileSearch, description: "Summarize an uploaded document", fill: "Summarize the uploaded document" },
-  { trigger: "/find", label: "/find", icon: Hash, description: "Find specific info in your documents", fill: "Find information about " },
-  { trigger: "/draft", label: "/draft", icon: AtSign, description: "Draft a reply to an email", fill: "Draft a reply to the latest email from " },
-  { trigger: "/help", label: "/help", icon: HelpCircle, description: "Show all available commands", fill: "Show me what you can do" },
+  {
+    trigger: "/email",
+    label: "/email",
+    icon: Mail,
+    description: "Compose and send an email",
+    fill: "/email",
+    suggestions: [
+      "to: john@company.com subject: Meeting Tomorrow body: Hi John, are you free at 3pm?",
+      "to: hr@company.com subject: Leave Request body: I'd like to request leave for next week.",
+      "to: client@gmail.com subject: Follow Up body: Just checking in on our proposal.",
+    ],
+  },
+  {
+    trigger: "/inbox",
+    label: "/inbox",
+    icon: Inbox,
+    description: "Check & summarize your Gmail inbox",
+    fill: "Check my emails and summarize my inbox",
+    suggestions: [
+      "What are my most urgent emails?",
+      "Who emailed me today?",
+      "Summarize my unread emails",
+    ],
+  },
+  {
+    trigger: "/summarize",
+    label: "/summarize",
+    icon: FileSearch,
+    description: "Summarize an uploaded document",
+    fill: "Summarize the uploaded document",
+    suggestions: [
+      "Summarize the key points of my resume",
+      "Give me a bullet-point summary of my uploaded file",
+      "What is the main topic of my document?",
+    ],
+  },
+  {
+    trigger: "/find",
+    label: "/find",
+    icon: Hash,
+    description: "Find specific info in your documents",
+    fill: "Find information about ",
+    suggestions: [
+      "Find my work experience details",
+      "Find all project names in my documents",
+      "Find contact information from my files",
+    ],
+  },
+  {
+    trigger: "/diagram",
+    label: "/diagram",
+    icon: BarChart2,
+    description: "Generate a diagram from your data",
+    fill: "visualize my documents",
+    suggestions: [
+      "Create a flowchart from my uploaded files",
+      "Draw a mindmap of my resume",
+      "Visualize the structure of my document",
+    ],
+  },
 ];
 
 export type TabId = "chat" | "files" | "gmail";
@@ -71,8 +127,7 @@ export function preprocessSlashCommand(raw: string): string {
   if (/^\/inbox/i.test(text)) return "Check my emails and summarize my inbox";
   if (/^\/summarize/i.test(text)) { const r = text.replace(/^\/summarize/i, "").trim(); return r ? `Summarize ${r}` : "Summarize the uploaded documents"; }
   if (/^\/find/i.test(text)) { const r = text.replace(/^\/find/i, "").trim(); return r ? `Find information about ${r}` : "Find the key facts in my uploaded documents"; }
-  if (/^\/draft/i.test(text)) { const r = text.replace(/^\/draft/i, "").trim(); return r ? `Draft a reply to the latest email from ${r}` : "Draft a reply to the latest email"; }
-  if (/^\/help/i.test(text)) return "Show me all the things you can help me with";
+  if (/^\/diagram/i.test(text)) { const r = text.replace(/^\/diagram/i, "").trim(); return r ? `Create a diagram for ${r}` : "Visualize my documents as a diagram"; }
   return text;
 }
 

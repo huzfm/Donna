@@ -179,7 +179,18 @@ export default function DashboardPage() {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      const res = await fetch("/api/query", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: processed }), signal: controller.signal });
+      // Build history from current messages (exclude the one we just appended)
+      const history = messages
+        .filter(m => m.status !== "cancelled")
+        .slice(-10)
+        .map(m => ({ role: m.role, content: m.content }));
+
+      const res = await fetch("/api/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: processed, history }),
+        signal: controller.signal,
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Query failed");
       setMessages(prev => [...prev, { id: nextMsgId.current++, role: "assistant", content: data.answer, timestamp: timeNow() }]);
@@ -191,7 +202,7 @@ export default function DashboardPage() {
       setMessages(prev => [...prev, { id: nextMsgId.current++, role: "assistant", content: errContent, timestamp: timeNow() }]);
       persistMessage(sessionId, "assistant", errContent);
     } finally { abortRef.current = null; setChatLoading(false); }
-  }, [chatInput, persistMessage, activeSessionId, createNewSession, autoTitleSession, messages.length]);
+  }, [chatInput, persistMessage, activeSessionId, createNewSession, autoTitleSession, messages]);
 
   const clearChat = useCallback(() => {
     setMessages([]);

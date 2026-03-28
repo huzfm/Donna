@@ -12,6 +12,17 @@ const EMAIL_INTENT = /(send\s+(a\s+|an\s+)?e?mail|^send an email to)/i;
 // Detect "check inbox / read my emails / summarize emails" intent
 const GMAIL_INTENT = /(check|read|show|summarize|what.{0,20}in)\s+(my\s+)?(inbox|emails?|mails?|gmail)/i;
 
+// Detect diagram generation intent — fires on any single diagram-related keyword
+// so phrases like "give me a diagram for X file" are caught correctly
+const DIAGRAM_INTENT = /\b(draw|generate|create|make|show|visualize|diagram|flowchart|flow\s+chart|sequence\s+diagram|er\s+diagram|mindmap|mind\s+map|class\s+diagram|gantt|pie\s+chart|graph|chart)\b/i;
+
+// Detect when the user wants a diagram FROM their uploaded/personal files
+// e.g. "diagram for my files", "visualize my uploaded data", "chart from huzfm.xlsx"
+const FILE_DIAGRAM_INTENT = /(diagram|flowchart|chart|visualize|graph).{0,40}(file|upload|document|data|my\s+data|personal|stored|excel|xlsx|csv|pdf|doc)/i;
+
+// Conversation turn shape coming from the frontend
+interface HistoryMessage { role: "user" | "assistant"; content: string; }
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
@@ -20,10 +31,114 @@ export async function POST(req: Request) {
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const { question } = await req.json();
+
+    // Accept optional conversation history from the frontend
+    const { question, history = [] }: { question: string; history?: HistoryMessage[] } = await req.json();
 
     if (!question) {
       return Response.json({ error: "No question provided" }, { status: 400 });
+    }
+
+    // Build a readable history block for the prompt (last 10 turns max to stay within token limits)
+    const recentHistory: HistoryMessage[] = history.slice(-10);
+    const historyBlock = recentHistory.length > 0
+      ? recentHistory.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n")
+      : "";
+
+    // ==============================
+    // 📊 DIAGRAM / MERMAID INTENT
+    // Run RAG first so diagrams can be built from uploaded file data
+    // ==============================
+    if (DIAGRAM_INTENT.test(question)) {
+      let ragContext = "";
+      try {
+        if (FILE_DIAGRAM_INTENT.test(question)) {
+          // User specifically asked for a diagram from their uploaded files.
+          // Bypass embedding similarity — directly fetch ALL their document chunks
+          // ordered by file + chunk_index so the content arrives in reading order.
+          const { data: allChunks } = await supabase
+            .from("documents")
+            .select("content, file_name, chunk_index")
+            .eq("user_id", user.id)
+            .order("file_name", { ascending: true })
+            .order("chunk_index", { ascending: true })
+            .limit(60); // cap to avoid token overflow
+
+          if (allChunks && allChunks.length > 0) {
+            ragContext = allChunks
+              .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
+              .join("\n\n---\n\n");
+          }
+        } else {
+          // Generic diagram request — use semantic similarity search as before
+          const embeddings = await embed([question]);
+          let queryEmbedding = embeddings[0];
+          if (Array.isArray(queryEmbedding[0])) queryEmbedding = queryEmbedding[0];
+
+          const { data: ragData } = await supabase.rpc("match_documents", {
+            query_embedding: queryEmbedding,
+            match_count: 12,
+            filter_user_id: user.id,
+          });
+
+          if (ragData && ragData.length > 0) {
+            ragContext = ragData
+              .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
+              .join("\n\n---\n\n");
+          }
+        }
+      } catch {
+        // RAG failure is non-fatal — diagram can still be generated from general knowledge
+      }
+
+      const diagramPrompt = `
+You are an expert in Mermaid.js diagram syntax (v11). The user wants a diagram.
+${ragContext ? `Use the following data extracted from their uploaded file(s) to build the diagram:\n\n${ragContext}\n\n` : ""}
+Generate a valid Mermaid.js diagram that accurately represents what the user asked for.
+
+${historyBlock ? `Conversation history:\n${historyBlock}\n` : ""}
+User request: ${question}
+
+=== STRICT SYNTAX RULES — violating these WILL cause a parse error ===
+
+1. FLOWCHART ARROWS — use ONLY these in flowchart/graph diagrams:
+   ✅  A --> B           (solid arrow)
+   ✅  A -- label --> B  (labeled arrow)
+   ✅  A -.-> B          (dotted arrow)
+   ✅  A ==> B           (thick arrow)
+   ❌  A ->> B           FORBIDDEN in flowcharts — this is sequence diagram syntax!
+   ❌  A -->> B          FORBIDDEN in flowcharts!
+
+2. RESERVED KEYWORDS — NEVER use these as bare node identifiers:
+   ❌  --> end            FORBIDDEN — 'end' is a reserved keyword
+   ❌  --> start          FORBIDDEN — 'start' is a reserved keyword
+   ✅  --> EndNode[End]   Use a labelled node instead
+   ✅  --> StartNode[Start]
+
+3. NODE LABEL TEXT — no markdown formatting inside Mermaid code:
+   ❌  A[**Bold text**]   FORBIDDEN — bold inside node labels breaks parsing
+   ✅  A[Bold text]       Just plain text inside brackets
+
+4. OUTPUT FORMAT — return ONLY:
+\`\`\`mermaid
+<your mermaid code here>
+\`\`\`
+Then 1-2 sentences explaining the diagram. No other text before the code block.
+
+5. SUPPORTED TYPES: flowchart, sequenceDiagram, erDiagram, mindmap, classDiagram, gantt, pie, gitGraph
+
+CORRECT flowchart example:
+\`\`\`mermaid
+flowchart TD
+    StartNode[Start] --> B{Valid?}
+    B -- Yes --> C[Dashboard]
+    B -- No --> D[Retry]
+    C --> EndNode[End]
+\`\`\`
+`;
+
+      const answer = await askGroq(diagramPrompt);
+      return Response.json({ answer });
     }
 
     // ==============================
@@ -31,7 +146,6 @@ export async function POST(req: Request) {
     // ==============================
     if (GMAIL_INTENT.test(question)) {
       try {
-        // Load this user's Gmail credentials from user_settings
         const { data: settings } = await supabase
           .from("user_settings")
           .select("gmail_user, gmail_app_password")
@@ -67,12 +181,15 @@ You are a smart email assistant. Here are the user's latest Gmail messages:
 
 ${emailList}
 
-Give a concise, helpful crux:
+${historyBlock ? `Conversation so far:\n${historyBlock}\n` : ""}
+User question: ${question}
+
+Give a concise, helpful summary:
 - 🔴 Any urgent or important emails (meetings, deadlines, action items)
 - 📬 Key senders and what they want
 - 📋 Quick summary of overall inbox state
 
-Be brief, use bullet points, and highlight what needs attention first.
+Be clear and structured. Use bullet points where helpful.
 `;
 
         const answer = await askGroq(prompt);
@@ -90,7 +207,6 @@ Be brief, use bullet points, and highlight what needs attention first.
     // 📧 EMAIL SEND INTENT
     // ==============================
     if (EMAIL_INTENT.test(question)) {
-      // Use Groq to extract to / subject / body from the user message
       const extractionPrompt = `
 You are a helpful assistant. The user wants to send an email.
 Extract the email details from their message and return ONLY valid JSON in this exact format:
@@ -110,7 +226,6 @@ JSON:`;
       let to: string, subject: string, body: string;
 
       try {
-        // Extract JSON from response (Groq may add text around it)
         const jsonMatch = raw?.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error("No JSON found");
         const parsed = JSON.parse(jsonMatch[0]);
@@ -145,10 +260,8 @@ JSON:`;
     // 🔍 RAG PIPELINE
     // ==============================
 
-    // Get embedding for the question
     const embeddings = await embed([question]);
 
-    // ✅ Handle nested array [[...]] vs flat [...]
     let queryEmbedding = embeddings[0];
     if (Array.isArray(queryEmbedding[0])) {
       queryEmbedding = queryEmbedding[0];
@@ -156,10 +269,10 @@ JSON:`;
 
     console.log("EMBEDDING DIM:", queryEmbedding.length);
 
-    // Fetch similar chunks from Supabase
+    // Increased match_count to 12 for more complete answers
     const { data, error } = await supabase.rpc("match_documents", {
       query_embedding: queryEmbedding,
-      match_count: 5,
+      match_count: 12,
       filter_user_id: user.id,
     });
 
@@ -171,28 +284,50 @@ JSON:`;
     console.log("MATCHED CHUNKS:", data?.length ?? 0);
 
     if (!data || data.length === 0) {
+      // If no file context, fall back to a general LLM answer using conversation history
+      if (recentHistory.length > 0) {
+        const generalPrompt = `
+You are Donna, a helpful AI assistant. You have no uploaded documents to reference for this question.
+Answer based on general knowledge and the conversation history below.
+
+${historyBlock ? `Conversation history:\n${historyBlock}\n` : ""}
+User: ${question}
+
+Answer:`;
+        const answer = await askGroq(generalPrompt);
+        return Response.json({ answer });
+      }
       return Response.json({
-        answer: "I couldn't find anything relevant in your uploaded files.",
+        answer: "I couldn't find anything relevant in your uploaded files. Try uploading a document first.",
       });
     }
 
-    // Build context from matched chunks
+    // Build context from matched chunks — include file name as a header
     const context = data
       .map((d: { content: string; file_name: string }) =>
-        `[From ${d.file_name}]:\n${d.content}`
+        `[Source: ${d.file_name}]\n${d.content}`
       )
-      .join("\n\n");
+      .join("\n\n---\n\n");
 
     const prompt = `
-You are an AI assistant. Answer the question using ONLY the context below.
-If the answer is not in the context, say "I don't know based on the uploaded files."
+You are Donna, a knowledgeable AI assistant. Answer the user's question thoroughly and completely using the context below.
 
-Context:
+RULES:
+- Use ALL relevant information from the context — do NOT truncate or cut short your answer.
+- If multiple sources provide related info, combine them into a complete answer.
+- Use markdown formatting: headers, bullet points, bold text, and code blocks where appropriate.
+- If the answer is genuinely not in the context, say "I don't have that information in your uploaded files."
+- Take conversation history into account for follow-up questions.
+
+${historyBlock ? `## Conversation History\n${historyBlock}\n` : ""}
+
+## Document Context
 ${context}
 
-Question: ${question}
+## Current Question
+${question}
 
-Answer:`;
+## Answer (be thorough and complete):`;
 
     const answer = await askGroq(prompt);
 
@@ -203,4 +338,4 @@ Answer:`;
     const message = e instanceof Error ? e.message : "Unknown error";
     return Response.json({ error: message }, { status: 500 });
   }
-}
+}
