@@ -15,13 +15,13 @@ export default function AboutTeam() {
           transition={{ duration: 0.5 }}
           className="mb-16 text-center"
         >
-          <span className="mb-3 block text-xs font-semibold tracking-widest text-emerald-600 uppercase">
+          <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             The Team
           </span>
           <h2 className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-            Meet the <span className="text-emerald-600">builders</span>
+            Meet the <span className="text-slate-400">builders</span>
           </h2>
-          <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-slate-500">
+          <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">
             Two full-stack developers passionate about building AI-powered tools that make
             work easier.
           </p>
@@ -35,7 +35,7 @@ export default function AboutTeam() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15, duration: 0.5 }}
-              className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-300 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5"
+              className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-300 hover:border-slate-300 hover:shadow-xl"
             >
               <div
                 className={`absolute top-0 right-0 left-0 h-1 bg-linear-to-r ${member.gradient}`}
@@ -56,19 +56,19 @@ export default function AboutTeam() {
                     {member.name}
                   </h3>
                   <div className="mt-0.5 flex items-center gap-2">
-                    <Code2 size={13} className="text-emerald-600" />
-                    <span className="text-sm font-medium text-slate-500">{member.role}</span>
+                    <Code2 size={13} className="text-slate-500" />
+                    <span className="font-mono text-sm font-medium text-slate-500">{member.role}</span>
                   </div>
                 </div>
               </div>
 
-              <p className="mb-6 text-sm leading-relaxed text-slate-500">{member.bio}</p>
+              <p className="mb-6 font-mono text-sm leading-relaxed text-slate-500">{member.bio}</p>
 
               <div className="flex flex-wrap gap-2">
                 {member.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600 transition-colors group-hover:border-emerald-200 group-hover:bg-emerald-50 group-hover:text-emerald-800"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-mono text-[11px] font-semibold text-slate-600 transition-colors group-hover:border-slate-300 group-hover:bg-slate-100 group-hover:text-slate-800"
                   >
                     {skill}
                   </span>
@@ -78,13 +78,13 @@ export default function AboutTeam() {
               <div className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-5">
                 <a
                   href="#"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-all hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 font-mono text-xs font-medium text-slate-500 transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
                 >
                   <Code2 size={12} /> GitHub
                 </a>
                 <a
                   href="#"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-all hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 font-mono text-xs font-medium text-slate-500 transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
                 >
                   <ExternalLink size={12} /> LinkedIn
                 </a>

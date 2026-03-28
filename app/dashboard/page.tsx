@@ -24,9 +24,11 @@ import {
   timeNow,
   preprocessSlashCommand,
 } from "./_components/types";
+import dynamic from "next/dynamic";
 import ChatPanel from "./_components/ChatPanel";
-import FilesPanel from "./_components/FilesPanel";
-import GmailPanel from "./_components/GmailPanel";
+
+const FilesPanel = dynamic(() => import("./_components/FilesPanel"), { ssr: false });
+const GmailPanel = dynamic(() => import("./_components/GmailPanel"), { ssr: false });
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabId>("chat");
@@ -608,8 +610,8 @@ export default function DashboardPage() {
       )}
 
       {/* ═══ Main ═══ */}
-      <div className="relative z-10 p-0 md:p-4 flex min-w-0 flex-1 items-center justify-center">
-        <main className="relative z-10 flex h-full max-h-none md:max-h-212.5 w-full max-w-5xl flex-col overflow-hidden rounded-none md:rounded-2xl border-0 md:border border-slate-200 bg-white shadow-none md:shadow-xl">
+      <div className="relative z-10 flex min-w-0 flex-1 items-center justify-center p-0 sm:p-2 md:p-4">
+        <main className="relative z-10 flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-none border-0 border-slate-200 bg-white shadow-none sm:rounded-2xl sm:border sm:shadow-xl md:max-h-212.5">
           <div className="chat-mesh pointer-events-none absolute inset-0" />
           <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col">
         <AnimatePresence mode="wait">

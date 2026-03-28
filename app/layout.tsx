@@ -15,9 +15,15 @@ const doto = Doto({
 });
 
 export const metadata: Metadata = {
-  title: "Donna   Your AI-Powered Workspace",
+  title: "Donna — Your AI-Powered Workspace",
   description:
-    "AI-powered workspace for email & meetings. Send emails, schedule meetings, and chat with your AI assistant.",
+    "AI-powered workspace assistant that helps you manage documents, email, and calendar through natural conversation.",
+  keywords: ["AI", "workspace", "assistant", "documents", "email", "chat", "RAG"],
+  openGraph: {
+    title: "Donna — Your AI-Powered Workspace",
+    description: "Manage documents, email, and calendar with AI.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

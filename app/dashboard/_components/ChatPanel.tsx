@@ -646,7 +646,7 @@ export default function ChatPanel({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-300/35 bg-white/70 px-6 py-10 shadow-[0_4px_32px_-12px_rgba(16,185,129,0.12)] ring-1 ring-slate-300/[0.05] backdrop-blur-sm"
+              className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-300/35 bg-white/70 px-6 py-10 shadow-[0_4px_32px_-12px_rgba(16,185,129,0.12)] ring-1 ring-slate-300/5 backdrop-blur-sm"
             >
               <div className="lightning-grid pointer-events-none absolute inset-0 opacity-[0.22]">
                 <div className="lightning-grid-lines" />
@@ -662,9 +662,28 @@ export default function ChatPanel({
                 <p className="mx-auto mb-3 font-mono max-w-md text-sm leading-relaxed text-slate-600">
                   Your personal AI assistant for documents, email, and calendar.
                 </p>
-                <p className="mx-auto  font-mono max-w-md text-sm text-slate-500">
+                <p className="mx-auto font-mono max-w-md text-sm text-slate-500">
                   Type a message below or use <span className="font-mono text-xs text-black">/</span> commands.
                 </p>
+
+                {/* Quick-start suggestions */}
+                <div className="mt-6 flex flex-wrap justify-center gap-2">
+                  {[
+                    "What can you do?",
+                    "Summarize my files",
+                    "Check my inbox",
+                    "Help me write an email",
+                  ].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => onSend(suggestion)}
+                      className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 font-mono text-[11px] font-medium text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-black hover:shadow-md active:scale-95"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
@@ -680,7 +699,7 @@ export default function ChatPanel({
               >
                 {msg.role === "user" ? (
                   <div className="flex justify-end gap-3">
-                    <div className="max-w-[min(82%,32rem)] rounded-2xl rounded-br-sm border border-slate-200/90 bg-slate-100/95 px-5 py-3.5 text-[14.5px] leading-relaxed whitespace-pre-wrap text-slate-900 shadow-sm ring-1 ring-slate-900/[0.04]">
+                    <div className="max-w-[min(82%,32rem)] rounded-2xl rounded-br-sm border border-slate-200/90 bg-slate-100/95 px-5 py-3.5 text-[14.5px] leading-relaxed whitespace-pre-wrap text-slate-900 shadow-sm ring-1 ring-slate-900/4">
                       {msg.content}
                     </div>
                   </div>
@@ -719,7 +738,7 @@ export default function ChatPanel({
                 <div className="mt-0.5 shrink-0 shadow-sm shadow-slate-300/10">
                   <BrandMark size="bubble" floating />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-slate-300/90 bg-slate-50 px-4 py-3 ring-1 ring-slate-300/[0.06]">
+                <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-slate-300/90 bg-slate-50 px-4 py-3 ring-1 ring-slate-300/6">
                   <span className="mr-1 text-[10px] font-semibold tracking-wider text-black uppercase">
                     {loadingText}
                   </span>
@@ -762,7 +781,11 @@ export default function ChatPanel({
 
           {/* Input box */}
           <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/4 transition-all focus-within:border-slate-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.15)] focus-within:ring-2 focus-within:ring-slate-300/15">
+<<<<<<< HEAD
             {/* Row 1   Textarea */}
+=======
+            {/* Row 1 — Textarea */}
+>>>>>>> d58ff45d2689923026512ed9fa6a45d2ae11995d
             <div className="px-4 pt-3.5 pb-2">
               <textarea
                 ref={textareaRef}

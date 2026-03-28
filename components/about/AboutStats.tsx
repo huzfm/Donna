@@ -24,14 +24,14 @@ export default function AboutStats() {
               transition={{ delay: i * 0.1, duration: 0.4 }}
               className="group text-center"
             >
-              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200/60 transition-transform group-hover:scale-110">
+              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 ring-1 ring-slate-200/60 transition-transform group-hover:scale-110">
                 <stat.icon size={20} strokeWidth={2} />
               </div>
               <p className="font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950">
                 {stat.value}
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-700">{stat.label}</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{stat.desc}</p>
+              <p className="mt-1 font-mono text-sm font-semibold text-slate-700">{stat.label}</p>
+              <p className="mt-1 font-mono text-[11px] leading-relaxed text-slate-400">{stat.desc}</p>
             </motion.div>
           ))}
         </div>

@@ -1,13 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Navbar, Footer } from "@/components/home";
 import AboutHero from "@/components/about/AboutHero";
-import AboutStats from "@/components/about/AboutStats";
-import MissionSection from "@/components/about/MissionSection";
-import Timeline from "@/components/about/Timeline";
-import AboutTeam from "@/components/about/AboutTeam";
-import AboutTechStack from "@/components/about/AboutTechStack";
-import AboutCta from "@/components/about/AboutCta";
+
+const AboutStats = dynamic(() => import("@/components/about/AboutStats"), { ssr: false });
+const MissionSection = dynamic(() => import("@/components/about/MissionSection"), { ssr: false });
+const Timeline = dynamic(() => import("@/components/about/Timeline"), { ssr: false });
+const AboutTeam = dynamic(() => import("@/components/about/AboutTeam"), { ssr: false });
+const AboutTechStack = dynamic(() => import("@/components/about/AboutTechStack"), { ssr: false });
+const AboutCta = dynamic(() => import("@/components/about/AboutCta"), { ssr: false });
 
 export default function AboutPage() {
   return (
