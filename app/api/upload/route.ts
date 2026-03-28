@@ -4,6 +4,44 @@ import { chunkText } from "@/lib/chunk";
 import { embed } from "@/lib/embed";
 import { createClient } from "@/lib/supabase-server";
 
+// GET — return the list of files this user has already uploaded
+export async function GET() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Fetch all rows for this user but only pull file_name + created_at
+    const { data, error } = await supabase
+      .from("documents")
+      .select("file_name, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    // De-duplicate so each file shows up once, keeping the most recent upload time
+    const seen = new Set<string>();
+    const files: { file_name: string; uploaded_at: string }[] = [];
+    for (const row of data ?? []) {
+      if (!seen.has(row.file_name)) {
+        seen.add(row.file_name);
+        files.push({ file_name: row.file_name, uploaded_at: row.created_at });
+      }
+    }
+
+    return Response.json({ files });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
