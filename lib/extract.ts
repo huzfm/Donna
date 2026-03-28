@@ -10,7 +10,7 @@ export async function extractText(file: File) {
   // 📄 PDF
   // ==============================
   if (fileName.endsWith(".pdf")) {
-    const pdf = require("@cyber2024/pdf-parse-fixed"); // ✅ stable
+    const pdf = require("@cyber2024/pdf-parse-fixed"); //  stable
     const data = await pdf(buffer);
     text = data.text;
   }
@@ -64,7 +64,7 @@ export async function extractText(file: File) {
   }
 
   // ==============================
-  // ❌ Unsupported
+  // Unsupported
   // ==============================
   else {
     throw new Error("Unsupported file type");

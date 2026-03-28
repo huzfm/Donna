@@ -51,13 +51,21 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /* ══════════════════════════════════════════════
-   Email Compose Modal
+   Email Compose Modal — with AI Suggestions
 ══════════════════════════════════════════════ */
 interface EmailDraft {
   to: string;
   subject: string;
   body: string;
 }
+
+type Tone = "professional" | "friendly" | "concise";
+
+const TONES: { id: Tone; label: string; emoji: string }[] = [
+  { id: "professional", label: "Professional", emoji: "💼" },
+  { id: "friendly", label: "Friendly", emoji: "😊" },
+  { id: "concise", label: "Concise", emoji: "⚡" },
+];
 
 function EmailComposeModal({
   onSend,
@@ -68,15 +76,63 @@ function EmailComposeModal({
 }) {
   const [draft, setDraft] = useState<EmailDraft>({ to: "", subject: "", body: "" });
   const [focused, setFocused] = useState<keyof EmailDraft | null>(null);
+  const [tone, setTone] = useState<Tone>("professional");
+  const [improving, setImproving] = useState(false);
+  const [suggestingSubject, setSuggestingSubject] = useState(false);
+  const [subjectSuggestions, setSubjectSuggestions] = useState<string[]>([]);
+  const [ghostText, setGhostText] = useState("");
+  const [ghostTimer, setGhostTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [improveFlash, setImproveFlash] = useState(false);
   const toRef = useRef<HTMLInputElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     toRef.current?.focus();
   }, []);
 
   const handle =
-    (field: keyof EmailDraft) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setDraft((d) => ({ ...d, [field]: e.target.value }));
+    (field: keyof EmailDraft) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const val = e.target.value;
+      setDraft((d) => ({ ...d, [field]: val }));
+
+      // Ghost-text: trigger on body changes with debounce
+      if (field === "body") {
+        setGhostText("");
+        if (ghostTimer) clearTimeout(ghostTimer);
+        if (val.trim().length > 20) {
+          const t = setTimeout(async () => {
+            try {
+              const res = await fetch("/api/email-suggest", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "complete_body",
+                  to: draft.to,
+                  subject: draft.subject,
+                  body: val,
+                }),
+              });
+              const data = await res.json();
+              if (data.result && !val.endsWith(data.result)) {
+                setGhostText(data.result);
+              }
+            } catch {
+              /* silent */
+            }
+          }, 1200);
+          setGhostTimer(t);
+        }
+      }
+    };
+
+  // Accept ghost-text with Tab key
+  const handleBodyKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Tab" && ghostText) {
+      e.preventDefault();
+      setDraft((d) => ({ ...d, body: d.body + ghostText }));
+      setGhostText("");
+    }
+  };
 
   const canSend = draft.to.trim() && draft.subject.trim() && draft.body.trim();
 
@@ -86,6 +142,50 @@ function EmailComposeModal({
       `Send an email to ${draft.to.trim()} with subject "${draft.subject.trim()}" and body: ${draft.body.trim()}`
     );
     onClose();
+  };
+
+  // ── AI: Improve body ──────────────────────────────────────────────────
+  const handleImprove = async () => {
+    if (!draft.body.trim() || improving) return;
+    setImproving(true);
+    setGhostText("");
+    try {
+      const res = await fetch("/api/email-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "improve_body", to: draft.to, subject: draft.subject, body: draft.body, tone }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setDraft((d) => ({ ...d, body: data.result }));
+        setImproveFlash(true);
+        setTimeout(() => setImproveFlash(false), 800);
+      }
+    } catch {
+      /* silent */
+    } finally {
+      setImproving(false);
+    }
+  };
+
+  // ── AI: Suggest subjects ──────────────────────────────────────────────
+  const handleSuggestSubject = async () => {
+    if (!draft.body.trim() || suggestingSubject) return;
+    setSuggestingSubject(true);
+    setSubjectSuggestions([]);
+    try {
+      const res = await fetch("/api/email-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "suggest_subject", to: draft.to, body: draft.body }),
+      });
+      const data = await res.json();
+      if (Array.isArray(data.result)) setSubjectSuggestions(data.result);
+    } catch {
+      /* silent */
+    } finally {
+      setSuggestingSubject(false);
+    }
   };
 
   const fieldStyle = (f: keyof EmailDraft) => ({
@@ -118,6 +218,13 @@ function EmailComposeModal({
           <span className="text-[13px] font-semibold" style={{ color: "hsl(0,0%,88%)" }}>
             New Email
           </span>
+          <span
+            className="ml-1 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+            style={{ background: "#7c3aed18", color: "#a78bfa", border: "1px solid #7c3aed30" }}
+          >
+            <Sparkles size={8} />
+            AI
+          </span>
         </div>
         <button
           onClick={onClose}
@@ -136,16 +243,40 @@ function EmailComposeModal({
         </button>
       </div>
 
+      {/* Tone selector */}
+      <div
+        className="flex items-center gap-2 px-4 py-2.5"
+        style={{ borderBottom: "1px solid hsl(240,6%,16%)", background: "hsl(240,6%,12%)" }}
+      >
+        <Sparkles size={10} style={{ color: "#a78bfa", flexShrink: 0 }} />
+        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "hsl(240,5%,40%)" }}>
+          Tone
+        </span>
+        <div className="flex gap-1.5 ml-1">
+          {TONES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTone(t.id)}
+              className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10.5px] font-medium transition-all"
+              style={{
+                background: tone === t.id ? "#7c3aed22" : "hsl(240,6%,17%)",
+                color: tone === t.id ? "#a78bfa" : "hsl(240,5%,50%)",
+                border: `1px solid ${tone === t.id ? "#7c3aed44" : "hsl(240,6%,22%)"}`,
+              }}
+            >
+              {t.emoji} {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Fields */}
       <div className="space-y-3 p-4">
         {/* To */}
         <div className="overflow-hidden rounded-xl" style={fieldStyle("to")}>
           <div className="flex items-center gap-2.5 px-4 py-2.5">
             <AtSign size={13} style={{ color: "hsl(240,5%,45%)", flexShrink: 0 }} />
-            <span
-              className="w-12 shrink-0 text-[11px] font-medium"
-              style={{ color: "hsl(240,5%,45%)" }}
-            >
+            <span className="w-12 shrink-0 text-[11px] font-medium" style={{ color: "hsl(240,5%,45%)" }}>
               To
             </span>
             <input
@@ -166,10 +297,7 @@ function EmailComposeModal({
         <div className="overflow-hidden rounded-xl" style={fieldStyle("subject")}>
           <div className="flex items-center gap-2.5 px-4 py-2.5">
             <AlignLeft size={13} style={{ color: "hsl(240,5%,45%)", flexShrink: 0 }} />
-            <span
-              className="w-12 shrink-0 text-[11px] font-medium"
-              style={{ color: "hsl(240,5%,45%)" }}
-            >
+            <span className="w-12 shrink-0 text-[11px] font-medium" style={{ color: "hsl(240,5%,45%)" }}>
               Subject
             </span>
             <input
@@ -182,25 +310,150 @@ function EmailComposeModal({
               className="flex-1 bg-transparent text-[13.5px] outline-none"
               style={{ color: "hsl(0,0%,88%)" }}
             />
+            {/* AI subject suggest button */}
+            <button
+              onClick={handleSuggestSubject}
+              disabled={!draft.body.trim() || suggestingSubject}
+              title="AI suggest subject lines"
+              className="ml-1 flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-all"
+              style={{
+                background: "#7c3aed18",
+                color: !draft.body.trim() ? "hsl(240,5%,35%)" : "#a78bfa",
+                border: "1px solid #7c3aed30",
+                cursor: !draft.body.trim() ? "not-allowed" : "pointer",
+              }}
+            >
+              {suggestingSubject ? (
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                  <Sparkles size={9} />
+                </motion.div>
+              ) : (
+                <Sparkles size={9} />
+              )}
+              Suggest
+            </button>
           </div>
+          {/* Subject suggestions */}
+          <AnimatePresence>
+            {subjectSuggestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="border-t px-4 py-2"
+                style={{ borderColor: "hsl(240,6%,18%)" }}
+              >
+                <p className="mb-1.5 text-[9.5px] uppercase tracking-wider" style={{ color: "hsl(240,5%,38%)" }}>
+                  AI Suggestions — click to use
+                </p>
+                <div className="flex flex-col gap-1">
+                  {subjectSuggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setDraft((d) => ({ ...d, subject: s }));
+                        setSubjectSuggestions([]);
+                      }}
+                      className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] transition-all"
+                      style={{ background: "hsl(240,6%,15%)", color: "hsl(0,0%,80%)", border: "1px solid hsl(240,6%,19%)" }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "hsl(240,6%,19%)";
+                        e.currentTarget.style.borderColor = "#7c3aed44";
+                        e.currentTarget.style.color = "#c4b5fd";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "hsl(240,6%,15%)";
+                        e.currentTarget.style.borderColor = "hsl(240,6%,19%)";
+                        e.currentTarget.style.color = "hsl(0,0%,80%)";
+                      }}
+                    >
+                      <ChevronRight size={10} style={{ color: "#7c3aed", flexShrink: 0 }} />
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Body */}
-        <div className="overflow-hidden rounded-xl" style={fieldStyle("body")}>
-          <div className="px-4 py-2.5">
-            <p className="mb-2 text-[11px] font-medium" style={{ color: "hsl(240,5%,45%)" }}>
-              Message
-            </p>
-            <textarea
-              value={draft.body}
-              onChange={handle("body")}
-              onFocus={() => setFocused("body")}
-              onBlur={() => setFocused(null)}
-              placeholder="Write your message here…"
-              rows={5}
-              className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed outline-none"
-              style={{ color: "hsl(0,0%,88%)" }}
-            />
+        <div
+          className="overflow-hidden rounded-xl transition-all"
+          style={{
+            ...fieldStyle("body"),
+            border: improveFlash ? "1px solid #7c3aed88" : fieldStyle("body").border,
+            boxShadow: improveFlash ? "0 0 12px rgba(124,58,237,0.2)" : "none",
+          }}
+        >
+          <div className="px-4 pt-2.5 pb-1">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-[11px] font-medium" style={{ color: "hsl(240,5%,45%)" }}>
+                Message
+              </p>
+              {/* AI Improve button */}
+              <button
+                onClick={handleImprove}
+                disabled={!draft.body.trim() || improving}
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10.5px] font-medium transition-all"
+                style={{
+                  background: improving ? "#7c3aed28" : "#7c3aed18",
+                  color: !draft.body.trim() ? "hsl(240,5%,35%)" : "#a78bfa",
+                  border: `1px solid ${improving ? "#7c3aed55" : "#7c3aed30"}`,
+                  cursor: !draft.body.trim() ? "not-allowed" : "pointer",
+                }}
+                title={`Improve with AI (${tone} tone)`}
+              >
+                {improving ? (
+                  <>
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}>
+                      <Sparkles size={9} />
+                    </motion.div>
+                    Improving…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={9} />
+                    Improve
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Ghost-text overlay wrapper */}
+            <div className="relative">
+              <textarea
+                ref={bodyRef}
+                value={draft.body}
+                onChange={handle("body")}
+                onKeyDown={handleBodyKeyDown}
+                onFocus={() => setFocused("body")}
+                onBlur={() => { setFocused(null); setGhostText(""); }}
+                placeholder="Write your message here…"
+                rows={5}
+                className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed outline-none"
+                style={{ color: "hsl(0,0%,88%)", caretColor: "#7c3aed" }}
+              />
+              {/* Ghost text shown below current text */}
+              {ghostText && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="pointer-events-none absolute bottom-0 right-0 left-0 text-[11px] leading-relaxed"
+                  style={{ color: "hsl(240,5%,40%)" }}
+                >
+                  <span className="italic">{ghostText}</span>
+                  <span
+                    className="ml-1.5 rounded px-1 py-0.5 text-[9px] not-italic"
+                    style={{ background: "hsl(240,6%,20%)", color: "hsl(240,5%,50%)" }}
+                  >
+                    Tab ↹
+                  </span>
+                </motion.div>
+              )}
+            </div>
+
+            {ghostText && <div className="pb-5" />}
           </div>
         </div>
       </div>
@@ -663,7 +916,7 @@ export default function ChatPanel({
                   }
                   if (e.key === "Escape") onInputChange("");
                 }}
-                placeholder="Message Donna… (type / for commands)"
+                placeholder="Talk with Donna or (type / for commands)"
                 rows={1}
                 className="max-h-[180px] w-full resize-none bg-transparent text-[14px] leading-relaxed outline-none"
                 style={{ color: "hsl(0,0%,90%)", caretColor: "#7c3aed" }}

@@ -6,7 +6,7 @@ const groq = new Groq({
 
 export async function askGroq(prompt: string) {
   const res = await groq.chat.completions.create({
-    model: "llama-3.1-8b-instant", // ✅ replaced decommissioned model
+    model: "llama-3.1-8b-instant", // replaced decommissioned model
     messages: [
       { role: "system", content: "Answer only from context." },
       { role: "user", content: prompt },

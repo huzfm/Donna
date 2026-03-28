@@ -249,20 +249,20 @@ JSON:`;
         console.error("Email extraction failed:", parseErr, "Raw:", raw);
         return Response.json({
           answer:
-            '❌ I couldn\'t understand the email details. Try: "Send a mail to name@email.com with subject Hello and message How are you?"',
+            '❌I couldn\'t understand the email details. Try: "Send a mail to name@email.com with subject Hello and message How are you?"',
         });
       }
 
       try {
         await sendEmail(to, subject, body);
         return Response.json({
-          answer: `✅ Email sent to **${to}** with subject "${subject}".`,
+          answer: `Email sent to **${to}**".`,
         });
       } catch (emailErr: unknown) {
         const msg = emailErr instanceof Error ? emailErr.message : "Unknown error";
         console.error("Email send failed:", msg);
         return Response.json({
-          answer: `❌ Failed to send email: ${msg}`,
+          answer: `Failed to send email: ${msg}`,
         });
       }
     }
