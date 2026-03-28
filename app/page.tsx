@@ -1,17 +1,23 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
 import {
   Brain,
   FileText,
   Mail,
   MessageSquare,
   Shield,
-  Zap,
   ArrowRight,
   Sparkles,
   ChevronRight,
+  Upload,
+  Send,
+  CheckCircle2,
+  Loader2,
+  User,
+  Paperclip,
 } from "lucide-react";
 
 const features = [
@@ -50,6 +56,307 @@ const steps = [
   { num: "02", title: "Ask Anything", description: "Chat naturally — Donna searches your knowledge base." },
   { num: "03", title: "Take Action", description: "Send emails, get summaries, and automate tasks." },
 ];
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/*  Animated Dashboard Demo (right side of hero)                            */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+type DemoPhase =
+  | "idle"
+  | "uploading"
+  | "uploaded"
+  | "typing"
+  | "thinking"
+  | "responding"
+  | "done";
+
+const DEMO_PROMPT = "Summarize the key findings from the report";
+const DEMO_RESPONSE =
+  "Based on your Q1 report, here are the key findings:\n\n1. Revenue grew 23% YoY to $4.2M\n2. Customer retention rate improved to 94%\n3. Three new enterprise clients onboarded\n4. Operating costs reduced by 8%";
+
+function DashboardDemo() {
+  const [phase, setPhase] = useState<DemoPhase>("idle");
+  const [typedChars, setTypedChars] = useState(0);
+  const [responseChars, setResponseChars] = useState(0);
+
+  const resetDemo = useCallback(() => {
+    setPhase("idle");
+    setTypedChars(0);
+    setResponseChars(0);
+  }, []);
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    const schedule = (fn: () => void, ms: number) => {
+      timers.push(setTimeout(fn, ms));
+    };
+
+    // Phase 1: start upload after 1.5s
+    schedule(() => setPhase("uploading"), 1500);
+    // Phase 2: upload complete after 3s
+    schedule(() => setPhase("uploaded"), 4000);
+    // Phase 3: start typing prompt after 5s
+    schedule(() => setPhase("typing"), 5500);
+
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  // Typing animation for the prompt
+  useEffect(() => {
+    if (phase !== "typing") return;
+    if (typedChars >= DEMO_PROMPT.length) {
+      const t = setTimeout(() => setPhase("thinking"), 600);
+      return () => clearTimeout(t);
+    }
+    const speed = 40 + Math.random() * 40;
+    const t = setTimeout(() => setTypedChars((c) => c + 1), speed);
+    return () => clearTimeout(t);
+  }, [phase, typedChars]);
+
+  // Thinking → responding
+  useEffect(() => {
+    if (phase !== "thinking") return;
+    const t = setTimeout(() => setPhase("responding"), 2000);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  // Response typing animation
+  useEffect(() => {
+    if (phase !== "responding") return;
+    if (responseChars >= DEMO_RESPONSE.length) {
+      const t = setTimeout(() => setPhase("done"), 2000);
+      return () => clearTimeout(t);
+    }
+    const speed = 12 + Math.random() * 18;
+    const t = setTimeout(() => setResponseChars((c) => c + 2), speed);
+    return () => clearTimeout(t);
+  }, [phase, responseChars]);
+
+  // Loop: reset after done
+  useEffect(() => {
+    if (phase !== "done") return;
+    const t = setTimeout(resetDemo, 3000);
+    return () => clearTimeout(t);
+  }, [phase, resetDemo]);
+
+  const showFile = phase !== "idle";
+  const showPromptBubble = ["thinking", "responding", "done"].includes(phase);
+  const showThinking = phase === "thinking";
+  const showResponse = ["responding", "done"].includes(phase);
+
+  return (
+    <div className="rounded-2xl border border-slate-700/60 bg-slate-900/90 p-1 shadow-2xl shadow-black/50">
+      <div className="rounded-xl bg-slate-950 overflow-hidden">
+        {/* Window chrome */}
+        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800">
+          <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+          </div>
+          <div className="flex-1 flex justify-center">
+            <div className="text-[10px] text-slate-500 bg-slate-800/50 px-3 py-0.5 rounded">
+              donna.ai/dashboard
+            </div>
+          </div>
+        </div>
+
+        <div className="flex h-[380px]">
+          {/* Mini sidebar */}
+          <div className="w-44 border-r border-slate-800 p-3 hidden lg:flex flex-col">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-6 h-6 rounded bg-emerald-500/15 flex items-center justify-center">
+                <Brain size={11} className="text-emerald-400" />
+              </div>
+              <span className="text-xs font-medium text-slate-300">Donna</span>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-[11px] font-medium">
+                <MessageSquare size={12} />
+                Chat
+              </div>
+              <div className="flex items-center gap-2 px-2.5 py-1.5 text-slate-500 text-[11px]">
+                <FileText size={12} />
+                Files
+              </div>
+              <div className="flex items-center gap-2 px-2.5 py-1.5 text-slate-500 text-[11px]">
+                <Mail size={12} />
+                Gmail
+              </div>
+              <div className="flex items-center gap-2 px-2.5 py-1.5 text-slate-500 text-[11px]">
+                <User size={12} />
+                Account
+              </div>
+            </div>
+            <div className="mt-auto pt-3 border-t border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-[9px] font-bold">
+                  J
+                </div>
+                <span className="text-[10px] text-slate-500 truncate">john@email.com</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Chat area */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* Chat header */}
+            <div className="px-4 py-2.5 border-b border-slate-800 shrink-0">
+              <p className="text-xs font-medium text-slate-300">Chat</p>
+              <p className="text-[10px] text-slate-600">
+                {showFile ? "1 file in your knowledge base" : "Upload files to get started"}
+              </p>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-hidden px-4 py-3 space-y-3">
+              {/* File upload notification */}
+              <AnimatePresence>
+                {phase === "uploading" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-2 bg-slate-800/60 border border-slate-700/50 rounded-xl px-3 py-2"
+                  >
+                    <Loader2 size={12} className="text-emerald-400 animate-spin" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] text-slate-300 truncate">Q1-Report-2026.pdf</p>
+                      <div className="mt-1 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-emerald-500 rounded-full"
+                          initial={{ width: "0%" }}
+                          animate={{ width: "100%" }}
+                          transition={{ duration: 2.2, ease: "easeInOut" }}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {showFile && phase !== "uploading" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-slate-800/80 rounded-xl rounded-tl-sm px-3 py-2 max-w-[85%]">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Sparkles size={10} className="text-orange-400" />
+                        <span className="text-[9px] font-semibold text-orange-400 uppercase tracking-wider">Donna AI</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                        <p className="text-[11px] text-slate-300">
+                          Processed <strong>Q1-Report-2026.pdf</strong> — 12 chunks indexed.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* User prompt bubble */}
+                {showPromptBubble && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-end"
+                  >
+                    <div className="bg-emerald-600 text-white text-[11px] px-3 py-2 rounded-xl rounded-tr-sm max-w-[80%]">
+                      {DEMO_PROMPT}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Thinking indicator */}
+                {showThinking && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-slate-800/80 rounded-xl rounded-tl-sm px-3 py-2 flex items-center gap-2">
+                      <span className="text-[9px] font-semibold text-orange-400 uppercase tracking-wider">Thinking</span>
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="w-1 h-1 rounded-full bg-orange-400"
+                          animate={{ y: [0, -3, 0], opacity: [0.4, 1, 0.4] }}
+                          transition={{ delay: i * 0.15, duration: 0.6, repeat: Infinity }}
+                        />
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* AI Response */}
+                {showResponse && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-slate-800/80 rounded-xl rounded-tl-sm px-3 py-2 max-w-[90%]">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Sparkles size={10} className="text-orange-400" />
+                        <span className="text-[9px] font-semibold text-orange-400 uppercase tracking-wider">Donna AI</span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 whitespace-pre-wrap leading-relaxed">
+                        {DEMO_RESPONSE.slice(0, responseChars)}
+                        {phase === "responding" && (
+                          <motion.span
+                            className="inline-block w-[2px] h-3 bg-emerald-400 ml-0.5 align-middle"
+                            animate={{ opacity: [1, 0] }}
+                            transition={{ duration: 0.5, repeat: Infinity }}
+                          />
+                        )}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Input bar */}
+            <div className="border-t border-slate-800 px-3 py-2.5 shrink-0">
+              <div className="flex items-center gap-2 bg-slate-900/80 border border-slate-700/50 rounded-xl px-3 py-2">
+                <Paperclip size={13} className="text-slate-600 shrink-0" />
+                <div className="flex-1 text-[11px] text-slate-500 min-w-0 truncate">
+                  {phase === "typing" ? (
+                    <span className="text-slate-300">
+                      {DEMO_PROMPT.slice(0, typedChars)}
+                      <motion.span
+                        className="inline-block w-[2px] h-3 bg-emerald-400 ml-0.5 align-middle"
+                        animate={{ opacity: [1, 0] }}
+                        transition={{ duration: 0.5, repeat: Infinity }}
+                      />
+                    </span>
+                  ) : (
+                    "Ask about your files, check emails..."
+                  )}
+                </div>
+                <div
+                  className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-colors ${phase === "typing"
+                    ? "bg-emerald-600"
+                    : "bg-slate-800"
+                    }`}
+                >
+                  <Send size={11} className={phase === "typing" ? "text-white" : "text-slate-600"} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/*  Page                                                                    */
+/* ───────────────────────────────────────────────────────────────────────── */
 
 export default function HomePage() {
   return (
@@ -95,143 +402,102 @@ export default function HomePage() {
         </div>
       </motion.header>
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 px-6">
+      {/* ════════════════════════════════════════════════════════════════════ */}
+      {/*  Hero — text left, animated demo right                             */}
+      {/* ════════════════════════════════════════════════════════════════════ */}
+      <section className="relative pt-28 md:pt-36 pb-20 px-6">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/7 rounded-full blur-[120px]" />
-          <div className="absolute top-40 left-1/4 w-[400px] h-[400px] bg-blue-500/4 rounded-full blur-[100px]" />
-          <div className="absolute top-60 right-1/4 w-[300px] h-[300px] bg-orange-500/4 rounded-full blur-[100px]" />
+          <div className="absolute top-20 left-1/3 w-[700px] h-[500px] bg-emerald-500/7 rounded-full blur-[120px]" />
+          <div className="absolute top-60 right-1/4 w-[400px] h-[400px] bg-blue-500/4 rounded-full blur-[100px]" />
         </div>
 
-        <div className="relative max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 text-xs text-slate-300 mb-8"
-          >
-            <Sparkles size={12} className="text-emerald-400" />
-            Powered by Groq &amp; Hugging Face
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
-          >
-            Your AI-Powered
-            <br />
-            <span className="bg-linear-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
-              Workspace Brain
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            Upload documents, ask questions, manage emails — all in one intelligent workspace.
-            Donna understands your files and helps you work smarter.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Link
-              href="/signup"
-              className="group flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+        <div className="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left — text */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 text-xs text-slate-300 mb-6"
             >
-              Start for free
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              href="/login"
-              className="flex items-center gap-2 border border-slate-700 hover:border-slate-600 text-slate-300 hover:text-white px-8 py-3.5 rounded-xl font-medium transition-all"
-            >
-              Sign in to your account
-            </Link>
-          </motion.div>
-        </div>
+              <Sparkles size={12} className="text-emerald-400" />
+              Powered by Groq &amp; Hugging Face
+            </motion.div>
 
-        {/* Preview mockup */}
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="relative max-w-5xl mx-auto mt-20"
-        >
-          <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-1 shadow-2xl shadow-black/40">
-            <div className="rounded-xl bg-slate-950 overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-800">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/60" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/60" />
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="font-(family-name:--font-doto) text-8
+              xl md:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
+            >
+              Your AI-Powered{" "}
+              <span className="bg-linear-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
+                Workspace Brain
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="font-(family-name:--font-doto) text-base md:text-lg text-slate-400 max-w-lg mb-8 leading-relaxed"
+            >
+              Upload documents, ask questions, manage emails — all in one
+              intelligent workspace. Donna understands your files and helps you
+              work smarter.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <Link
+                href="/signup"
+                className="group inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-7 py-3.5 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+              >
+                Start for free
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-600 text-slate-300 hover:text-white px-7 py-3.5 rounded-xl font-medium transition-all"
+              >
+                Sign in to your account
+              </Link>
+            </motion.div>
+
+            {/* Mini trust badges */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="flex items-center gap-5 mt-10"
+            >
+              {[
+                { icon: Upload, text: "PDF, Word, Excel" },
+                { icon: MessageSquare, text: "Natural chat" },
+                { icon: Mail, text: "Gmail built-in" },
+              ].map((badge) => (
+                <div key={badge.text} className="flex items-center gap-1.5 text-slate-500">
+                  <badge.icon size={13} className="text-emerald-500/70" />
+                  <span className="text-xs">{badge.text}</span>
                 </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="text-xs text-slate-500 bg-slate-800/50 px-4 py-1 rounded-md">
-                    donna.ai/dashboard
-                  </div>
-                </div>
-              </div>
-              <div className="flex h-[340px]">
-                <div className="w-64 border-r border-slate-800 p-4 hidden md:block">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="w-6 h-6 rounded bg-emerald-500/15 flex items-center justify-center">
-                      <Brain size={12} className="text-emerald-400" />
-                    </div>
-                    <span className="text-sm font-medium text-slate-300">Donna</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-medium">
-                      <MessageSquare size={14} />
-                      Chat
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 text-slate-500 text-xs">
-                      <FileText size={14} />
-                      Files
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 text-slate-500 text-xs">
-                      <Mail size={14} />
-                      Gmail
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col p-6">
-                  <div className="flex-1 space-y-4">
-                    <div className="flex justify-end">
-                      <div className="bg-emerald-600 text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-xs">
-                        Summarize my project report
-                      </div>
-                    </div>
-                    <div className="flex justify-start">
-                      <div className="bg-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-sm">
-                        Based on your project report, here are the key highlights: Q1 revenue grew 23%...
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <div className="bg-emerald-600 text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-xs">
-                        Send this summary to my team
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 mt-4 bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3">
-                    <span className="text-sm text-slate-500 flex-1">Ask Donna anything...</span>
-                    <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-                      <Zap size={14} className="text-white" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              ))}
+            </motion.div>
           </div>
-        </motion.div>
+
+          {/* Right — animated dashboard demo */}
+          <motion.div
+            initial={{ opacity: 0, x: 40, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <DashboardDemo />
+          </motion.div>
+        </div>
       </section>
 
       {/* Features */}
