@@ -1,14 +1,24 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
-
 export async function embed(texts: string[]) {
-  const res = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: texts,
-  });
+  const res = await fetch(
+    "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.HF_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        inputs: texts,
+      }),
+    }
+  );
 
-  return res.data.map((d) => d.embedding);
+  const data = await res.json();
+
+  if (!Array.isArray(data)) {
+    console.error("HF ERROR:", data);
+    throw new Error("Embedding failed: " + JSON.stringify(data));
+  }
+
+  return data;
 }

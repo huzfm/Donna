@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     let text = "";
 
     // ==============================
-    // PDF
+    // 📄 PDF
     // ==============================
     if (fileName.endsWith(".pdf")) {
       const pdfParse = require("@cyber2024/pdf-parse-fixed");
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     }
 
     // ==============================
-    // WORD
+    // 📄 WORD
     // ==============================
     else if (fileName.endsWith(".docx") || fileName.endsWith(".doc")) {
       const mammoth = require("mammoth");
@@ -37,14 +37,14 @@ export async function POST(req: Request) {
     }
 
     // ==============================
-    // TXT
+    // 📄 TXT
     // ==============================
     else if (fileName.endsWith(".txt")) {
       text = buffer.toString("utf-8");
     }
 
     // ==============================
-    // EXCEL / CSV
+    // 📊 EXCEL / CSV
     // ==============================
     else if (
       fileName.endsWith(".xlsx") ||
@@ -58,7 +58,10 @@ export async function POST(req: Request) {
 
       for (const sheetName of workbook.SheetNames) {
         const sheet = workbook.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+
+        const rows = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+        }) as (string | number | boolean | null | undefined)[][];
 
         allText += `Sheet: ${sheetName}\n`;
 
@@ -66,6 +69,7 @@ export async function POST(req: Request) {
           const cleaned = row.filter(
             (cell) => cell !== null && cell !== undefined && cell !== ""
           );
+
           if (cleaned.length > 0) {
             allText += cleaned.join(" | ") + "\n";
           }
@@ -75,11 +79,24 @@ export async function POST(req: Request) {
       }
 
       text = allText;
-    } else {
-      return Response.json({ error: "Unsupported file type" }, { status: 400 });
     }
 
-    if (!text || text.trim().length === 0) {
+    // ==============================
+    // ❌ Unsupported
+    // ==============================
+    else {
+      return Response.json(
+        { error: "Unsupported file type" },
+        { status: 400 }
+      );
+    }
+
+    // ==============================
+    // ⚠️ Clean text
+    // ==============================
+    text = text.replace(/\s+/g, " ").trim();
+
+    if (!text) {
       return Response.json(
         { error: "Could not extract text" },
         { status: 400 }
@@ -87,12 +104,27 @@ export async function POST(req: Request) {
     }
 
     // ==============================
-    // 🔥 RAG PIPELINE STARTS HERE
+    // 🔥 RAG PIPELINE
     // ==============================
 
+    // limit size (avoid API crash)
+    if (text.length > 50000) {
+      text = text.slice(0, 50000);
+    }
+
     const chunks = chunkText(text);
+
+    console.log("TEXT LENGTH:", text.length);
+    console.log("CHUNKS:", chunks.length);
+
+    // embeddings
     const embeddings = await embed(chunks);
 
+    if (!embeddings || embeddings.length === 0) {
+      throw new Error("Embeddings failed");
+    }
+
+    // prepare rows
     const rows = chunks.map((chunk, i) => ({
       content: chunk,
       embedding: embeddings[i],
@@ -100,7 +132,13 @@ export async function POST(req: Request) {
       chunk_index: i,
     }));
 
-    await supabase.from("documents").insert(rows);
+    // insert into supabase
+    const { error } = await supabase.from("documents").insert(rows);
+
+    if (error) {
+      console.error("SUPABASE ERROR:", error);
+      throw new Error(error.message);
+    }
 
     return Response.json({
       success: true,

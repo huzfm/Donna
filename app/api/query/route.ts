@@ -1,20 +1,32 @@
+export const runtime = "nodejs";
+
 import { embed } from "@/lib/embed";
 import { supabase } from "@/lib/supabase";
 import { askGroq } from "@/lib/groq";
 
 export async function POST(req: Request) {
-  const { question } = await req.json();
+  try {
+    const { question } = await req.json();
 
-  const [queryEmbedding] = await embed([question]);
+    if (!question) {
+      return Response.json({ error: "No question provided" }, { status: 400 });
+    }
 
-  const { data } = await supabase.rpc("match_documents", {
-    query_embedding: queryEmbedding,
-    match_count: 3,
-  });
+    const [queryEmbedding] = await embed([question]);
 
-  const context = data?.map((d) => d.content).join("\n");
+    const { data, error } = await supabase.rpc("match_documents", {
+      query_embedding: queryEmbedding,
+      match_count: 3,
+    });
 
-  const prompt = `
+    if (error) {
+      console.error("Supabase RPC error:", error);
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    const context = data?.map((d: { content: string }) => d.content).join("\n") ?? "";
+
+    const prompt = `
 Use ONLY the context below.
 
 ${context}
@@ -22,7 +34,12 @@ ${context}
 Question: ${question}
 `;
 
-  const answer = await askGroq(prompt);
+    const answer = await askGroq(prompt);
 
-  return Response.json({ answer });
+    return Response.json({ answer });
+  } catch (e: unknown) {
+    console.error("QUERY ERROR:", e);
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return Response.json({ error: message }, { status: 500 });
+  }
 }
