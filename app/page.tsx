@@ -10,7 +10,6 @@ import {
   MessageSquare,
   ArrowRight,
   Sparkles,
-  ChevronRight,
   Upload,
   Send,
   CheckCircle2,
@@ -26,6 +25,8 @@ import {
   Users,
   ShieldCheck,
   ChevronDown,
+  Code2,
+  ExternalLink,
 } from "lucide-react";
 
 const features = [
@@ -92,10 +93,10 @@ const features = [
 ];
 
 const stats = [
-  { value: "10+", label: "File formats supported" },
-  { value: "< 3s", label: "Average response time" },
-  { value: "100%", label: "Private & encrypted" },
-  { value: "24/7", label: "Always available" },
+  { value: "10+", label: "File formats supported", icon: FileText, color: "text-blue-600", bg: "bg-blue-50" },
+  { value: "< 3s", label: "Average response time", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
+  { value: "100%", label: "Private & encrypted", icon: Lock, color: "text-emerald-600", bg: "bg-emerald-50" },
+  { value: "24/7", label: "Always available", icon: Clock, color: "text-violet-600", bg: "bg-violet-50" },
 ];
 
 const useCases = [
@@ -103,16 +104,28 @@ const useCases = [
     icon: BarChart3,
     title: "Research & Analysis",
     description: "Upload research papers and reports. Ask Donna to summarize findings, compare data, and extract key takeaways.",
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    accent: "#2563eb",
+    detail: "PDF, Word, Excel — all supported",
   },
   {
     icon: Mail,
     title: "Email Productivity",
     description: "Connect your Gmail and let Donna read, summarize, draft replies, and send emails through simple chat commands.",
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    accent: "#d97706",
+    detail: "Gmail integration built-in",
   },
   {
     icon: Users,
     title: "Team Knowledge Base",
     description: "Build a shared knowledge base from your team's documents. Anyone can ask questions and get instant answers.",
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    accent: "#7c3aed",
+    detail: "Shared workspace for teams",
   },
 ];
 
@@ -120,18 +133,32 @@ const faqs = [
   {
     q: "What file types does Donna support?",
     a: "Donna supports PDF, Word (.doc, .docx), Excel (.xls, .xlsx), CSV, and plain text files. Upload any of these and start asking questions instantly.",
+    icon: FileText,
   },
   {
     q: "How does the AI understand my documents?",
     a: "Donna uses advanced RAG (Retrieval-Augmented Generation) technology. Your documents are chunked, embedded using Hugging Face models, and stored in a vector database for semantic search.",
+    icon: Brain,
   },
   {
     q: "Is my data private and secure?",
     a: "Yes. Your documents and credentials are stored privately with Supabase. Only you can access your data — we never share or train on your files.",
+    icon: Lock,
   },
   {
     q: "How does the Gmail integration work?",
     a: "You connect your Gmail using an App Password (not your real password). Donna can then read your inbox, summarize emails, and send messages through natural chat commands.",
+    icon: Mail,
+  },
+  {
+    q: "How fast are the AI responses?",
+    a: "Donna is powered by Groq for blazing fast inference. Most responses arrive in under 3 seconds, even for complex document queries across multiple files.",
+    icon: Zap,
+  },
+  {
+    q: "Can I use Donna for free?",
+    a: "Yes — Donna is free to use. Sign up, upload your documents, and start chatting with your AI workspace assistant right away.",
+    icon: Sparkles,
   },
 ];
 
@@ -308,7 +335,7 @@ function FeatureStack() {
             onMouseLeave={() => setPaused(false)}
             className={`w-full text-left rounded-xl px-5 py-4 transition-all duration-300 border ${
               i === active
-                ? "bg-white shadow-md border-slate-200"
+                ? "bg-white border-slate-300"
                 : "bg-transparent border-transparent hover:bg-slate-50"
             }`}
           >
@@ -359,7 +386,7 @@ function FeatureStack() {
   );
 }
 
-function FaqItem({ question, answer, index }: { question: string; answer: string; index: number }) {
+function FaqItem({ question, answer, index, icon: Icon }: { question: string; answer: string; index: number; icon: React.ElementType }) {
   const [open, setOpen] = useState(false);
   return (
     <motion.div
@@ -370,13 +397,24 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
     >
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-6 py-5 text-left hover:border-slate-300 hover:shadow-sm transition-all"
+        className={`w-full flex items-center gap-4 rounded-2xl border bg-white px-6 py-5 text-left transition-all duration-300 ${
+          open ? "border-emerald-300" : "border-slate-200 hover:border-slate-400"
+        }`}
       >
-        <span className="text-sm font-semibold leading-snug text-slate-900">{question}</span>
-        <ChevronDown
-          size={16}
-          className={`text-slate-400 shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-        />
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300 ${
+          open ? "bg-emerald-50" : "bg-slate-100"
+        }`}>
+          <Icon size={16} className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`} />
+        </div>
+        <span className="flex-1 text-sm font-semibold leading-snug text-slate-900 font-(family-name:--font-doto)">{question}</span>
+        <div className={`w-7 h-7 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300 ${
+          open ? "border-emerald-300 bg-emerald-50 rotate-180" : "border-slate-200"
+        }`}>
+          <ChevronDown
+            size={14}
+            className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`}
+          />
+        </div>
       </button>
       <AnimatePresence>
         {open && (
@@ -387,7 +425,7 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="px-6 pt-3 pb-5 text-sm text-slate-500 leading-relaxed">{answer}</div>
+            <div className="pl-19 pr-6 pt-2 pb-5 text-sm text-slate-500 leading-relaxed">{answer}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -789,7 +827,7 @@ export default function HomePage() {
             >
               <Link
                 href="/signup"
-                className="group inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-full font-semibold transition-all shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 text-sm"
+                className="group inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full font-semibold transition-all text-sm hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
               >
                 Get Started
                 <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
@@ -856,79 +894,105 @@ export default function HomePage() {
       </section>
 
       {/* ─── Stats / Social Proof ─── */}
-      <section className="py-20 px-6 bg-slate-50">
-        <div className="max-w-4xl mx-auto">
+      <section className="py-24 px-6 bg-slate-50 relative overflow-hidden">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="rounded-2xl border border-slate-200 bg-white p-8 md:p-10 shadow-sm"
+            className="text-center mb-12"
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.4 }}
-                  className="text-center"
-                >
-                  <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-1 tracking-tight">{stat.value}</div>
-                  <div className="text-xs text-slate-400 font-medium">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── Use Cases ─── */}
-      <section className="py-28 px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16"
-          >
-            <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">Use Cases</span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-slate-900">
-              Built for the way{" "}
-              <span className="text-emerald-600">you work</span>
+            <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">By the numbers</span>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
+              Designed to be{" "}
+              <span className="text-emerald-600">fast, private & reliable</span>
             </h2>
-            <p className="text-slate-500 max-w-lg mx-auto text-[15px]">
-              Whether you&apos;re researching, managing emails, or building a knowledge base — Donna adapts to your workflow.
-            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {useCases.map((uc, i) => (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {stats.map((stat, i) => (
               <motion.div
-                key={uc.title}
-                initial={{ opacity: 0, y: 24 }}
+                key={stat.label}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                whileHover={{ y: -6 }}
-                className="group relative rounded-2xl border border-slate-200 bg-white p-8 hover:border-emerald-200 hover:shadow-lg transition-all duration-300"
+                transition={{ delay: i * 0.12, duration: 0.5 }}
+                className="group relative rounded-2xl border border-slate-200 bg-white p-6 md:p-8 text-center hover:border-slate-400 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6 group-hover:bg-emerald-100 transition-colors">
-                  <uc.icon size={22} className="text-emerald-600" />
+                <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center mx-auto mb-5`}>
+                  <stat.icon size={22} className={stat.color} />
                 </div>
-                <h3 className="text-lg font-semibold mb-3 tracking-tight text-slate-900">{uc.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{uc.description}</p>
+                <div className="text-3xl md:text-4xl font-black text-slate-900 mb-1.5 tracking-tight font-(family-name:--font-doto)">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-slate-400 font-medium leading-snug">{stat.label}</div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 group-hover:w-12 rounded-full bg-emerald-500 transition-all duration-500" />
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ─── Use Cases ─── */}
+      <section className="py-28 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-14"
+          >
+            <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">Use Cases</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-slate-900 font-(family-name:--font-doto)">
+              Built for the way{" "}
+              <span className="text-emerald-600">you work</span>
+            </h2>
+            <p className="text-slate-500 max-w-lg mx-auto text-[15px] leading-relaxed">
+              Whether you&apos;re researching, managing emails, or building a knowledge base — Donna adapts to your workflow.
+            </p>
+          </motion.div>
+
+          <div className="space-y-4">
+            {useCases.map((uc, i) => {
+              const UcIcon = uc.icon;
+              return (
+                <motion.div
+                  key={uc.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="group relative rounded-2xl border border-slate-200 bg-white p-7 md:p-8 hover:border-slate-400 transition-all duration-300 overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 w-1 h-full rounded-r-full transition-opacity duration-300 opacity-0 group-hover:opacity-100" style={{ backgroundColor: uc.accent }} />
+                  <div className="flex items-start gap-5 md:gap-6">
+                    <div className={`w-13 h-13 rounded-xl ${uc.bg} flex items-center justify-center shrink-0`}>
+                      <UcIcon size={24} className={uc.color} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <h3 className="text-lg font-bold text-slate-900 tracking-tight font-(family-name:--font-doto)">
+                          {uc.title}
+                        </h3>
+                        <span className="text-[9px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full border" style={{ color: uc.accent, borderColor: `${uc.accent}40` }}>
+                          {uc.detail}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500 leading-relaxed">{uc.description}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* ─── How it works ─── */}
       <section id="how-it-works" className="py-28 px-6 bg-slate-50">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -937,43 +1001,48 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">How it works</span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-slate-900">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-slate-900 font-(family-name:--font-doto)">
               Get started in{" "}
               <span className="text-emerald-600">three steps</span>
             </h2>
             <p className="text-slate-500 text-[15px]">No complex setup — just sign up and start working smarter.</p>
           </motion.div>
 
-          <div className="relative">
-            <div className="absolute left-[27px] top-8 bottom-8 w-px bg-slate-200 hidden sm:block" />
-            <div className="space-y-6">
-              {steps.map((step, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {steps.map((step, i) => {
+              const StepIcon = step.icon;
+              return (
                 <motion.div
                   key={step.num}
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.15, duration: 0.5 }}
-                  className="flex items-start gap-6 group"
+                  className="group relative rounded-2xl border border-slate-200 bg-white p-8 hover:border-slate-400 transition-all duration-300"
                 >
-                  <div className="relative z-10 w-14 h-14 rounded-2xl border border-slate-200 bg-white flex items-center justify-center shrink-0 shadow-sm group-hover:border-emerald-300 group-hover:bg-emerald-50 transition-all duration-300">
-                    <step.icon size={20} className="text-slate-400 group-hover:text-emerald-600 transition-colors duration-300" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-12 h-12 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center group-hover:border-emerald-300 group-hover:bg-emerald-50 transition-all duration-300">
+                      <StepIcon size={20} className="text-slate-400 group-hover:text-emerald-600 transition-colors duration-300" />
+                    </div>
+                    <span className="text-4xl font-black text-slate-100 font-(family-name:--font-doto) group-hover:text-emerald-100 transition-colors duration-300">
+                      {step.num}
+                    </span>
                   </div>
-                  <div className="pt-1">
-                    <div className="text-[10px] font-bold text-emerald-600/60 uppercase tracking-widest mb-1">Step {step.num}</div>
-                    <h3 className="text-base font-semibold mb-1 tracking-tight text-slate-900">{step.title}</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">{step.description}</p>
-                  </div>
+                  <h3 className="text-base font-bold mb-2 tracking-tight text-slate-900 font-(family-name:--font-doto)">{step.title}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">{step.description}</p>
+                  {i < steps.length - 1 && (
+                    <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-px bg-slate-200" />
+                  )}
                 </motion.div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ─── Tech Stack ─── */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-4xl mx-auto">
+      <section className="py-20 px-6 bg-white overflow-hidden">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -982,32 +1051,133 @@ export default function HomePage() {
             className="text-center mb-12"
           >
             <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">Powered By</span>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 font-(family-name:--font-doto)">
               Built on cutting-edge technology
             </h2>
           </motion.div>
+        </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Marquee track */}
+        <div className="relative">
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-linear-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-linear-to-l from-white to-transparent z-10 pointer-events-none" />
+
+          <div className="flex animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused] w-max gap-5">
+            {[...Array(3)].map((_, setIdx) =>
+              [
+                { name: "Groq", desc: "LLM inference", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
+                { name: "Hugging Face", desc: "Embeddings", icon: Brain, color: "text-emerald-600", bg: "bg-emerald-50" },
+                { name: "Supabase", desc: "Auth & database", icon: ShieldCheck, color: "text-blue-600", bg: "bg-blue-50" },
+                { name: "Next.js", desc: "App framework", icon: Globe, color: "text-slate-900", bg: "bg-slate-100" },
+                { name: "TypeScript", desc: "Type safety", icon: Code2, color: "text-blue-600", bg: "bg-blue-50" },
+                { name: "Tailwind CSS", desc: "Styling", icon: Sparkles, color: "text-cyan-600", bg: "bg-cyan-50" },
+              ].map((tech) => {
+                const TechIcon = tech.icon;
+                return (
+                  <div
+                    key={`${setIdx}-${tech.name}`}
+                    className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-4 shrink-0 hover:border-slate-400 transition-all duration-300"
+                  >
+                    <div className={`w-10 h-10 rounded-xl ${tech.bg} flex items-center justify-center shrink-0`}>
+                      <TechIcon size={18} className={tech.color} />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-sm font-bold text-slate-900 font-(family-name:--font-doto)">{tech.name}</div>
+                      <div className="text-[11px] text-slate-400">{tech.desc}</div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Team ─── */}
+      <section id="team" className="py-28 px-6 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">The Team</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-slate-900 font-(family-name:--font-doto)">
+              Meet the{" "}
+              <span className="text-emerald-600">builders</span>
+            </h2>
+            <p className="text-slate-500 max-w-lg mx-auto text-[15px] leading-relaxed">
+              Two full-stack developers passionate about building AI-powered tools that make work easier.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { name: "Groq", desc: "LLM inference", icon: Zap },
-              { name: "Hugging Face", desc: "Embeddings", icon: Brain },
-              { name: "Supabase", desc: "Auth & database", icon: ShieldCheck },
-              { name: "Next.js", desc: "App framework", icon: Globe },
-            ].map((tech, i) => (
+              {
+                name: "Huzaif",
+                role: "Full Stack Developer",
+                bio: "Passionate about building seamless user experiences and scalable backend systems. Focused on AI integration and real-time features.",
+                skills: ["React", "Next.js", "Node.js", "AI/ML"],
+                gradient: "from-emerald-500 to-teal-500",
+                initial: "H",
+              },
+              {
+                name: "Faisal",
+                role: "Full Stack Developer",
+                bio: "Driven by clean architecture and performance optimization. Specializes in database design, API development, and cloud infrastructure.",
+                skills: ["TypeScript", "Supabase", "Python", "DevOps"],
+                gradient: "from-blue-500 to-indigo-500",
+                initial: "F",
+              },
+            ].map((member, i) => (
               <motion.div
-                key={tech.name}
-                initial={{ opacity: 0, y: 16, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                key={member.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-                whileHover={{ y: -4 }}
-                className="group rounded-xl border border-slate-200 bg-white p-5 text-center hover:border-emerald-200 hover:shadow-md transition-all duration-300"
+                transition={{ delay: i * 0.15, duration: 0.5 }}
+                className="group rounded-2xl border border-slate-200 bg-white p-8 hover:border-slate-400 transition-all duration-300 relative overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-emerald-50 transition-colors">
-                  <tech.icon size={18} className="text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                <div className={`absolute top-0 left-0 right-0 h-1 bg-linear-to-r ${member.gradient}`} />
+
+                <div className="flex items-start gap-5 mb-6">
+                  <div className={`w-16 h-16 rounded-2xl bg-linear-to-br ${member.gradient} flex items-center justify-center shrink-0`}>
+                    <span className="text-2xl font-black text-white font-(family-name:--font-doto)">{member.initial}</span>
+                  </div>
+                  <div className="pt-1">
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight font-(family-name:--font-doto)">{member.name}</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Code2 size={13} className="text-slate-400" />
+                      <span className="text-sm text-slate-500 font-medium">{member.role}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm font-semibold mb-0.5 text-slate-900">{tech.name}</div>
-                <div className="text-[11px] text-slate-400">{tech.desc}</div>
+
+                <p className="text-sm text-slate-500 leading-relaxed mb-6">{member.bio}</p>
+
+                <div className="flex flex-wrap gap-2">
+                  {member.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="text-[11px] font-semibold px-3 py-1 rounded-full border border-slate-200 text-slate-500 group-hover:border-slate-300 transition-colors"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="mt-6 pt-5 border-t border-slate-100 flex items-center gap-3">
+                  <a href="#" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 border border-slate-200 rounded-lg px-3 py-1.5 hover:text-slate-900 hover:border-slate-400 transition-all">
+                    <Code2 size={12} />
+                    GitHub
+                  </a>
+                  <a href="#" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 border border-slate-200 rounded-lg px-3 py-1.5 hover:text-slate-900 hover:border-slate-400 transition-all">
+                    <ExternalLink size={12} />
+                    LinkedIn
+                  </a>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -1016,74 +1186,128 @@ export default function HomePage() {
 
       {/* ─── FAQ ─── */}
       <section className="py-28 px-6 bg-slate-50">
-        <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-14"
-          >
-            <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">FAQ</span>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
-              Frequently asked questions
-            </h2>
-          </motion.div>
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12 lg:gap-16">
+            {/* Left: heading */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="lg:sticky lg:top-32 self-start"
+            >
+              <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-3 block">FAQ</span>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4 font-(family-name:--font-doto)">
+                Frequently asked{" "}
+                <span className="text-emerald-600">questions</span>
+              </h2>
+              <p className="text-slate-500 text-[15px] leading-relaxed mb-6">
+                Everything you need to know about Donna. Can&apos;t find what you&apos;re looking for? Reach out to our team.
+              </p>
+              <div className="hidden lg:flex items-center gap-2 text-sm text-slate-400">
+                <MessageSquare size={14} />
+                <span>{faqs.length} questions answered</span>
+              </div>
+            </motion.div>
 
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <FaqItem key={i} question={faq.q} answer={faq.a} index={i} />
-            ))}
+            {/* Right: accordion */}
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <FaqItem key={i} question={faq.q} answer={faq.a} index={i} icon={faq.icon} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-28 px-6 bg-white">
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.97 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center"
-        >
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-12 md:p-16 relative overflow-hidden shadow-sm">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06),transparent_70%)] pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-emerald-500/20 to-transparent" />
-            <div className="relative">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2, duration: 0.4 }}
-                className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-6"
-              >
-                <Sparkles size={24} className="text-emerald-600" />
-              </motion.div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-slate-900">
-                Ready to work smarter?
-              </h2>
-              <p className="text-slate-500 mb-8 max-w-md mx-auto text-[15px]">
-                Join Donna and let AI handle the heavy lifting — from document analysis to email management.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link
-                  href="/signup"
-                  className="group inline-flex items-center gap-2 bg-emerald-600 text-white px-7 py-3 rounded-full font-semibold transition-all text-sm hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-500/20"
+      <section className="py-28 px-6 bg-white relative overflow-hidden">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl border border-slate-200 relative overflow-hidden"
+          >
+            {/* Top accent border */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              {/* Left: content */}
+              <div className="p-10 md:p-14 flex flex-col justify-center">
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.15, duration: 0.5 }}
                 >
-                  Create free account
-                  <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-2 border border-slate-300 text-slate-600 px-7 py-3 rounded-full font-medium transition-all text-sm hover:border-slate-900 hover:text-slate-900"
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-6">
+                    <Sparkles size={22} className="text-emerald-600" />
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-slate-900 font-(family-name:--font-doto)">
+                    Ready to work{" "}
+                    <span className="text-emerald-600">smarter?</span>
+                  </h2>
+                  <p className="text-slate-500 mb-8 text-[15px] leading-relaxed max-w-sm">
+                    Join Donna and let AI handle the heavy lifting — from document analysis to email management.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-start gap-3">
+                    <Link
+                      href="/signup"
+                      className="group inline-flex items-center gap-2 bg-slate-900 text-white px-7 py-3 rounded-full font-semibold transition-all text-sm hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
+                    >
+                      Get started free
+                      <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
+                    <Link
+                      href="/login"
+                      className="inline-flex items-center gap-2 border border-slate-300 text-slate-600 px-7 py-3 rounded-full font-medium transition-all text-sm hover:border-slate-900 hover:text-slate-900"
+                    >
+                      Sign in
+                    </Link>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Right: feature highlights */}
+              <div className="bg-slate-50 p-10 md:p-14 border-t lg:border-t-0 lg:border-l border-slate-200">
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.25, duration: 0.5 }}
+                  className="space-y-5"
                 >
-                  Sign in
-                </Link>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">What you get</p>
+                  {[
+                    { icon: Brain, text: "AI chat powered by Groq — blazing fast responses" },
+                    { icon: FileText, text: "Upload PDFs, Word, Excel — 10+ formats supported" },
+                    { icon: Mail, text: "Gmail integration — read, draft & send from chat" },
+                    { icon: Lock, text: "100% private — your data never leaves your workspace" },
+                  ].map((item, i) => {
+                    const ItemIcon = item.icon;
+                    return (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: 16 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
+                        className="flex items-start gap-3"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5">
+                          <ItemIcon size={14} className="text-emerald-600" />
+                        </div>
+                        <span className="text-sm text-slate-600 leading-relaxed">{item.text}</span>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </section>
 
       {/* ─── Footer ─── */}
@@ -1106,6 +1330,7 @@ export default function HomePage() {
               <div className="space-y-2">
                 <a href="#features" className="block text-sm text-slate-500 hover:text-white transition-colors">Features</a>
                 <a href="#how-it-works" className="block text-sm text-slate-500 hover:text-white transition-colors">How it works</a>
+                <a href="#team" className="block text-sm text-slate-500 hover:text-white transition-colors">Team</a>
                 <Link href="/signup" className="block text-sm text-slate-500 hover:text-white transition-colors">Sign up</Link>
               </div>
             </div>

@@ -40,7 +40,7 @@ interface StatCardProps {
 export default function StatCard({ label, value, icon: Icon, index }: StatCardProps) {
   return (
     <motion.div
-      className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+      className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-600 transition-colors"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, duration: 0.4, ease: "easeOut" as const }}

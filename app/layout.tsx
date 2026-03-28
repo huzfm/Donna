@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Doto } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
+import RootLoading from "./loading";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,7 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${doto.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Suspense fallback={<RootLoading />}>
+          {children}
+        </Suspense>
+      </body>
     </html>
   );
 }
