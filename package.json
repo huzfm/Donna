@@ -10,14 +10,17 @@
   },
   "dependencies": {
     "@cyber2024/pdf-parse-fixed": "^1.2.5",
+    "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.100.1",
     "groq-sdk": "^1.1.2",
+    "imapflow": "^1.2.18",
     "mammoth": "^1.12.0",
     "next": "16.2.1",
     "openai": "^6.33.0",
     "pdf-parse": "^2.4.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.9.4",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

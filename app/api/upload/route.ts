@@ -2,10 +2,16 @@ export const runtime = "nodejs";
 
 import { chunkText } from "@/lib/chunk";
 import { embed } from "@/lib/embed";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
@@ -130,6 +136,7 @@ export async function POST(req: Request) {
       embedding: embeddings[i],
       file_name: file.name,
       chunk_index: i,
+      user_id: user.id,
     }));
 
     // insert into supabase
