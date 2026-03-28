@@ -7,18 +7,20 @@ export async function embed(texts: string[]) {
         Authorization: `Bearer ${process.env.HF_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        inputs: texts,
-      }),
+      body: JSON.stringify({ inputs: texts }),
     }
   );
 
   const data = await res.json();
 
   if (!Array.isArray(data)) {
-    console.error("HF ERROR:", data);
     throw new Error("Embedding failed: " + JSON.stringify(data));
   }
 
-  return data;
+  // ✅ Always normalize to array of flat embeddings
+  return data.map((item: any) => {
+    // If item is nested [[...]], unwrap it
+    if (Array.isArray(item[0])) return item[0];
+    return item;
+  });
 }
