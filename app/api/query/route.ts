@@ -133,17 +133,24 @@ User request: ${question}
    ✅  --> EndNode[End]   Use a labelled node instead
    ✅  --> StartNode[Start]
 
-3. NODE LABEL TEXT — no markdown formatting inside Mermaid code:
-   ❌  A[**Bold text**]   FORBIDDEN — bold inside node labels breaks parsing
-   ✅  A[Bold text]       Just plain text inside brackets
+3. NODE LABEL TEXT rules:
+   ❌  A[**Bold text**]              FORBIDDEN — markdown bold breaks parsing
+   ❌  A[India Refunds (site.com)]  FORBIDDEN — parentheses ( ) inside [ ] labels break parsing!
+   ✅  A[India Refunds site.com]    Replace ( ) with spaces or remove them entirely
+   ❌  A[Very long label text that goes on and on and on]  Keep labels SHORT (under 40 chars)
+   ✅  A[Short descriptive label]   Truncate if needed
 
-4. OUTPUT FORMAT — return ONLY:
+4. UNIQUE NODE IDs — every node identifier must be unique in the diagram:
+   ❌  A[Description]  ...  A[Description]   FORBIDDEN — duplicate ID 'A' causes silent overwrites
+   ✅  DescA[Description of X]  ...  DescB[Description of Y]   Use distinct IDs
+
+5. OUTPUT FORMAT — return ONLY:
 \`\`\`mermaid
 <your mermaid code here>
 \`\`\`
 Then 1-2 sentences explaining the diagram. No other text before the code block.
 
-5. SUPPORTED TYPES: flowchart, sequenceDiagram, erDiagram, mindmap, classDiagram, gantt, pie, gitGraph
+6. SUPPORTED TYPES: flowchart, sequenceDiagram, erDiagram, mindmap, classDiagram, gantt, pie, gitGraph
 
 CORRECT flowchart example:
 \`\`\`mermaid
@@ -319,25 +326,25 @@ Answer:`;
       .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
       .join("\n\n---\n\n");
 
-    const prompt = `
-You are Donna, a knowledgeable AI assistant. Answer the user's question thoroughly and completely using the context below.
+    const prompt = `You are Donna. Answer the user's question using ONLY the document context below.
 
 RULES:
-- Use ALL relevant information from the context — do NOT truncate or cut short your answer.
-- If multiple sources provide related info, combine them into a complete answer.
-- Use markdown formatting: headers, bullet points, bold text, and code blocks where appropriate.
-- If the answer is genuinely not in the context, say "I don't have that information in your uploaded files."
-- Take conversation history into account for follow-up questions.
+- Include every relevant fact from the context that directly answers the question.
+- Do NOT add information not present in the context.
+- Do NOT repeat the same point more than once.
+- Do NOT pad with filler phrases like "Great question" or "Certainly".
+- Use markdown (bullet points, bold, headers) only when it genuinely improves clarity.
+- If the answer is not in the context, say exactly: "I don't have that information in your uploaded files."
+- For follow-up questions, use the conversation history to maintain context.
 
 ${historyBlock ? `## Conversation History\n${historyBlock}\n` : ""}
-
 ## Document Context
 ${context}
 
-## Current Question
+## Question
 ${question}
 
-## Answer (be thorough and complete):`;
+## Answer:`;
 
     const answer = await askGroq(prompt);
 
