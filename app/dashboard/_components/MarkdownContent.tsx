@@ -28,7 +28,7 @@ function CodeBlock({ children, className }: { children?: React.ReactNode; classN
           onClick={handleCopy}
           className="flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-900"
         >
-          {copied ? <Check size={11} className="text-emerald-600" /> : <Copy size={11} />}
+          {copied ? <Check size={11} className="text-black" /> : <Copy size={11} />}
           {copied ? "Copied!" : "Copy"}
         </button>
       </div>
@@ -43,7 +43,7 @@ function CodeBlock({ children, className }: { children?: React.ReactNode; classN
 /* ── Inline code ── */
 function InlineCode({ children }: { children?: React.ReactNode }) {
   return (
-    <code className="rounded-md border border-emerald-200/80 bg-emerald-50/80 px-1.5 py-0.5 font-mono text-[13px] text-emerald-900">
+    <code className="rounded-md border border-slate-300/80 bg-slate-100/80 px-1.5 py-0.5 font-mono text-[13px] text-black">
       {children}
     </code>
   );
@@ -86,7 +86,7 @@ export default function MarkdownContent({ content }: { content: string }) {
 
         /* Ordered list */
         ol: ({ children }) => (
-          <ol className="my-2 space-y-1.5 pl-5 text-emerald-700">{children}</ol>
+          <ol className="my-2 space-y-1.5 pl-5 text-black">{children}</ol>
         ),
 
         li: ({ children, ...props }) => {
@@ -95,7 +95,7 @@ export default function MarkdownContent({ content }: { content: string }) {
           return (
             <li className="flex items-start gap-2.5 text-[14px] leading-relaxed text-slate-700">
               {!isOrdered && (
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-800" />
               )}
               <span className={isOrdered ? "ml-0.5 list-item list-decimal" : ""}>{children}</span>
             </li>
@@ -104,7 +104,7 @@ export default function MarkdownContent({ content }: { content: string }) {
 
         /* Blockquote */
         blockquote: ({ children }) => (
-          <blockquote className="my-3 rounded-r-lg border-l-[3px] border-emerald-500 bg-emerald-50/50 py-2 pl-4 text-[14px] text-slate-600 italic">
+          <blockquote className="my-3 rounded-r-lg border-l-[3px] border-slate-300 bg-slate-100/50 py-2 pl-4 text-[14px] text-slate-600 italic">
             {children}
           </blockquote>
         ),
@@ -118,7 +118,7 @@ export default function MarkdownContent({ content }: { content: string }) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-900"
+            className="text-black underline underline-offset-2 transition-colors hover:text-black"
           >
             {children}
           </a>

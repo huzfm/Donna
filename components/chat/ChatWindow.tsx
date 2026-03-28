@@ -171,7 +171,7 @@ export default function ChatWindow({
         >
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <BrandMark size="sm" className="shrink-0 shadow-sm shadow-emerald-500/10" />
+              {/* <BrandMark size="sm" className="shrink-0 shadow-sm shadow-emerald-500/10" /> */}
               <div className="min-w-0">
                 <p className="font-(family-name:--font-doto) truncate text-sm font-black tracking-tight text-slate-950">
                   Chat
@@ -240,7 +240,7 @@ export default function ChatWindow({
                   </motion.div>
 
                   <motion.div variants={chatStaggerItem} className="relative mb-6">
-                    <BrandLogo size="hero" animate />
+                    {/* <BrandLogo size="hero" animate /> */}
                     <motion.div
                       className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/30 ring-2 ring-white"
                       animate={{ rotate: [0, 8, -8, 0] }}

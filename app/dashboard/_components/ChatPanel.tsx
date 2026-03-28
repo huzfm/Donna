@@ -37,7 +37,7 @@ function CopyButton({ text }: { text: string }) {
       className="rounded-lg p-1.5 text-slate-500 opacity-0 transition-all group-hover:bg-slate-100 group-hover:text-slate-800 group-hover:opacity-100"
       title="Copy"
     >
-      {copied ? <Check size={13} style={{ color: "#34d399" }} /> : <Copy size={13} />}
+      {copied ? <Check size={13} className="text-black" /> : <Copy size={13} />}
     </button>
   );
 }
@@ -53,10 +53,10 @@ interface EmailDraft {
 
 type Tone = "professional" | "friendly" | "concise";
 
-const TONES: { id: Tone; label: string; emoji: string }[] = [
-  { id: "professional", label: "Professional", emoji: "💼" },
-  { id: "friendly", label: "Friendly", emoji: "😊" },
-  { id: "concise", label: "Concise", emoji: "⚡" },
+const TONES: { id: Tone; label: string;  }[] = [
+  { id: "professional", label: "Professional", },
+  { id: "friendly", label: "Friendly"},
+  { id: "concise", label: "Concise"},
 ];
 
 function EmailComposeModal({
@@ -187,8 +187,8 @@ function EmailComposeModal({
   };
 
   const fieldStyle = (f: keyof EmailDraft) => ({
-    background: focused === f ? "#f0fdf4" : "#ffffff",
-    border: `1px solid ${focused === f ? "#6ee7b7" : "#e2e8f0"}`,
+    background: focused === f ? "#f8fafc" : "#ffffff",
+    border: `1px solid ${focused === f ? "#94a3b8" : "#e2e8f0"}`,
     transition: "all 0.18s",
   });
 
@@ -201,14 +201,14 @@ function EmailComposeModal({
       className="absolute right-0 bottom-full left-0 z-50 mb-3 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-emerald-100/80 bg-emerald-50/50 px-5 py-3.5">
+      <div className="flex items-center justify-between border-b border-slate-300/80 bg-slate-100/50 px-5 py-3.5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-linear-to-br from-emerald-600 to-teal-600 shadow-sm shadow-emerald-500/20">
+          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-slate-900 shadow-sm shadow-slate-300/20">
             <Mail size={13} className="text-white" />
           </div>
           <span className="text-[13px] font-semibold text-slate-900">New Email</span>
-          <span className="ml-1 flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-800">
-            <Sparkles size={8} className="text-emerald-600" />
+          <span className="ml-1 flex items-center gap-1 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-black">
+            <Sparkles size={8} className="text-black" />
             AI
           </span>
         </div>
@@ -222,7 +222,7 @@ function EmailComposeModal({
 
       {/* Tone selector */}
       <div className="flex items-center gap-2 border-b border-slate-100 bg-white/80 px-4 py-2.5">
-        <Sparkles size={10} className="shrink-0 text-emerald-600" />
+        <Sparkles size={10} className="shrink-0 text-black" />
         <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Tone</span>
         <div className="flex gap-1.5 ml-1">
           {TONES.map((t) => (
@@ -231,9 +231,9 @@ function EmailComposeModal({
               onClick={() => setTone(t.id)}
               className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10.5px] font-medium transition-all"
               style={{
-                background: tone === t.id ? "#d1fae5" : "#f8fafc",
-                color: tone === t.id ? "#065f46" : "#64748b",
-                border: `1px solid ${tone === t.id ? "#6ee7b7" : "#e2e8f0"}`,
+                background: tone === t.id ? "#f1f5f9" : "#f8fafc",
+                color: tone === t.id ? "#0f172a" : "#64748b",
+                border: `1px solid ${tone === t.id ? "#94a3b8" : "#e2e8f0"}`,
               }}
             >
               {t.emoji} {t.label}
@@ -281,7 +281,7 @@ function EmailComposeModal({
               onClick={handleSuggestSubject}
               disabled={!draft.body.trim() || suggestingSubject}
               title="AI suggest subject lines"
-              className="ml-1 flex shrink-0 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-800 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+              className="ml-1 flex shrink-0 items-center gap-1 rounded-lg border border-slate-300 bg-slate-100 px-2 py-1 text-[10px] font-medium text-black transition-all disabled:cursor-not-allowed disabled:opacity-50"
             >
               {suggestingSubject ? (
                 <motion.div
@@ -316,9 +316,9 @@ function EmailComposeModal({
                         setDraft((d) => ({ ...d, subject: s }));
                         setSubjectSuggestions([]);
                       }}
-                      className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-left text-[12px] text-slate-800 transition-all hover:border-emerald-200 hover:bg-emerald-50"
+                      className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-left text-[12px] text-slate-800 transition-all hover:border-slate-300 hover:bg-slate-100"
                     >
-                      <ChevronRight size={10} className="shrink-0 text-emerald-600" />
+                      <ChevronRight size={10} className="shrink-0 text-black" />
                       {s}
                     </button>
                   ))}
@@ -333,8 +333,8 @@ function EmailComposeModal({
           className="overflow-hidden rounded-xl transition-all"
           style={{
             ...fieldStyle("body"),
-            border: improveFlash ? "1px solid rgba(16,185,129,0.45)" : fieldStyle("body").border,
-            boxShadow: improveFlash ? "0 0 12px rgba(16,185,129,0.2)" : "none",
+            border: improveFlash ? "1px solid rgba(0,0,0,0.45)" : fieldStyle("body").border,
+            boxShadow: improveFlash ? "0 0 12px rgba(0,0,0,0.15)" : "none",
           }}
         >
           <div className="px-4 pt-2.5 pb-1">
@@ -346,9 +346,9 @@ function EmailComposeModal({
                 disabled={!draft.body.trim() || improving}
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10.5px] font-medium transition-all"
                 style={{
-                  background: improving ? "rgba(16,185,129,0.18)" : "rgba(16,185,129,0.1)",
-                  color: !draft.body.trim() ? "#94a3b8" : "#047857",
-                  border: `1px solid ${improving ? "#6ee7b7" : "#a7f3d0"}`,
+                  background: improving ? "rgba(15,23,42,0.1)" : "rgba(15,23,42,0.05)",
+                  color: !draft.body.trim() ? "#94a3b8" : "#0f172a",
+                  border: `1px solid ${improving ? "#94a3b8" : "#cbd5e1"}`,
                   cursor: !draft.body.trim() ? "not-allowed" : "pointer",
                 }}
                 title={`Improve with AI (${tone} tone)`}
@@ -386,7 +386,7 @@ function EmailComposeModal({
                 }}
                 placeholder="Write your message here…"
                 rows={5}
-                className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed text-slate-900 outline-none caret-emerald-600"
+                className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed text-slate-900 outline-none caret-black"
               />
               {/* Ghost text shown below current text */}
               {ghostText && (
@@ -416,7 +416,7 @@ function EmailComposeModal({
           disabled={!canSend}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-[12.5px] font-semibold transition-all ${
             canSend
-              ? "cursor-pointer bg-linear-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25"
+              ? "cursor-pointer bg-slate-900 text-white shadow-md shadow-slate-300/25"
               : "cursor-not-allowed bg-slate-200 text-slate-400"
           }`}
         >
@@ -484,12 +484,12 @@ function SlashPopup({
             >
               <div
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                  hovered === cmd.trigger ? "bg-emerald-100" : "bg-slate-100"
+                  hovered === cmd.trigger ? "bg-slate-200" : "bg-slate-100"
                 }`}
               >
                 <cmd.icon
                   size={13}
-                  className={hovered === cmd.trigger ? "text-emerald-700" : "text-slate-500"}
+                  className={hovered === cmd.trigger ? "text-black" : "text-slate-500"}
                 />
               </div>
               <div className="min-w-0">
@@ -504,7 +504,7 @@ function SlashPopup({
       {/* Right: AI suggestions for hovered command */}
       <div className="min-w-0 flex-1 bg-slate-50/50 p-3">
         <p className="mb-2.5 flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
-          <Sparkles size={9} className="text-emerald-600" />
+          <Sparkles size={9} className="text-black" />
           Suggestions
         </p>
         <div className="space-y-1.5">
@@ -518,9 +518,9 @@ function SlashPopup({
                     : s
                 )
               }
-              className="flex w-full items-start gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left transition-all hover:border-emerald-200 hover:bg-emerald-50/80"
+              className="flex w-full items-start gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left transition-all hover:border-slate-300 hover:bg-slate-100/80"
             >
-              <ChevronRight size={11} className="mt-0.5 shrink-0 text-emerald-600" />
+              <ChevronRight size={11} className="mt-0.5 shrink-0 text-black" />
               <span className="text-[12px] leading-snug text-slate-700">{s}</span>
             </button>
           ))}
@@ -591,9 +591,8 @@ export default function ChatPanel({
       {/* ── Topbar ── */}
       <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 px-6 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <BrandMark size="sm" className="shadow-sm shadow-emerald-500/15" />
           <div>
-            <span className="font-(family-name:--font-doto) text-sm font-black tracking-tight text-slate-950">
+            <span className="font-(family-name:--font-doto) text-xl font-black tracking-tight text-slate-950">
               Donna
             </span>
             <p className="text-[11px] text-slate-500">
@@ -622,18 +621,16 @@ export default function ChatPanel({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-emerald-200/35 bg-white/70 px-6 py-10 shadow-[0_4px_32px_-12px_rgba(16,185,129,0.12)] ring-1 ring-emerald-500/[0.05] backdrop-blur-sm"
+              className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-300/35 bg-white/70 px-6 py-10 shadow-[0_4px_32px_-12px_rgba(16,185,129,0.12)] ring-1 ring-slate-300/[0.05] backdrop-blur-sm"
             >
               <div className="lightning-grid pointer-events-none absolute inset-0 opacity-[0.22]">
                 <div className="lightning-grid-lines" />
               </div>
-              <div className="relative mb-8 flex justify-center">
-                <BrandLogo size="hero" animate href={null} />
-              </div>
+           
               <div className="relative">
                 <h2 className="font-(family-name:--font-doto) mb-2 text-2xl font-black tracking-tight text-slate-950 md:text-3xl">
                   Hello — I&apos;m{" "}
-                  <span className="bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                  <span className="bg-slate-900 bg-clip-text text-transparent">
                     Donna
                   </span>
                 </h2>
@@ -641,7 +638,7 @@ export default function ChatPanel({
                   Your personal AI assistant for documents, email, and calendar.
                 </p>
                 <p className="mx-auto max-w-md text-sm text-slate-500">
-                  Type a message below or use <span className="font-mono text-xs text-emerald-700">/</span> commands.
+                  Type a message below or use <span className="font-mono text-xs text-black">/</span> commands.
                 </p>
               </div>
             </motion.div>
@@ -664,7 +661,7 @@ export default function ChatPanel({
                   </div>
                 ) : (
                   <div className="flex items-start gap-3.5">
-                    <div className="mt-0.5 shrink-0 shadow-sm shadow-emerald-500/10">
+                    <div className="mt-0.5 shrink-0 shadow-sm shadow-slate-300/10">
                       <BrandMark size="bubble" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -694,17 +691,17 @@ export default function ChatPanel({
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-start gap-3.5"
               >
-                <div className="mt-0.5 shrink-0 shadow-sm shadow-emerald-500/10">
+                <div className="mt-0.5 shrink-0 shadow-sm shadow-slate-300/10">
                   <BrandMark size="bubble" floating />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-emerald-100/90 bg-linear-to-r from-white to-emerald-50/50 px-4 py-3 ring-1 ring-emerald-500/[0.06]">
-                  <span className="mr-1 text-[10px] font-semibold tracking-wider text-emerald-700 uppercase">
+                <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-slate-300/90 bg-slate-50 px-4 py-3 ring-1 ring-slate-300/[0.06]">
+                  <span className="mr-1 text-[10px] font-semibold tracking-wider text-black uppercase">
                     Thinking
                   </span>
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
-                      className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                      className="h-1.5 w-1.5 rounded-full bg-slate-1000"
                       animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
                       transition={{ delay: i * 0.18, duration: 1, repeat: Infinity }}
                     />
@@ -732,7 +729,7 @@ export default function ChatPanel({
           </AnimatePresence>
 
           {/* Input box */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.04] transition-all focus-within:border-emerald-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.15)] focus-within:ring-2 focus-within:ring-emerald-500/15">
+          <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.04] transition-all focus-within:border-slate-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.15)] focus-within:ring-2 focus-within:ring-slate-300/15">
             {/* Row 1 — Textarea */}
             <div className="px-4 pt-3.5 pb-2">
               <textarea
@@ -748,7 +745,7 @@ export default function ChatPanel({
                 }}
                 placeholder="Message Donna or type / for commands"
                 rows={1}
-                className="max-h-[180px] w-full resize-none bg-transparent text-[14px] leading-relaxed text-slate-900 outline-none caret-emerald-600 placeholder:text-slate-400"
+                className="max-h-[180px] w-full resize-none bg-transparent text-[14px] leading-relaxed text-slate-900 outline-none caret-black placeholder:text-slate-400"
               />
             </div>
 
@@ -759,7 +756,7 @@ export default function ChatPanel({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-emerald-50 hover:text-emerald-700"
+                  className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-slate-100 hover:text-black"
                   title="Attach file"
                 >
                   <Paperclip size={15} />
@@ -784,7 +781,7 @@ export default function ChatPanel({
                       if (cmd.trigger === "/email") setEmailOpen(true);
                       else onInputChange(cmd.fill);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50/80 px-2 py-1 font-mono text-[10.5px] text-slate-600 transition-all hover:border-emerald-200 hover:bg-emerald-50/80 hover:text-emerald-900"
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50/80 px-2 py-1 font-mono text-[10.5px] text-slate-600 transition-all hover:border-slate-300 hover:bg-slate-100/80 hover:text-black"
                   >
                     <cmd.icon size={9} />
                     {cmd.trigger}
@@ -810,7 +807,7 @@ export default function ChatPanel({
                     disabled={!input.trim()}
                     className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all ${
                       input.trim()
-                        ? "cursor-pointer bg-linear-to-br from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25"
+                        ? "cursor-pointer bg-slate-900 text-white shadow-lg shadow-slate-300/25"
                         : "cursor-not-allowed bg-slate-200 text-slate-400"
                     }`}
                     title="Send"

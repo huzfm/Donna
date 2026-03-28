@@ -38,7 +38,6 @@ export default function ChatSidebar({
       className="flex w-[280px] shrink-0 flex-col border-r border-slate-200/90 bg-linear-to-b from-slate-50/95 via-white to-white"
     >
       <div className="border-b border-slate-200/80 px-4 py-4">
-        <BrandLogo size="sm" href="/" className="mb-3" />
         <p className="mb-3.5 text-[11px] leading-relaxed text-slate-500">
           Quick tools, sessions, and the same Donna mark as the homepage.
         </p>
@@ -148,7 +147,7 @@ export default function ChatSidebar({
               animate={{ y: [0, -3, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <BrandMark size="md" className="shadow-md shadow-emerald-500/15" />
+              {/* <BrandMark size="md" className="shadow-md shadow-emerald-500/15" /> */}
             </motion.div>
             <p className="text-xs font-medium text-slate-600">No conversations yet</p>
             <p className="mt-1 px-4 text-[11px] leading-relaxed text-slate-400">
