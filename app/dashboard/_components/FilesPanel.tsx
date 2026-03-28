@@ -98,7 +98,7 @@ export default function FilesPanel({
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 px-6 py-4 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200/60">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-200 text-black ring-1 ring-slate-300/60">
             <Database size={15} strokeWidth={2} />
           </span>
           <div>
@@ -110,7 +110,7 @@ export default function FilesPanel({
             </p>
           </div>
         </div>
-        <label className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:ring-2 hover:ring-emerald-500/20">
+        <label className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-lg shadow-slate-300/25 transition-all hover:ring-2 hover:ring-slate-300/20">
           {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} strokeWidth={2.5} />}
           {uploading ? "Uploading…" : "Add files"}
           <input
@@ -131,17 +131,17 @@ export default function FilesPanel({
             <div className="mb-6 grid grid-cols-4 gap-3">
               {/* Stat cards */}
               {[
-                { label: "Total files", value: files.length, icon: Database, color: "emerald" },
-                { label: "File types", value: pieData.length, icon: HardDrive, color: "teal" },
-                { label: "Indexed", value: files.length, icon: CheckCircle2, color: "emerald" },
-                { label: "Status", value: "Ready", icon: Search, color: "emerald" },
+                { label: "Total files", value: files.length, icon: Database, color: "slate" },
+                { label: "File types", value: pieData.length, icon: HardDrive, color: "slate" },
+                { label: "Indexed", value: files.length, icon: CheckCircle2, color: "slate" },
+                { label: "Status", value: "Ready", icon: Search, color: "slate" },
               ].map((stat) => (
                 <div
                   key={stat.label}
                   className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200 text-black">
                       <stat.icon size={13} strokeWidth={2.5} />
                     </span>
                   </div>
@@ -211,8 +211,8 @@ export default function FilesPanel({
               onDrop={handleDrop}
               className={`${files.length > 0 && pieData.length > 0 ? "col-span-3" : "col-span-1"} flex cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200 ${
                 dragOver
-                  ? "border-emerald-400 bg-emerald-50/90 shadow-lg shadow-emerald-500/10"
-                  : "border-slate-200/90 bg-white hover:border-emerald-300 hover:bg-emerald-50/20 hover:shadow-md"
+                  ? "border-slate-300 bg-slate-100/90 shadow-lg shadow-slate-300/10"
+                  : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-100/20 hover:shadow-md"
               }`}
             >
               <input
@@ -222,17 +222,17 @@ export default function FilesPanel({
                 multiple
                 onChange={(e) => Array.from(e.target.files || []).forEach(onUpload)}
               />
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100/80 ring-1 ring-emerald-200/60">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-200/80 ring-1 ring-slate-300/60">
                 {uploading ? (
-                  <Loader2 size={24} className="animate-spin text-emerald-600" />
+                  <Loader2 size={24} className="animate-spin text-black" />
                 ) : (
-                  <Upload size={24} className="text-emerald-700" />
+                  <Upload size={24} className="text-black" />
                 )}
               </div>
               {uploading ? (
                 <p className="animate-pulse text-sm font-medium text-slate-600">Processing…</p>
               ) : dragOver ? (
-                <p className="text-sm font-semibold text-emerald-800">Release to upload</p>
+                <p className="text-sm font-semibold text-black">Release to upload</p>
               ) : (
                 <>
                   <div>
@@ -268,8 +268,8 @@ export default function FilesPanel({
             </div>
           ) : files.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/80 ring-1 ring-emerald-200/50">
-                <FolderOpen size={26} className="text-emerald-600" />
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-300 bg-slate-100/80 ring-1 ring-slate-300/50">
+                <FolderOpen size={26} className="text-black" />
               </div>
               <p className="font-(family-name:--font-doto) text-base font-black tracking-tight text-slate-900">
                 No files yet
@@ -281,7 +281,7 @@ export default function FilesPanel({
           ) : (
             <>
               {/* Search bar */}
-              <div className="mb-4 flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-2 shadow-sm transition-all focus-within:border-emerald-300 focus-within:ring-2 focus-within:ring-emerald-500/15">
+              <div className="mb-4 flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-2 shadow-sm transition-all focus-within:border-slate-300 focus-within:ring-2 focus-within:ring-slate-300/15">
                 <Search size={14} className="shrink-0 text-slate-400" />
                 <input
                   type="text"
@@ -311,7 +311,7 @@ export default function FilesPanel({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ delay: i * 0.03, duration: 0.15 }}
-                        className="group relative flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm transition-all duration-150 hover:border-emerald-200 hover:shadow-md"
+                        className="group relative flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm transition-all duration-150 hover:border-slate-300 hover:shadow-md"
                       >
                         <div
                           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
@@ -335,7 +335,7 @@ export default function FilesPanel({
                               {timeAgo(f.uploaded_at)}
                             </span>
                           </div>
-                          <div className="mt-1.5 flex items-center gap-1 text-[10px] text-emerald-600">
+                          <div className="mt-1.5 flex items-center gap-1 text-[10px] text-black">
                             <CheckCircle2 size={10} />
                             <span>Indexed</span>
                           </div>
