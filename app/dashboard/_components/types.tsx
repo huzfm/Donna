@@ -2,9 +2,17 @@ import { Mail, Inbox, FileSearch, Hash, BarChart2, MessageSquare, FileText } fro
 
 /* ─── Types ─── */
 
-export interface UploadedFile { file_name: string; uploaded_at: string; }
+export interface UploadedFile {
+  file_name: string;
+  uploaded_at: string;
+}
 
-export interface ChatSession { id: string; title: string; created_at: string; updated_at: string; }
+export interface ChatSession {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface ChatMessage {
   id: number;
@@ -120,14 +128,26 @@ export function preprocessSlashCommand(raw: string): string {
       const re = new RegExp(`${key}:\\s*\\[?([^\\]\\n]+?)\\]?(?:\\s+(?:subject|body|to):|$)`, "i");
       return text.match(re)?.[1]?.trim() ?? "";
     };
-    const to = field("to"), subject = field("subject"), body = field("body");
-    if (!to) return "I couldn't parse the /email command. Format: /email to: [recipient] subject: [subject] body: [message]";
+    const to = field("to"),
+      subject = field("subject"),
+      body = field("body");
+    if (!to)
+      return "I couldn't parse the /email command. Format: /email to: [recipient] subject: [subject] body: [message]";
     return `Send an email to ${to}${subject ? ` with subject "${subject}"` : ""}${body ? ` and body: ${body}` : ""}`;
   }
   if (/^\/inbox/i.test(text)) return "Check my emails and summarize my inbox";
-  if (/^\/summarize/i.test(text)) { const r = text.replace(/^\/summarize/i, "").trim(); return r ? `Summarize ${r}` : "Summarize the uploaded documents"; }
-  if (/^\/find/i.test(text)) { const r = text.replace(/^\/find/i, "").trim(); return r ? `Find information about ${r}` : "Find the key facts in my uploaded documents"; }
-  if (/^\/diagram/i.test(text)) { const r = text.replace(/^\/diagram/i, "").trim(); return r ? `Create a diagram for ${r}` : "Visualize my documents as a diagram"; }
+  if (/^\/summarize/i.test(text)) {
+    const r = text.replace(/^\/summarize/i, "").trim();
+    return r ? `Summarize ${r}` : "Summarize the uploaded documents";
+  }
+  if (/^\/find/i.test(text)) {
+    const r = text.replace(/^\/find/i, "").trim();
+    return r ? `Find information about ${r}` : "Find the key facts in my uploaded documents";
+  }
+  if (/^\/diagram/i.test(text)) {
+    const r = text.replace(/^\/diagram/i, "").trim();
+    return r ? `Create a diagram for ${r}` : "Visualize my documents as a diagram";
+  }
   return text;
 }
 
@@ -135,6 +155,7 @@ export function fileIcon(name: string) {
   const ext = name.split(".").pop()?.toLowerCase();
   if (ext === "pdf") return <FileText size={16} className="text-red-500" />;
   if (ext === "doc" || ext === "docx") return <FileText size={16} className="text-blue-500" />;
-  if (ext === "xls" || ext === "xlsx" || ext === "csv") return <FileText size={16} className="text-green-600" />;
+  if (ext === "xls" || ext === "xlsx" || ext === "csv")
+    return <FileText size={16} className="text-green-600" />;
   return <FileText size={16} className="text-neutral-400" />;
 }

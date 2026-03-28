@@ -59,4 +59,3 @@ export async function getRecentEmails(
   // Return newest first
   return emails.reverse();
 }
-

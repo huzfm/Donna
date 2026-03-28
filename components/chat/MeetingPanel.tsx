@@ -12,10 +12,22 @@ interface MeetingPanelProps {
 }
 
 const timeSlots = [
-  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
-  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-  "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
+  "9:00 AM",
+  "9:30 AM",
+  "10:00 AM",
+  "10:30 AM",
+  "11:00 AM",
+  "11:30 AM",
+  "12:00 PM",
+  "12:30 PM",
+  "1:00 PM",
+  "1:30 PM",
+  "2:00 PM",
+  "2:30 PM",
+  "3:00 PM",
+  "3:30 PM",
+  "4:00 PM",
+  "4:30 PM",
   "5:00 PM",
 ];
 
@@ -39,24 +51,26 @@ function MiniCalendar({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <button
           onClick={() => setMonth(new Date(year, m - 1, 1))}
-          className="w-7 h-7 rounded-md hover:bg-surface-2 flex items-center justify-center text-secondary"
+          className="hover:bg-surface-2 text-secondary flex h-7 w-7 items-center justify-center rounded-md"
         >
           <ChevronLeft size={16} />
         </button>
-        <span className="text-sm font-medium text-primary">{monthName}</span>
+        <span className="text-primary text-sm font-medium">{monthName}</span>
         <button
           onClick={() => setMonth(new Date(year, m + 1, 1))}
-          className="w-7 h-7 rounded-md hover:bg-surface-2 flex items-center justify-center text-secondary"
+          className="hover:bg-surface-2 text-secondary flex h-7 w-7 items-center justify-center rounded-md"
         >
           <ChevronRight size={16} />
         </button>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
-          <div key={d} className="text-xs text-muted py-1">{d}</div>
+          <div key={d} className="text-muted py-1 text-xs">
+            {d}
+          </div>
         ))}
         {Array.from({ length: firstDay }).map((_, i) => (
           <div key={`e-${i}`} />
@@ -69,7 +83,7 @@ function MiniCalendar({
             <motion.button
               key={day}
               onClick={() => onSelect(day)}
-              className={`w-8 h-8 rounded-md text-xs font-medium transition-colors ${
+              className={`h-8 w-8 rounded-md text-xs font-medium transition-colors ${
                 isSelected
                   ? "bg-accent text-white"
                   : isToday
@@ -110,17 +124,17 @@ export default function MeetingPanel({ isOpen, onClose }: MeetingPanelProps) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="absolute right-0 top-0 bottom-0 w-[400px] bg-white border-l border-border z-20 flex flex-col"
+          className="border-border absolute top-0 right-0 bottom-0 z-20 flex w-[400px] flex-col border-l bg-white"
           variants={slideInRight}
           initial="hidden"
           animate="visible"
           exit="exit"
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h2 className="text-base font-semibold text-primary">Schedule Meeting</h2>
+          <div className="border-border flex items-center justify-between border-b px-6 py-4">
+            <h2 className="text-primary text-base font-semibold">Schedule Meeting</h2>
             <motion.button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg hover:bg-surface-2 flex items-center justify-center text-secondary transition-colors"
+              className="hover:bg-surface-2 text-secondary flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
               whileTap={{ scale: 0.9 }}
             >
               <X size={18} />
@@ -128,27 +142,33 @@ export default function MeetingPanel({ isOpen, onClose }: MeetingPanelProps) {
           </div>
 
           <motion.div
-            className="flex-1 overflow-y-auto p-6 space-y-5"
+            className="flex-1 space-y-5 overflow-y-auto p-6"
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
           >
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Title</label>
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Title
+              </label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+                className="border-border text-primary focus:ring-accent/20 focus:border-accent w-full rounded-lg border px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
               />
             </motion.div>
 
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Date</label>
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Date
+              </label>
               <MiniCalendar selected={selectedDay} onSelect={setSelectedDay} />
             </motion.div>
 
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Time</label>
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Time
+              </label>
               <motion.div
                 className="grid grid-cols-4 gap-1.5"
                 variants={staggerContainer}
@@ -160,10 +180,10 @@ export default function MeetingPanel({ isOpen, onClose }: MeetingPanelProps) {
                     key={slot}
                     variants={staggerItem}
                     onClick={() => setSelectedTime(slot)}
-                    className={`px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    className={`rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
                       selectedTime === slot
                         ? "bg-accent text-white"
-                        : "border border-border text-secondary hover:bg-accent-light hover:text-accent"
+                        : "border-border text-secondary hover:bg-accent-light hover:text-accent border"
                     }`}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -174,16 +194,18 @@ export default function MeetingPanel({ isOpen, onClose }: MeetingPanelProps) {
             </motion.div>
 
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Duration</label>
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Duration
+              </label>
               <div className="flex gap-2">
                 {durations.map((d) => (
                   <button
                     key={d}
                     onClick={() => setSelectedDuration(d)}
-                    className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                       selectedDuration === d
                         ? "bg-accent text-white"
-                        : "border border-border text-secondary hover:bg-accent-light"
+                        : "border-border text-secondary hover:bg-accent-light border"
                     }`}
                   >
                     {d}
@@ -193,12 +215,14 @@ export default function MeetingPanel({ isOpen, onClose }: MeetingPanelProps) {
             </motion.div>
 
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Attendees</label>
-              <div className="flex flex-wrap gap-1.5 p-2.5 border border-border rounded-lg bg-white min-h-[40px]">
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Attendees
+              </label>
+              <div className="border-border flex min-h-[40px] flex-wrap gap-1.5 rounded-lg border bg-white p-2.5">
                 {attendees.map((a, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1 bg-accent-light text-accent px-2.5 py-1 rounded-full text-xs font-medium"
+                    className="bg-accent-light text-accent inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
                   >
                     {a}
                     <button onClick={() => removeAttendee(i)} className="hover:text-accent-hover">
@@ -216,24 +240,26 @@ export default function MeetingPanel({ isOpen, onClose }: MeetingPanelProps) {
                     }
                   }}
                   placeholder="Add attendee..."
-                  className="outline-none flex-1 min-w-[100px] text-sm text-primary placeholder:text-muted"
+                  className="text-primary placeholder:text-muted min-w-[100px] flex-1 text-sm outline-none"
                 />
               </div>
             </motion.div>
 
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Meeting Link</label>
-              <div className="flex items-center gap-2 p-2.5 border border-border rounded-lg bg-surface text-sm text-secondary">
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Meeting Link
+              </label>
+              <div className="border-border bg-surface text-secondary flex items-center gap-2 rounded-lg border p-2.5 text-sm">
                 <LinkIcon size={14} className="text-muted shrink-0" />
                 <span className="truncate">meet.donna.ai/j/abc-def-ghi</span>
-                <button className="ml-auto text-accent hover:text-accent-hover shrink-0">
+                <button className="text-accent hover:text-accent-hover ml-auto shrink-0">
                   <Copy size={14} />
                 </button>
               </div>
             </motion.div>
           </motion.div>
 
-          <div className="border-t border-border px-6 py-4 flex items-center gap-3">
+          <div className="border-border flex items-center gap-3 border-t px-6 py-4">
             <Button className="flex-1">Send invite</Button>
             <Button variant="ghost">Copy link</Button>
           </div>

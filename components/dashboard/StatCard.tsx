@@ -40,19 +40,19 @@ interface StatCardProps {
 export default function StatCard({ label, value, icon: Icon, index }: StatCardProps) {
   return (
     <motion.div
-      className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-600 transition-colors"
+      className="rounded-xl border border-slate-800 bg-slate-900 p-6 transition-colors hover:border-slate-600"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, duration: 0.4, ease: "easeOut" as const }}
       whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-secondary">{label}</span>
-        <div className="w-9 h-9 rounded-lg bg-accent-light flex items-center justify-center">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-secondary text-sm">{label}</span>
+        <div className="bg-accent-light flex h-9 w-9 items-center justify-center rounded-lg">
           <Icon size={18} className="text-accent" />
         </div>
       </div>
-      <div className="text-3xl font-semibold text-primary tracking-tight">
+      <div className="text-primary text-3xl font-semibold tracking-tight">
         <AnimatedNumber target={value} />
       </div>
     </motion.div>

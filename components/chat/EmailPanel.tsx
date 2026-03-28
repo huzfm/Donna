@@ -34,17 +34,17 @@ export default function EmailPanel({ isOpen, onClose }: EmailPanelProps) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="absolute right-0 top-0 bottom-0 w-[400px] bg-white border-l border-border z-20 flex flex-col"
+          className="border-border absolute top-0 right-0 bottom-0 z-20 flex w-[400px] flex-col border-l bg-white"
           variants={slideInRight}
           initial="hidden"
           animate="visible"
           exit="exit"
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h2 className="text-base font-semibold text-primary">Compose Email</h2>
+          <div className="border-border flex items-center justify-between border-b px-6 py-4">
+            <h2 className="text-primary text-base font-semibold">Compose Email</h2>
             <motion.button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg hover:bg-surface-2 flex items-center justify-center text-secondary transition-colors"
+              className="hover:bg-surface-2 text-secondary flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
               whileTap={{ scale: 0.9 }}
             >
               <X size={18} />
@@ -52,18 +52,20 @@ export default function EmailPanel({ isOpen, onClose }: EmailPanelProps) {
           </div>
 
           <motion.div
-            className="flex-1 overflow-y-auto p-6 space-y-5"
+            className="flex-1 space-y-5 overflow-y-auto p-6"
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
           >
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">To</label>
-              <div className="flex flex-wrap gap-1.5 p-2.5 border border-border rounded-lg bg-white min-h-[40px]">
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                To
+              </label>
+              <div className="border-border flex min-h-[40px] flex-wrap gap-1.5 rounded-lg border bg-white p-2.5">
                 {recipients.map((r, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1 bg-accent-light text-accent px-2.5 py-1 rounded-full text-xs font-medium"
+                    className="bg-accent-light text-accent inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
                   >
                     {r}
                     <button onClick={() => removeRecipient(i)} className="hover:text-accent-hover">
@@ -81,27 +83,31 @@ export default function EmailPanel({ isOpen, onClose }: EmailPanelProps) {
                     }
                   }}
                   placeholder="Add recipient..."
-                  className="outline-none flex-1 min-w-[100px] text-sm text-primary placeholder:text-muted"
+                  className="text-primary placeholder:text-muted min-w-[100px] flex-1 text-sm outline-none"
                 />
               </div>
             </motion.div>
 
             <motion.div variants={staggerItem}>
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Subject</label>
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Subject
+              </label>
               <input
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+                className="border-border text-primary focus:ring-accent/20 focus:border-accent w-full rounded-lg border px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
               />
             </motion.div>
 
             <motion.div variants={staggerItem} className="flex-1">
-              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Body</label>
+              <label className="text-muted mb-2 block text-xs font-medium tracking-wider uppercase">
+                Body
+              </label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 rows={10}
-                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm text-primary leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+                className="border-border text-primary focus:ring-accent/20 focus:border-accent w-full resize-y rounded-lg border px-3 py-2.5 text-sm leading-relaxed focus:ring-2 focus:outline-none"
               />
             </motion.div>
 
@@ -109,7 +115,7 @@ export default function EmailPanel({ isOpen, onClose }: EmailPanelProps) {
               {["Improve tone", "Make shorter", "Add call to action"].map((suggestion) => (
                 <button
                   key={suggestion}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-accent bg-accent-light hover:bg-accent-muted/30 px-3 py-1.5 rounded-full transition-colors"
+                  className="text-accent bg-accent-light hover:bg-accent-muted/30 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
                 >
                   <Sparkles size={12} />
                   {suggestion}
@@ -118,7 +124,7 @@ export default function EmailPanel({ isOpen, onClose }: EmailPanelProps) {
             </motion.div>
           </motion.div>
 
-          <div className="border-t border-border px-6 py-4 flex items-center gap-3">
+          <div className="border-border flex items-center gap-3 border-t px-6 py-4">
             <Button className="flex-1">Send</Button>
             <Button variant="ghost">Save draft</Button>
           </div>

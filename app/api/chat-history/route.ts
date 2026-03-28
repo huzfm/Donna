@@ -27,7 +27,9 @@ import { createClient } from "@/lib/supabase-server";
 // GET – load messages for a session (pass ?session_id=xxx)
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const sessionId = req.nextUrl.searchParams.get("session_id");
@@ -47,11 +49,14 @@ export async function GET(req: NextRequest) {
 // POST – save a new message to a session
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { session_id, role, content, status } = await req.json();
-  if (!session_id || !role || !content) return NextResponse.json({ error: "session_id, role, and content required" }, { status: 400 });
+  if (!session_id || !role || !content)
+    return NextResponse.json({ error: "session_id, role, and content required" }, { status: 400 });
 
   const { error } = await supabase
     .from("chat_messages")
@@ -72,7 +77,9 @@ export async function POST(req: NextRequest) {
 // DELETE – clear all messages in a session
 export async function DELETE(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { session_id } = await req.json();

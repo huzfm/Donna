@@ -7,7 +7,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Brain, Mail, Lock, ArrowRight, Sparkles, FileText, Zap } from "lucide-react";
 
-function MagneticWrap({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function MagneticWrap({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
@@ -66,22 +72,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      <div className="relative z-10 min-h-screen flex">
+    <div className="relative min-h-screen overflow-hidden bg-white">
+      <div className="relative z-10 flex min-h-screen">
         {/* Left: branding panel */}
-        <div className="hidden lg:flex lg:w-1/2 bg-slate-50 border-r border-slate-200 flex-col justify-between p-12">
+        <div className="hidden flex-col justify-between border-r border-slate-200 bg-slate-50 p-12 lg:flex lg:w-1/2">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <Link href="/" className="group inline-flex items-center gap-2.5">
               <MagneticWrap>
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50">
                   <Brain size={20} className="text-emerald-600" />
                 </div>
               </MagneticWrap>
-              <span className="text-lg font-bold text-slate-900 tracking-tight font-[--font-doto]">Donna</span>
+              <span className="font-[--font-doto] text-lg font-bold tracking-tight text-slate-900">
+                Donna
+              </span>
             </Link>
           </motion.div>
 
@@ -90,11 +98,12 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4 font-[--font-doto]">
-              Your AI-Powered<br />
+            <h1 className="mb-4 font-[--font-doto] text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+              Your AI-Powered
+              <br />
               <span className="text-emerald-600">Workspace Brain</span>
             </h1>
-            <p className="text-slate-500 text-[15px] leading-relaxed max-w-sm mb-10">
+            <p className="mb-10 max-w-sm text-[15px] leading-relaxed text-slate-500">
               Upload documents, ask questions, manage emails — all in one intelligent workspace.
             </p>
 
@@ -111,7 +120,7 @@ export default function LoginPage() {
                   transition={{ delay: 0.4 + i * 0.1, duration: 0.4 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50">
                     <item.icon size={14} className="text-emerald-600" />
                   </div>
                   <span className="text-sm text-slate-600">{item.text}</span>
@@ -131,7 +140,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right: login form */}
-        <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+        <div className="flex flex-1 items-center justify-center p-6 md:p-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -139,55 +148,69 @@ export default function LoginPage() {
             className="w-full max-w-md"
           >
             {/* Mobile logo */}
-            <div className="lg:hidden text-center mb-8">
-              <Link href="/" className="inline-flex items-center gap-2 mb-4">
+            <div className="mb-8 text-center lg:hidden">
+              <Link href="/" className="mb-4 inline-flex items-center gap-2">
                 <MagneticWrap>
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50">
                     <Brain size={20} className="text-emerald-600" />
                   </div>
                 </MagneticWrap>
-                <span className="text-lg font-bold text-slate-900 tracking-tight font-[--font-doto]">Donna</span>
+                <span className="font-[--font-doto] text-lg font-bold tracking-tight text-slate-900">
+                  Donna
+                </span>
               </Link>
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight font-[--font-doto]">Welcome back</h2>
-              <p className="text-sm text-slate-500 mt-1.5">Sign in to your Donna workspace</p>
+              <h2 className="font-[--font-doto] text-2xl font-bold tracking-tight text-slate-900">
+                Welcome back
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-500">Sign in to your Donna workspace</p>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-8">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-5 text-sm">
+                <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleLogin} className="flex flex-col gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Email address</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Email address
+                  </label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Mail
+                      size={16}
+                      className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-slate-400"
+                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Password
+                  </label>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Lock
+                      size={16}
+                      className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type="password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-slate-400"
+                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
                     />
                   </div>
                 </div>
@@ -196,7 +219,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold transition-all text-sm flex items-center justify-center gap-2 hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900 disabled:opacity-50 disabled:hover:bg-slate-900 disabled:hover:text-white disabled:hover:ring-0"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900 disabled:opacity-50 disabled:hover:bg-slate-900 disabled:hover:text-white disabled:hover:ring-0"
                   >
                     {loading ? "Signing in..." : "Sign in"}
                     {!loading && <ArrowRight size={15} />}
@@ -207,7 +230,10 @@ export default function LoginPage() {
 
             <p className="mt-6 text-center text-sm text-slate-500">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors">
+              <Link
+                href="/signup"
+                className="font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
+              >
                 Sign up
               </Link>
             </p>

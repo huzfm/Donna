@@ -24,7 +24,9 @@ import { createClient } from "@/lib/supabase-server";
 // GET – list all sessions for the user (newest first)
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data, error } = await supabase
@@ -40,7 +42,9 @@ export async function GET() {
 // POST – create a new session
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { title } = await req.json().catch(() => ({ title: "New Chat" }));
@@ -58,11 +62,14 @@ export async function POST(req: NextRequest) {
 // PATCH – update session title
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { session_id, title } = await req.json();
-  if (!session_id || !title) return NextResponse.json({ error: "session_id and title required" }, { status: 400 });
+  if (!session_id || !title)
+    return NextResponse.json({ error: "session_id and title required" }, { status: 400 });
 
   const { error } = await supabase
     .from("chat_sessions")
@@ -77,7 +84,9 @@ export async function PATCH(req: NextRequest) {
 // DELETE – delete a session (messages cascade via FK or we delete manually)
 export async function DELETE(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { session_id } = await req.json();

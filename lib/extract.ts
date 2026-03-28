@@ -35,11 +35,7 @@ export async function extractText(file: File) {
   // ==============================
   // 📊 EXCEL / CSV
   // ==============================
-  else if (
-    fileName.endsWith(".xlsx") ||
-    fileName.endsWith(".xls") ||
-    fileName.endsWith(".csv")
-  ) {
+  else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls") || fileName.endsWith(".csv")) {
     const workbook = XLSX.read(buffer, { type: "buffer" });
 
     let allText = "";
@@ -54,9 +50,7 @@ export async function extractText(file: File) {
       allText += `Sheet: ${sheetName}\n`;
 
       for (const row of rows) {
-        const cleaned = row.filter(
-          (cell) => cell !== null && cell !== undefined && cell !== ""
-        );
+        const cleaned = row.filter((cell) => cell !== null && cell !== undefined && cell !== "");
 
         if (cleaned.length > 0) {
           allText += cleaned.join(" | ") + "\n";

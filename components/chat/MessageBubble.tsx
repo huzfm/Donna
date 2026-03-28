@@ -22,12 +22,12 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
     >
       {/* AI avatar with spark orbit */}
       {!isUser && (
-        <div className="relative shrink-0 mt-1">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent-light to-spark-light flex items-center justify-center spark-ring">
+        <div className="relative mt-1 shrink-0">
+          <div className="from-accent-light to-spark-light spark-ring flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br">
             <Sparkles size={15} className="text-spark" />
           </div>
           <motion.div
-            className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-spark"
+            className="bg-spark absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full"
             animate={{ scale: [1, 1.4, 1], opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
@@ -36,16 +36,16 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
 
       {/* User avatar */}
       {isUser && (
-        <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shrink-0 mt-1">
-          <span className="text-white text-xs font-bold">You</span>
+        <div className="bg-accent mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+          <span className="text-xs font-bold text-white">You</span>
         </div>
       )}
 
-      <div className={`max-w-[75%] flex flex-col ${isUser ? "items-end" : "items-start"}`}>
+      <div className={`flex max-w-[75%] flex-col ${isUser ? "items-end" : "items-start"}`}>
         {/* File badge */}
         {fileName && (
           <motion.div
-            className="flex items-center gap-1.5 text-[10px] font-medium text-spark bg-spark-light px-2.5 py-1 rounded-full mb-1.5 border border-spark/10"
+            className="text-spark bg-spark-light border-spark/10 mb-1.5 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
           >
@@ -58,14 +58,16 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
         <div
           className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
             isUser
-              ? "user-bubble-gradient text-white rounded-br-md shadow-md shadow-accent/10"
-              : "ai-bubble-gradient border border-border/60 text-primary rounded-bl-md shadow-sm"
+              ? "user-bubble-gradient shadow-accent/10 rounded-br-md text-white shadow-md"
+              : "ai-bubble-gradient border-border/60 text-primary rounded-bl-md border shadow-sm"
           }`}
         >
           {!isUser && (
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <span className="text-[10px] font-semibold text-spark uppercase tracking-wider">Donna AI</span>
-              <div className="w-1 h-1 rounded-full bg-spark/50" />
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <span className="text-spark text-[10px] font-semibold tracking-wider uppercase">
+                Donna AI
+              </span>
+              <div className="bg-spark/50 h-1 w-1 rounded-full" />
             </div>
           )}
           <div className="whitespace-pre-wrap">{content}</div>
@@ -73,7 +75,9 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
 
         {/* Timestamp */}
         {timestamp && (
-          <span className={`text-[10px] mt-1 ${isUser ? "text-muted" : "text-muted"}`}>{timestamp}</span>
+          <span className={`mt-1 text-[10px] ${isUser ? "text-muted" : "text-muted"}`}>
+            {timestamp}
+          </span>
         )}
       </div>
     </motion.div>
