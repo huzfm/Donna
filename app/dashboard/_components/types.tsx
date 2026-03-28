@@ -1,8 +1,10 @@
-import { Mail, Inbox, FileSearch, Hash, AtSign, HelpCircle, MessageSquare, FileText, User } from "lucide-react";
+import { Mail, Inbox, FileSearch, Hash, AtSign, HelpCircle, MessageSquare, FileText } from "lucide-react";
 
 /* ─── Types ─── */
 
 export interface UploadedFile { file_name: string; uploaded_at: string; }
+
+export interface ChatSession { id: string; title: string; created_at: string; updated_at: string; }
 
 export interface ChatMessage {
   id: number;
@@ -31,13 +33,12 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   { trigger: "/help", label: "/help", icon: HelpCircle, description: "Show all available commands", fill: "Show me what you can do" },
 ];
 
-export type TabId = "chat" | "files" | "gmail" | "account";
+export type TabId = "chat" | "files" | "gmail";
 
 export const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "chat", label: "Chat", icon: MessageSquare },
   { id: "files", label: "Files", icon: FileText },
   { id: "gmail", label: "Gmail", icon: Mail },
-  { id: "account", label: "Account", icon: User },
 ];
 
 /* ─── Utils ─── */
