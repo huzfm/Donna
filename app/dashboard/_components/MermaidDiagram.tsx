@@ -30,20 +30,20 @@ async function getMermaid(): Promise<MermaidType> {
     m.initialize({
       startOnLoad: false,
       suppressErrorRendering: true,
-      theme: "dark",
+      theme: "neutral",
       themeVariables: {
-        darkMode: true,
-        background: "hsl(240,10%,9%)",
-        primaryColor: "#7c3aed",
-        primaryTextColor: "hsl(0,0%,90%)",
+        darkMode: false,
+        background: "#ffffff",
+        primaryColor: "#ede9fe",
+        primaryTextColor: "#1e293b",
         primaryBorderColor: "#7c3aed",
-        lineColor: "hsl(240,5%,45%)",
-        secondaryColor: "hsl(240,6%,16%)",
-        tertiaryColor: "hsl(240,6%,13%)",
-        clusterBkg: "hsl(240,6%,13%)",
-        titleColor: "hsl(0,0%,90%)",
-        edgeLabelBackground: "hsl(240,6%,16%)",
-        nodeTextColor: "hsl(0,0%,85%)",
+        lineColor: "#64748b",
+        secondaryColor: "#f1f5f9",
+        tertiaryColor: "#f8fafc",
+        clusterBkg: "#f8fafc",
+        titleColor: "#0f172a",
+        edgeLabelBackground: "#f1f5f9",
+        nodeTextColor: "#334155",
         fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
         fontSize: "14px",
       },
@@ -241,21 +241,12 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
   /* ── 5. Render ── */
   return (
-    <div
-      className="my-4 overflow-hidden rounded-2xl"
-      style={{ border: "1px solid hsl(240,6%,20%)" }}
-    >
+    <div className="my-4 overflow-hidden rounded-2xl border border-slate-200">
       {/* Toolbar */}
-      <div
-        className="flex items-center justify-between px-4 py-2.5"
-        style={{ background: "hsl(240,6%,14%)", borderBottom: "1px solid hsl(240,6%,20%)" }}
-      >
+      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full" style={{ background: "#7c3aed" }} />
-          <span
-            className="text-[11px] font-medium tracking-wider uppercase"
-            style={{ color: "hsl(240,5%,45%)" }}
-          >
+          <div className="h-2 w-2 rounded-full bg-violet-600" />
+          <span className="text-[11px] font-medium tracking-wider text-slate-500 uppercase">
             Diagram
           </span>
         </div>
@@ -263,40 +254,19 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setZoom((z) => Math.max(0.3, +(z - 0.2).toFixed(1)))}
-            className="rounded-lg p-1.5 transition-all"
-            style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "hsl(0,0%,80%)";
-              e.currentTarget.style.background = "hsl(240,6%,20%)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "hsl(240,5%,45%)";
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="rounded-lg p-1.5 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-900"
             title="Zoom out"
           >
             <ZoomOut size={13} />
           </button>
 
-          <span
-            className="min-w-[36px] px-1 text-center text-[10px]"
-            style={{ color: "hsl(240,5%,45%)" }}
-          >
+          <span className="min-w-[36px] px-1 text-center text-[10px] text-slate-500">
             {Math.round(zoom * 100)}%
           </span>
 
           <button
             onClick={() => setZoom((z) => Math.min(3, +(z + 0.2).toFixed(1)))}
-            className="rounded-lg p-1.5 transition-all"
-            style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "hsl(0,0%,80%)";
-              e.currentTarget.style.background = "hsl(240,6%,20%)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "hsl(240,5%,45%)";
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="rounded-lg p-1.5 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-900"
             title="Zoom in"
           >
             <ZoomIn size={13} />
@@ -304,16 +274,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
           <button
             onClick={render}
-            className="ml-1 rounded-lg p-1.5 transition-all"
-            style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "hsl(0,0%,80%)";
-              e.currentTarget.style.background = "hsl(240,6%,20%)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "hsl(240,5%,45%)";
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="ml-1 rounded-lg p-1.5 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-900"
             title="Re-render"
           >
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -321,16 +282,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
           <button
             onClick={handleDownload}
-            className="rounded-lg p-1.5 transition-all"
-            style={{ color: "hsl(240,5%,45%)" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "hsl(0,0%,80%)";
-              e.currentTarget.style.background = "hsl(240,6%,20%)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "hsl(240,5%,45%)";
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="rounded-lg p-1.5 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-900"
             title="Download SVG"
           >
             <Download size={13} />
@@ -340,15 +292,12 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
       {/* Canvas — always mounted */}
       <div
-        className="relative overflow-auto"
-        style={{ background: "hsl(240,10%,10%)", minHeight: error ? 0 : 120 }}
+        className="relative overflow-auto bg-white"
+        style={{ minHeight: error ? 0 : 120 }}
       >
         {loading && (
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ zIndex: 10, background: "hsl(240,10%,10%)" }}
-          >
-            <div className="flex items-center gap-2" style={{ color: "hsl(240,5%,40%)" }}>
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
+            <div className="flex items-center gap-2 text-slate-500">
               <RefreshCw size={14} className="animate-spin" />
               <span className="text-xs">Rendering diagram…</span>
             </div>
@@ -369,13 +318,10 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
       {/* Collapsible error — compact, non-intrusive */}
       {error && (
-        <div style={{ borderTop: "1px solid hsl(240,6%,20%)" }}>
+        <div className="border-t border-slate-200">
           <button
             onClick={() => setShowErr((v) => !v)}
-            className="flex w-full items-center gap-2 px-4 py-2 text-left transition-all"
-            style={{ background: "hsl(240,6%,13%)", color: "hsl(30,90%,60%)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(240,6%,16%)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "hsl(240,6%,13%)")}
+            className="flex w-full items-center gap-2 bg-amber-50 px-4 py-2 text-left text-amber-800 transition-all hover:bg-amber-100"
           >
             <AlertTriangle size={12} />
             <span className="flex-1 text-[11px] font-medium">
@@ -384,17 +330,11 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
             {showErr ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           </button>
           {showErr && (
-            <div className="px-4 py-3" style={{ background: "hsl(240,6%,11%)" }}>
-              <pre
-                className="mb-3 text-[11px] leading-relaxed whitespace-pre-wrap"
-                style={{ color: "hsl(0,0%,50%)" }}
-              >
+            <div className="bg-slate-50 px-4 py-3">
+              <pre className="mb-3 text-[11px] leading-relaxed whitespace-pre-wrap text-slate-600">
                 {error}
               </pre>
-              <pre
-                className="overflow-x-auto rounded-lg px-3 py-2 text-[11px]"
-                style={{ background: "hsl(240,6%,14%)", color: "hsl(240,5%,50%)" }}
-              >
+              <pre className="overflow-x-auto rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] text-slate-600">
                 {rawChart}
               </pre>
             </div>

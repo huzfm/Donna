@@ -12,10 +12,8 @@ import {
   Trash2,
   PanelLeftClose,
   PanelLeft,
-  Mail,
-  FileText,
-  Sparkles,
 } from "lucide-react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 import {
   UploadedFile,
@@ -385,44 +383,26 @@ export default function DashboardPage() {
   const groupOrder = ["Today", "Yesterday", "This week", "Older"];
 
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ background: "hsl(240,10%,9%)", color: "hsl(0,0%,90%)" }}
-    >
+    <div className="relative flex h-screen overflow-hidden bg-slate-50/90 text-slate-900">
       {/* ═══ Sidebar ═══ */}
       <AnimatePresence initial={false}>
         {sidebarOpen && (
           <motion.aside
             key="sidebar"
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 268, opacity: 1 }}
+            animate={{ width: 280, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-            className="flex shrink-0 flex-col overflow-hidden border-r"
-            style={{ borderColor: "hsl(240,6%,15%)", background: "hsl(240,10%,7%)" }}
+            className="flex shrink-0 flex-col overflow-hidden border-r border-slate-200/90 bg-linear-to-b from-slate-50/95 via-white to-white"
           >
             {/* Top: Logo + collapse */}
             <div className="flex items-center justify-between px-3 pt-4 pb-2">
-              <div className="flex items-center gap-2.5 px-2">
-                <div
-                  className="flex h-7 w-7 items-center justify-center rounded-lg"
-                  style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}
-                >
-                  <Sparkles size={14} className="text-white" />
-                </div>
-                <span
-                  className="text-sm font-semibold tracking-tight"
-                  style={{ color: "hsl(0,0%,92%)" }}
-                >
-                  Donna
-                </span>
-              </div>
+              <BrandLogo size="sm" href="/" className="px-2" />
               <button
+                type="button"
                 onClick={() => setSidebarOpen(false)}
-                className="rounded-lg p-1.5 transition-colors"
-                style={{ color: "hsl(240,5%,45%)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(240,6%,15%)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-emerald-50 hover:text-emerald-800"
+                aria-label="Collapse sidebar"
               >
                 <PanelLeftClose size={16} />
               </button>
@@ -431,17 +411,11 @@ export default function DashboardPage() {
             {/* New Chat */}
             <div className="px-3 pb-2">
               <button
+                type="button"
                 onClick={handleNewChat}
-                className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all"
-                style={{ color: "hsl(0,0%,80%)", border: "1px solid hsl(240,6%,18%)" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "hsl(240,6%,14%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 px-3 py-2.5 text-[13px] font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:ring-2 hover:ring-emerald-500/20"
               >
-                <Plus size={15} style={{ color: "hsl(240,5%,55%)" }} /> New chat
+                <Plus size={15} strokeWidth={2.5} /> New chat
               </button>
             </div>
 
@@ -451,25 +425,16 @@ export default function DashboardPage() {
                 const active = activeTab === tab.id;
                 return (
                   <button
+                    type="button"
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-all"
-                    style={{
-                      background: active ? "hsl(240,6%,15%)" : "transparent",
-                      color: active ? "hsl(0,0%,90%)" : "hsl(240,5%,50%)",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!active) e.currentTarget.style.background = "hsl(240,6%,13%)";
-                      e.currentTarget.style.color = "hsl(0,0%,85%)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.color = "hsl(240,5%,50%)";
-                      }
-                    }}
+                    className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition-all ${
+                      active
+                        ? "bg-emerald-50/90 text-emerald-950 shadow-sm ring-1 ring-emerald-200/80"
+                        : "text-slate-600 hover:bg-emerald-50/50 hover:text-slate-900"
+                    }`}
                   >
-                    <tab.icon size={14} />
+                    <tab.icon size={14} className={active ? "text-emerald-700" : undefined} />
                     {tab.label}
                   </button>
                 );
@@ -477,23 +442,16 @@ export default function DashboardPage() {
             </div>
 
             {/* Sessions */}
-            <div
-              className="flex-1 overflow-y-auto px-2 pt-1"
-              style={{ borderTop: "1px solid hsl(240,6%,13%)" }}
-            >
+            <div className="flex-1 overflow-y-auto border-t border-slate-200/80 px-2 pt-1">
               {sessionsLoading ? (
                 <div className="space-y-1 px-2 py-2">
                   {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="h-8 animate-pulse rounded-lg"
-                      style={{ background: "hsl(240,6%,14%)" }}
-                    />
+                    <div key={i} className="h-8 animate-pulse rounded-lg bg-emerald-100/40" />
                   ))}
                 </div>
               ) : sessions.length === 0 ? (
-                <p className="py-8 text-center text-xs" style={{ color: "hsl(240,5%,35%)" }}>
-                  No conversations yet
+                <p className="px-3 py-8 text-center text-xs leading-relaxed text-slate-500">
+                  No conversations yet — start with <span className="font-medium text-emerald-700">New chat</span>.
                 </p>
               ) : (
                 <div className="py-2">
@@ -502,10 +460,7 @@ export default function DashboardPage() {
                     if (!groupSessions?.length) return null;
                     return (
                       <div key={group} className="mb-3">
-                        <p
-                          className="mb-1.5 px-3 text-[10px] font-semibold tracking-widest uppercase"
-                          style={{ color: "hsl(240,5%,35%)" }}
-                        >
+                        <p className="mb-1.5 px-3 text-[10px] font-semibold tracking-widest text-slate-500 uppercase">
                           {group}
                         </p>
                         {groupSessions.map((session) => {
@@ -513,19 +468,25 @@ export default function DashboardPage() {
                           return (
                             <div
                               key={session.id}
-                              className="group flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 transition-all"
-                              style={{ background: isActive ? "hsl(240,6%,16%)" : "transparent" }}
+                              className={`group flex cursor-pointer items-center gap-2 rounded-xl border-l-[3px] px-3 py-2 transition-all ${
+                                isActive
+                                  ? "border-emerald-600 bg-emerald-50/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]"
+                                  : "border-transparent hover:bg-slate-50/90"
+                              }`}
                               onClick={() => handleSelectSession(session.id)}
-                              onMouseEnter={(e) => {
-                                if (!isActive) e.currentTarget.style.background = "hsl(240,6%,13%)";
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  handleSelectSession(session.id);
+                                }
                               }}
-                              onMouseLeave={(e) => {
-                                if (!isActive) e.currentTarget.style.background = "transparent";
-                              }}
+                              role="button"
+                              tabIndex={0}
                             >
                               <p
-                                className="flex-1 truncate text-[12.5px] leading-tight"
-                                style={{ color: isActive ? "hsl(0,0%,92%)" : "hsl(240,5%,55%)" }}
+                                className={`flex-1 truncate text-[12.5px] leading-tight ${
+                                  isActive ? "font-medium text-emerald-950" : "text-slate-600"
+                                }`}
                               >
                                 {session.title}
                               </p>
@@ -534,16 +495,7 @@ export default function DashboardPage() {
                                   e.stopPropagation();
                                   handleDeleteSession(session.id);
                                 }}
-                                className="shrink-0 rounded p-1 opacity-0 transition-all group-hover:opacity-100"
-                                style={{ color: "hsl(240,5%,45%)" }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.color = "#f87171";
-                                  e.currentTarget.style.background = "hsl(0,60%,15%)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.color = "hsl(240,5%,45%)";
-                                  e.currentTarget.style.background = "transparent";
-                                }}
+                                className="shrink-0 rounded p-1 text-slate-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
                               >
                                 <Trash2 size={11} />
                               </button>
@@ -558,28 +510,20 @@ export default function DashboardPage() {
             </div>
 
             {/* Account */}
-            <div className="relative p-2" style={{ borderTop: "1px solid hsl(240,6%,13%)" }}>
+            <div className="relative border-t border-slate-200 p-2">
               <button
                 onClick={() => setShowAccountPopup((v) => !v)}
-                className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all"
-                onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(240,6%,14%)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-slate-100/90"
               >
-                <div
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                  style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}
-                >
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-emerald-600 to-teal-600 text-xs font-bold text-white shadow-sm shadow-emerald-500/25 ring-2 ring-white">
                   {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
                 </div>
                 <div className="min-w-0 flex-1 text-left">
-                  <p
-                    className="truncate text-[12.5px] font-medium"
-                    style={{ color: "hsl(0,0%,85%)" }}
-                  >
+                  <p className="truncate text-[12.5px] font-medium text-slate-800">
                     {userName ?? userEmail ?? "…"}
                   </p>
                 </div>
-                <Settings size={13} style={{ color: "hsl(240,5%,38%)" }} />
+                <Settings size={13} className="text-slate-500" />
               </button>
 
               <AnimatePresence>
@@ -589,34 +533,20 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.97 }}
                     transition={{ duration: 0.14 }}
-                    className="absolute right-2 bottom-full left-2 z-50 mb-2 overflow-hidden rounded-2xl shadow-2xl"
-                    style={{ background: "hsl(240,10%,12%)", border: "1px solid hsl(240,6%,20%)" }}
+                    className="absolute right-2 bottom-full left-2 z-50 mb-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
                   >
-                    <div
-                      className="px-4 py-3.5"
-                      style={{ borderBottom: "1px solid hsl(240,6%,16%)" }}
-                    >
+                    <div className="border-b border-slate-100 px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-white"
-                          style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}
-                        >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-emerald-600 to-teal-600 font-bold text-white shadow-md shadow-emerald-500/20 ring-2 ring-white">
                           {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
                         </div>
                         <div className="min-w-0">
                           {userName && (
-                            <p
-                              className="truncate text-sm font-semibold"
-                              style={{ color: "hsl(0,0%,92%)" }}
-                            >
-                              {userName}
-                            </p>
+                            <p className="truncate text-sm font-semibold text-slate-900">{userName}</p>
                           )}
-                          <p className="truncate text-xs" style={{ color: "hsl(240,5%,50%)" }}>
-                            {userEmail}
-                          </p>
+                          <p className="truncate text-xs text-slate-600">{userEmail}</p>
                           {userCreated && (
-                            <p className="mt-0.5 text-[10px]" style={{ color: "hsl(240,5%,38%)" }}>
+                            <p className="mt-0.5 text-[10px] text-slate-500">
                               Since{" "}
                               {new Date(userCreated).toLocaleDateString("en-US", {
                                 month: "short",
@@ -630,10 +560,7 @@ export default function DashboardPage() {
                     <div className="p-2">
                       <button
                         onClick={handleLogout}
-                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-all"
-                        style={{ color: "#f87171" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(0,60%,12%)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-red-600 transition-all hover:bg-red-50"
                       >
                         <LogOut size={14} /> Log out
                       </button>
@@ -649,27 +576,19 @@ export default function DashboardPage() {
       {/* Sidebar toggle when closed */}
       {!sidebarOpen && (
         <button
+          type="button"
           onClick={() => setSidebarOpen(true)}
-          className="absolute top-3.5 left-3.5 z-30 rounded-lg p-2 transition-all"
-          style={{ color: "hsl(240,5%,50%)" }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "hsl(240,6%,15%)";
-            e.currentTarget.style.color = "hsl(0,0%,85%)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "hsl(240,5%,50%)";
-          }}
+          className="absolute top-3.5 left-3.5 z-30 rounded-xl border border-slate-200/80 bg-white/90 p-2 text-slate-500 shadow-sm backdrop-blur-sm transition-all hover:border-emerald-200 hover:bg-emerald-50/80 hover:text-emerald-800"
+          aria-label="Open sidebar"
         >
           <PanelLeft size={17} />
         </button>
       )}
 
       {/* ═══ Main ═══ */}
-      <main
-        className="flex min-w-0 flex-1 flex-col overflow-hidden"
-        style={{ background: "hsl(240,10%,9%)" }}
-      >
+      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-linear-to-b from-slate-50/90 via-white to-white">
+        <div className="chat-mesh pointer-events-none absolute inset-0" />
+        <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col">
         <AnimatePresence mode="wait">
           {activeTab === "chat" && (
             <ChatPanel
@@ -713,6 +632,7 @@ export default function DashboardPage() {
             />
           )}
         </AnimatePresence>
+        </div>
       </main>
     </div>
   );

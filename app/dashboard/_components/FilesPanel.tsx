@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -15,51 +15,32 @@ import {
   File,
   FolderOpen,
   Plus,
+  HardDrive,
+  Search,
 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { UploadedFile, timeAgo } from "./types";
 
 function getFileCategory(fileName: string) {
   const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
   if (ext === "pdf")
-    return {
-      label: "PDF",
-      color: "#f87171",
-      bg: "rgba(239,68,68,0.08)",
-      border: "rgba(239,68,68,0.18)",
-      icon: FileType2,
-    };
+    return { label: "PDF", color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", icon: FileType2 };
   if (["doc", "docx"].includes(ext))
-    return {
-      label: "Word",
-      color: "#60a5fa",
-      bg: "rgba(59,130,246,0.08)",
-      border: "rgba(59,130,246,0.18)",
-      icon: FileText,
-    };
+    return { label: "Word", color: "#3b82f6", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.18)", icon: FileText };
   if (["xls", "xlsx", "csv"].includes(ext))
-    return {
-      label: "Sheet",
-      color: "#34d399",
-      bg: "rgba(16,185,129,0.08)",
-      border: "rgba(16,185,129,0.18)",
-      icon: FileSpreadsheet,
-    };
+    return { label: "Sheet", color: "#10b981", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.18)", icon: FileSpreadsheet };
   if (ext === "txt")
-    return {
-      label: "Text",
-      color: "#a78bfa",
-      bg: "rgba(167,139,250,0.08)",
-      border: "rgba(167,139,250,0.18)",
-      icon: FileText,
-    };
-  return {
-    label: "File",
-    color: "#94a3b8",
-    bg: "rgba(148,163,184,0.08)",
-    border: "rgba(148,163,184,0.18)",
-    icon: File,
-  };
+    return { label: "Text", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)", border: "rgba(139,92,246,0.18)", icon: FileText };
+  return { label: "File", color: "#94a3b8", bg: "rgba(148,163,184,0.08)", border: "rgba(148,163,184,0.18)", icon: File };
 }
+
+const PIE_COLORS = ["#ef4444", "#3b82f6", "#10b981", "#8b5cf6", "#94a3b8"];
 
 export default function FilesPanel({
   files,
@@ -76,6 +57,22 @@ export default function FilesPanel({
 }) {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const pieData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const f of files) {
+      const cat = getFileCategory(f.file_name);
+      counts[cat.label] = (counts[cat.label] ?? 0) + 1;
+    }
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [files]);
+
+  const filteredFiles = useMemo(() => {
+    if (!search.trim()) return files;
+    const q = search.toLowerCase();
+    return files.filter((f) => f.file_name.toLowerCase().includes(q));
+  }, [files, search]);
 
   const confirmDelete = async (fileName: string) => {
     if (!window.confirm(`Delete "${fileName}"?`)) return;
@@ -96,22 +93,25 @@ export default function FilesPanel({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="flex flex-1 flex-col overflow-hidden bg-[#09090b]"
+      className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
-      {/* ── Header ── */}
-      <div className="flex shrink-0 items-center justify-between border-b border-zinc-800/80 px-6 py-4">
+      {/* Header */}
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 px-6 py-4 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
-          <Database size={14} className="text-zinc-500" />
-          <h1 className="text-sm font-semibold text-zinc-100">Knowledge Base</h1>
-          {files.length > 0 && (
-            <span className="rounded-full border border-zinc-700/50 bg-zinc-800 px-2 py-0.5 text-[10px] font-medium text-zinc-400">
-              {files.length}
-            </span>
-          )}
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200/60">
+            <Database size={15} strokeWidth={2} />
+          </span>
+          <div>
+            <h1 className="font-(family-name:--font-doto) text-sm font-black tracking-tight text-slate-950">
+              Knowledge base
+            </h1>
+            <p className="text-[11px] text-slate-500">
+              {files.length} document{files.length !== 1 ? "s" : ""} indexed
+            </p>
+          </div>
         </div>
-
-        <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200/10 bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-900 transition-all hover:bg-white">
-          {uploading ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+        <label className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:ring-2 hover:ring-emerald-500/20">
+          {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} strokeWidth={2.5} />}
           {uploading ? "Uploading…" : "Add files"}
           <input
             type="file"
@@ -124,157 +124,228 @@ export default function FilesPanel({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {/* ── Drop Zone ── */}
-        <label
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-          className={`mx-6 mt-5 flex cursor-pointer items-center gap-4 rounded-2xl px-5 py-4 transition-all duration-200 ${
-            dragOver
-              ? "border-zinc-500 bg-zinc-800/50"
-              : "border-zinc-800 bg-zinc-900/30 hover:border-zinc-700 hover:bg-zinc-900/50"
-          }`}
-          style={{ border: "2px dashed" }}
-        >
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.csv"
-            className="hidden"
-            multiple
-            onChange={(e) => Array.from(e.target.files || []).forEach(onUpload)}
-          />
+        <div className="mx-auto max-w-4xl px-6 py-6">
 
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-700/40 bg-zinc-800/80">
-            {uploading ? (
-              <Loader2 size={16} className="animate-spin text-zinc-400" />
-            ) : (
-              <Upload size={16} className="text-zinc-500" />
-            )}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            {uploading ? (
-              <p className="animate-pulse text-sm text-zinc-400">Processing files…</p>
-            ) : dragOver ? (
-              <p className="text-sm font-medium text-zinc-200">Release to upload</p>
-            ) : (
-              <>
-                <p className="text-sm font-medium text-zinc-300">
-                  {dragOver ? "Release to upload" : "Drop files or click to browse"}
-                </p>
-                <p className="mt-0.5 text-xs text-zinc-600">PDF · Word · Excel · CSV · TXT</p>
-              </>
-            )}
-          </div>
-
-          {!uploading && !dragOver && (
-            <div className="flex shrink-0 items-center gap-1">
-              {["PDF", "DOC", "XLS"].map((t) => (
-                <span
-                  key={t}
-                  className="rounded border border-zinc-700/40 bg-zinc-800 px-1.5 py-0.5 font-mono text-[9px] text-zinc-600"
+          {/* Stats row — only when files exist */}
+          {files.length > 0 && (
+            <div className="mb-6 grid grid-cols-4 gap-3">
+              {/* Stat cards */}
+              {[
+                { label: "Total files", value: files.length, icon: Database, color: "emerald" },
+                { label: "File types", value: pieData.length, icon: HardDrive, color: "teal" },
+                { label: "Indexed", value: files.length, icon: CheckCircle2, color: "emerald" },
+                { label: "Status", value: "Ready", icon: Search, color: "emerald" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
-                  {t}
-                </span>
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                      <stat.icon size={13} strokeWidth={2.5} />
+                    </span>
+                  </div>
+                  <p className="text-xl font-bold text-slate-900">{stat.value}</p>
+                  <p className="text-[10px] tracking-wider text-slate-500 uppercase">{stat.label}</p>
+                </div>
               ))}
             </div>
           )}
-        </label>
 
-        {/* ── File list ── */}
-        <div className="mt-5 px-6 pb-6">
+          {/* Chart + Upload row */}
+          <div className={`mb-6 grid gap-4 ${files.length > 0 && pieData.length > 0 ? "grid-cols-5" : "grid-cols-1"}`}>
+            {/* Pie chart — 2/5 width */}
+            {files.length > 0 && pieData.length > 0 && (
+              <div className="col-span-2 flex flex-col rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+                <p className="mb-3 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+                  File breakdown
+                </p>
+                <div className="flex-1">
+                  <div className="mx-auto h-[140px] w-[140px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={36}
+                          outerRadius={58}
+                          paddingAngle={3}
+                          dataKey="value"
+                          strokeWidth={0}
+                        >
+                          {pieData.map((_, i) => (
+                            <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            borderRadius: "12px",
+                            border: "1px solid #e2e8f0",
+                            fontSize: "12px",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+                  {pieData.map((d, i) => (
+                    <span key={d.name} className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
+                      />
+                      {d.name} · {d.value}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Upload drop zone — 3/5 or full */}
+            <label
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              className={`${files.length > 0 && pieData.length > 0 ? "col-span-3" : "col-span-1"} flex cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200 ${
+                dragOver
+                  ? "border-emerald-400 bg-emerald-50/90 shadow-lg shadow-emerald-500/10"
+                  : "border-slate-200/90 bg-white hover:border-emerald-300 hover:bg-emerald-50/20 hover:shadow-md"
+              }`}
+            >
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.csv"
+                className="hidden"
+                multiple
+                onChange={(e) => Array.from(e.target.files || []).forEach(onUpload)}
+              />
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100/80 ring-1 ring-emerald-200/60">
+                {uploading ? (
+                  <Loader2 size={24} className="animate-spin text-emerald-600" />
+                ) : (
+                  <Upload size={24} className="text-emerald-700" />
+                )}
+              </div>
+              {uploading ? (
+                <p className="animate-pulse text-sm font-medium text-slate-600">Processing…</p>
+              ) : dragOver ? (
+                <p className="text-sm font-semibold text-emerald-800">Release to upload</p>
+              ) : (
+                <>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">
+                      Drop files here or click to browse
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">PDF · Word · Excel · CSV · TXT</p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {["PDF", "DOCX", "XLSX", "CSV", "TXT"].map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[9px] font-medium text-slate-500"
+                      >
+                        .{t.toLowerCase()}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
+            </label>
+          </div>
+
+          {/* Search + File list */}
           {filesLoading ? (
-            <div className="space-y-px">
+            <div className="space-y-2">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="mb-px h-14 animate-pulse rounded-xl border border-zinc-800/60 bg-zinc-900/60"
+                  className="h-16 animate-pulse rounded-2xl border border-slate-200 bg-slate-100/60"
                 />
               ))}
             </div>
           ) : files.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900">
-                <FolderOpen size={22} className="text-zinc-700" />
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/80 ring-1 ring-emerald-200/50">
+                <FolderOpen size={26} className="text-emerald-600" />
               </div>
-              <p className="text-sm font-medium text-zinc-500">No files yet</p>
-              <p className="mt-1 max-w-[200px] text-center text-xs text-zinc-700">
-                Upload documents to start building your knowledge base
+              <p className="font-(family-name:--font-doto) text-base font-black tracking-tight text-slate-900">
+                No files yet
+              </p>
+              <p className="mt-1.5 max-w-[280px] text-center text-sm leading-relaxed text-slate-500">
+                Upload documents above to start building your knowledge base.
               </p>
             </div>
           ) : (
             <>
-              <p className="mb-3 px-1 text-[10px] font-semibold tracking-widest text-zinc-600 uppercase">
-                {files.length} indexed file{files.length !== 1 ? "s" : ""}
-              </p>
+              {/* Search bar */}
+              <div className="mb-4 flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-2 shadow-sm transition-all focus-within:border-emerald-300 focus-within:ring-2 focus-within:ring-emerald-500/15">
+                <Search size={14} className="shrink-0 text-slate-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search files…"
+                  className="flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                />
+                {search && (
+                  <span className="text-[10px] text-slate-500">
+                    {filteredFiles.length} result{filteredFiles.length !== 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
 
-              {/* ── ROW LIST ── */}
-              <div className="overflow-hidden rounded-xl border border-zinc-800/80">
+              {/* File grid — cards instead of rows */}
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 <AnimatePresence>
-                  {files.map((f, i) => {
+                  {filteredFiles.map((f, i) => {
                     const cat = getFileCategory(f.file_name);
                     const Icon = cat.icon;
-                    const isLast = i === files.length - 1;
-
                     return (
                       <motion.div
                         key={`${f.file_name}-${i}`}
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0 }}
-                        transition={{ delay: i * 0.04, duration: 0.15 }}
-                        className={`group flex items-center gap-3 bg-zinc-900/30 px-4 py-3 transition-all duration-150 hover:bg-zinc-900/70 ${!isLast ? "border-b border-zinc-800/60" : ""}`}
+                        layout
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ delay: i * 0.03, duration: 0.15 }}
+                        className="group relative flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm transition-all duration-150 hover:border-emerald-200 hover:shadow-md"
                       >
-                        {/* File type icon */}
                         <div
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                           style={{ background: cat.bg, border: `1px solid ${cat.border}` }}
                         >
-                          <Icon size={13} style={{ color: cat.color }} />
+                          <Icon size={16} style={{ color: cat.color }} />
                         </div>
-
-                        {/* Name */}
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-medium text-zinc-200">
+                          <p className="truncate text-[13px] font-semibold text-slate-900">
                             {f.file_name}
                           </p>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span
+                              className="rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase"
+                              style={{ background: cat.bg, color: cat.color, border: `1px solid ${cat.border}` }}
+                            >
+                              {cat.label}
+                            </span>
+                            <span className="flex items-center gap-1 text-[10px] text-slate-400">
+                              <Clock size={8} />
+                              {timeAgo(f.uploaded_at)}
+                            </span>
+                          </div>
+                          <div className="mt-1.5 flex items-center gap-1 text-[10px] text-emerald-600">
+                            <CheckCircle2 size={10} />
+                            <span>Indexed</span>
+                          </div>
                         </div>
-
-                        {/* Badge */}
-                        <span
-                          className="hidden shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:inline"
-                          style={{
-                            background: cat.bg,
-                            color: cat.color,
-                            border: `1px solid ${cat.border}`,
-                          }}
-                        >
-                          {cat.label}
-                        </span>
-
-                        {/* Time */}
-                        <div className="flex hidden shrink-0 items-center gap-1 md:flex">
-                          <Clock size={9} className="text-zinc-700" />
-                          <span className="text-[11px] text-zinc-600">
-                            {timeAgo(f.uploaded_at)}
-                          </span>
-                        </div>
-
-                        {/* Indexed check */}
-                        <CheckCircle2
-                          size={13}
-                          className="shrink-0 text-emerald-500/50 transition-colors group-hover:text-emerald-500"
-                        />
-
-                        {/* Delete */}
                         <button
+                          type="button"
                           onClick={() => confirmDelete(f.file_name)}
                           disabled={deleting === f.file_name}
                           title="Delete"
-                          className="shrink-0 rounded-lg p-1.5 text-zinc-600 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-40"
+                          className="absolute top-3 right-3 rounded-lg p-1.5 text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
                         >
                           {deleting === f.file_name ? (
                             <Loader2 size={13} className="animate-spin" />

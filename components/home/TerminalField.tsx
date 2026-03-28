@@ -40,7 +40,6 @@ export default function TerminalField() {
       "#059669", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed",
       "#059669", "#0d9488", "#0891b2", "#0f172a", "#7c3aed",
     ];
-    const colors = ["#059669", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed", "#0f172a"];
     return Array.from({ length: COUNT }, (_, i) => {
       const col = Math.floor(i / 10);
       const row = i % 10;

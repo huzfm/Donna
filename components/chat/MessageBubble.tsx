@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
+import { BrandMark } from "@/components/brand/BrandLogo";
 
 export interface MessageBubbleProps {
   role: "user" | "ai";
@@ -15,69 +16,73 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
 
   return (
     <motion.div
-      className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}
-      initial={{ opacity: 0, y: 16, scale: 0.97 }}
+      layout
+      className={`group/row flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}
+      initial={{ opacity: 0, y: 14, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.35, ease: "easeOut" as const }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 420, damping: 32 }}
     >
-      {/* AI avatar with spark orbit */}
       {!isUser && (
         <div className="relative mt-1 shrink-0">
-          <div className="from-accent-light to-spark-light spark-ring flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br">
-            <Sparkles size={15} className="text-spark" />
-          </div>
           <motion.div
-            className="bg-spark absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full"
-            animate={{ scale: [1, 1.4, 1], opacity: [0.7, 1, 0.7] }}
+            whileHover={{ scale: 1.06 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
+            className="shadow-sm shadow-emerald-500/10"
+          >
+            <BrandMark size="bubble" />
+          </motion.div>
+          <motion.div
+            className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-white"
+            animate={{ scale: [1, 1.35, 1], opacity: [0.75, 1, 0.75] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
         </div>
       )}
 
-      {/* User avatar */}
       {isUser && (
-        <div className="bg-accent mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
-          <span className="text-xs font-bold text-white">You</span>
-        </div>
+        <motion.div
+          className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-slate-800 to-slate-950 text-[11px] font-bold tracking-wide text-white shadow-md shadow-slate-900/20 ring-1 ring-white/10"
+          whileHover={{ scale: 1.06 }}
+          transition={{ type: "spring", stiffness: 400, damping: 22 }}
+        >
+          You
+        </motion.div>
       )}
 
-      <div className={`flex max-w-[75%] flex-col ${isUser ? "items-end" : "items-start"}`}>
-        {/* File badge */}
+      <div className={`flex max-w-[min(85%,32rem)] flex-col ${isUser ? "items-end" : "items-start"}`}>
         {fileName && (
           <motion.div
-            className="text-spark bg-spark-light border-spark/10 mb-1.5 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium"
-            initial={{ opacity: 0, scale: 0.8 }}
+            className="mb-1.5 flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-2.5 py-1 text-[10px] font-medium text-emerald-900"
+            initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 28 }}
           >
             <FileText size={10} />
             {fileName}
           </motion.div>
         )}
 
-        {/* Bubble */}
         <div
-          className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+          className={`rounded-2xl px-4 py-3.5 text-sm leading-relaxed shadow-[0_2px_12px_-4px_rgba(15,23,42,0.08)] transition-shadow duration-200 group-hover/row:shadow-[0_4px_24px_-6px_rgba(15,23,42,0.12)] sm:text-[15px] ${
             isUser
-              ? "user-bubble-gradient shadow-accent/10 rounded-br-md text-white shadow-md"
-              : "ai-bubble-gradient border-border/60 text-primary rounded-bl-md border shadow-sm"
+              ? "rounded-br-md border border-slate-200/90 bg-slate-100/95 text-slate-900 ring-1 ring-slate-900/[0.04]"
+              : "rounded-bl-md border border-emerald-100/80 bg-linear-to-br from-white to-emerald-50/35 text-slate-800 ring-1 ring-emerald-500/[0.07]"
           }`}
         >
           {!isUser && (
             <div className="mb-1.5 flex items-center gap-1.5">
-              <span className="text-spark text-[10px] font-semibold tracking-wider uppercase">
-                Donna AI
+              <span className="text-[10px] font-semibold tracking-wider text-emerald-700 uppercase">
+                Donna
               </span>
-              <div className="bg-spark/50 h-1 w-1 rounded-full" />
+              <div className="h-1 w-1 rounded-full bg-emerald-500" />
             </div>
           )}
           <div className="whitespace-pre-wrap">{content}</div>
         </div>
 
-        {/* Timestamp */}
         {timestamp && (
-          <span className={`mt-1 text-[10px] ${isUser ? "text-muted" : "text-muted"}`}>
-            {timestamp}
-          </span>
+          <span className="mt-1.5 text-[10px] tabular-nums text-slate-400">{timestamp}</span>
         )}
       </div>
     </motion.div>

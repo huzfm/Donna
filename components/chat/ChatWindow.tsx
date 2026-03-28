@@ -1,12 +1,16 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Send, Paperclip, Sparkles, Layers } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { BrandLogo, BrandMark } from "@/components/brand/BrandLogo";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
 import FeatureCards from "./FeatureCards";
+import WorkspaceActivityChart from "./WorkspaceActivityChart";
 import type { UploadedFile } from "./ContextPanel";
+import { chatStaggerContainer, chatStaggerItem, springSoft } from "@/lib/animations";
 
 export interface Message {
   id: number;
@@ -150,73 +154,162 @@ export default function ChatWindow({
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="relative flex min-w-0 flex-1 flex-col">
-      {/* Subtle background mesh */}
+    <motion.div
+      className="relative flex min-w-0 flex-1 flex-col bg-linear-to-b from-slate-50/90 via-white to-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35 }}
+    >
       <div className="chat-mesh pointer-events-none absolute inset-0" />
 
-      {/* Messages area */}
-      <div className="relative z-10 flex-1 space-y-5 overflow-y-auto px-6 py-6">
-        {!hasMessages && (
-          <motion.div
-            className="flex flex-1 flex-col items-center justify-center py-16"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {/* Central spark icon */}
-            <motion.div
-              className="relative mb-6"
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" as const }}
-            >
-              <div className="from-spark-light to-accent-light border-spark/10 flex h-16 w-16 items-center justify-center rounded-2xl border bg-gradient-to-br via-white">
-                <Sparkles size={28} className="text-spark" />
+      {hasMessages && (
+        <motion.header
+          className="relative z-10 shrink-0 border-b border-slate-200/80 bg-white/70 px-6 py-3 backdrop-blur-md"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+        >
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <BrandMark size="sm" className="shrink-0 shadow-sm shadow-emerald-500/10" />
+              <div className="min-w-0">
+                <p className="font-(family-name:--font-doto) truncate text-sm font-black tracking-tight text-slate-950">
+                  Chat
+                </p>
+                <p className="truncate text-[11px] text-slate-500">
+                  {messages.length} message{messages.length !== 1 ? "s" : ""}
+                  {isTyping ? " · Donna is replying…" : ""}
+                </p>
               </div>
-              <motion.div
-                className="bg-spark absolute -top-1 -right-1 h-3 w-3 rounded-full"
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-              <motion.div
-                className="bg-accent absolute -bottom-1 -left-1 h-2 w-2 rounded-full"
-                animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.8, 0.3] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-              />
+            </div>
+            <div className="hidden items-center gap-2 sm:flex">
+              <span className="rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-800">
+                Live
+              </span>
+            </div>
+          </div>
+        </motion.header>
+      )}
+
+      <div
+        className={`relative z-10 flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-6 ${hasMessages ? "chat-scroll-mask pb-2" : ""}`}
+      >
+        <AnimatePresence mode="wait">
+          {!hasMessages && (
+            <motion.div
+              key="empty"
+              className="flex flex-1 flex-col items-center justify-center py-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-emerald-200/40 bg-white/80 px-6 py-10 shadow-[0_4px_40px_-12px_rgba(16,185,129,0.15),0_2px_24px_-8px_rgba(15,23,42,0.08)] ring-1 ring-emerald-500/[0.06] backdrop-blur-md">
+                <div className="lightning-grid pointer-events-none absolute inset-0 opacity-[0.28]">
+                  <div className="lightning-grid-lines" />
+                </div>
+                <motion.div
+                  className="pointer-events-none absolute -right-6 -bottom-6 opacity-[0.14]"
+                  aria-hidden
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 0.14, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                  <Image
+                    src="/globe.svg"
+                    alt=""
+                    width={120}
+                    height={120}
+                    className="select-none"
+                    unoptimized
+                  />
+                </motion.div>
+
+                <motion.div
+                  className="relative z-10 flex flex-col items-center"
+                  variants={chatStaggerContainer}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <motion.div
+                    variants={chatStaggerItem}
+                    className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-semibold text-slate-600 shadow-sm"
+                  >
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                    Powered by Groq &amp; your documents
+                  </motion.div>
+
+                  <motion.div variants={chatStaggerItem} className="relative mb-6">
+                    <BrandLogo size="hero" animate />
+                    <motion.div
+                      className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/30 ring-2 ring-white"
+                      animate={{ rotate: [0, 8, -8, 0] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <Sparkles size={14} className="text-white" />
+                    </motion.div>
+                  </motion.div>
+
+                  <motion.h2
+                    variants={chatStaggerItem}
+                    className="font-(family-name:--font-doto) mb-2 text-center text-2xl font-black tracking-tight text-slate-950 md:text-3xl"
+                  >
+                    What can I
+                    <br />
+                    <span className="bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                      help you with?
+                    </span>
+                  </motion.h2>
+                  <motion.p
+                    variants={chatStaggerItem}
+                    className="mb-8 max-w-md text-center text-sm leading-relaxed text-slate-600"
+                  >
+                    Upload documents and ask anything, or try a feature below — same polish as the homepage hero.
+                  </motion.p>
+
+                  <motion.div variants={chatStaggerItem} className="mb-8 w-full">
+                    <FeatureCards onSelectFeature={sendFeaturePrompt} />
+                  </motion.div>
+
+                  <WorkspaceActivityChart />
+                </motion.div>
+              </div>
             </motion.div>
-
-            <h2 className="text-primary mb-1 text-xl font-semibold">What can I help you with?</h2>
-            <p className="text-muted mb-8 text-sm">
-              Upload documents & ask anything, or try a feature below
-            </p>
-
-            <FeatureCards onSelectFeature={sendFeaturePrompt} />
-          </motion.div>
-        )}
-
-        <AnimatePresence>
-          {messages.map((msg) => (
-            <MessageBubble
-              key={msg.id}
-              role={msg.role}
-              content={msg.content}
-              fileName={msg.fileName}
-              timestamp={msg.timestamp}
-            />
-          ))}
+          )}
         </AnimatePresence>
-        {isTyping && <TypingIndicator />}
+
+        <div className={`mx-auto w-full max-w-3xl ${hasMessages ? "space-y-5" : ""}`}>
+          <AnimatePresence initial={false}>
+            {messages.map((msg) => (
+              <MessageBubble
+                key={msg.id}
+                role={msg.role}
+                content={msg.content}
+                fileName={msg.fileName}
+                timestamp={msg.timestamp}
+              />
+            ))}
+          </AnimatePresence>
+          <AnimatePresence initial={false}>{isTyping && <TypingIndicator key="typing" />}</AnimatePresence>
+        </div>
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input bar */}
-      <div className="border-border relative z-10 border-t bg-slate-950/80 px-6 py-4 backdrop-blur-sm">
-        <div className="bg-surface/50 border-border focus-within:border-spark/40 flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all focus-within:shadow-[0_0_0_3px_rgba(249,115,22,0.06)]">
-          {/* File upload */}
+      <motion.div
+        className="relative z-10 border-t border-slate-200/90 bg-linear-to-t from-white via-white to-slate-50/50 px-4 py-4 backdrop-blur-md sm:px-6"
+        initial={{ y: 24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ ...springSoft, delay: 0.08 }}
+      >
+        <div className="mx-auto max-w-3xl">
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.04] transition-all focus-within:border-emerald-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.18)] focus-within:ring-2 focus-within:ring-emerald-500/15 sm:gap-3 sm:px-4 sm:py-3">
           <motion.button
+            type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-muted hover:text-spark transition-colors"
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ rotate: 15 }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+            whileTap={{ scale: 0.92 }}
+            whileHover={{ rotate: 12 }}
+            aria-label="Attach file"
           >
             <Paperclip size={18} />
           </motion.button>
@@ -229,7 +322,6 @@ export default function ChatWindow({
             onChange={handleFileSelect}
           />
 
-          {/* Text input */}
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -239,49 +331,53 @@ export default function ChatWindow({
                 sendMessage();
               }
             }}
-            placeholder="Ask anything about your documents..."
-            className="text-primary placeholder:text-muted flex-1 bg-transparent text-sm outline-none"
+            placeholder="Ask anything about your documents…"
+            className="placeholder:text-slate-400 min-h-[44px] flex-1 resize-none bg-transparent py-2 text-sm leading-relaxed text-slate-900 outline-none sm:text-[15px]"
           />
 
-          {/* Context toggle */}
           <motion.button
+            type="button"
             onClick={onToggleContext}
-            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors ${
               contextOpen
-                ? "bg-spark-light text-spark"
-                : "text-muted hover:text-secondary hover:bg-surface-2"
+                ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200/80"
+                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
             }`}
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1.06 }}
+            aria-label={contextOpen ? "Hide document context" : "Show document context"}
           >
             <Layers size={16} />
           </motion.button>
 
-          {/* Send */}
           <motion.button
+            type="button"
             onClick={sendMessage}
             disabled={!input.trim() || isTyping}
-            className="from-accent to-accent-hover shadow-accent/20 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-30"
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-35 disabled:shadow-none"
+            whileTap={{ scale: 0.92 }}
+            whileHover={input.trim() && !isTyping ? { scale: 1.06 } : {}}
+            aria-label="Send message"
           >
-            <Send size={15} />
+            <Send size={16} />
           </motion.button>
         </div>
+        </div>
 
-        {/* File count hint */}
         {files.filter((f) => f.status === "ready").length > 0 && (
           <motion.p
-            className="text-muted mt-2 text-center text-[10px]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            className="mt-2.5 text-center text-[10px] text-slate-500"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={springSoft}
           >
-            <span className="text-spark font-medium">
+            <span className="font-semibold text-emerald-600">
               {files.filter((f) => f.status === "ready").length}
             </span>{" "}
             document{files.filter((f) => f.status === "ready").length !== 1 ? "s" : ""} in context
           </motion.p>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

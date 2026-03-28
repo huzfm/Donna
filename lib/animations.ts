@@ -43,3 +43,26 @@ export const staggerItem: Variants = {
     transition: { duration: 0.35, ease: "easeOut" as const },
   },
 };
+
+/** Chat empty state — snappier stagger */
+export const chatStaggerContainer: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.06 },
+  },
+};
+
+export const chatStaggerItem: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 380, damping: 28 },
+  },
+};
+
+export const springSoft = {
+  type: "spring" as const,
+  stiffness: 420,
+  damping: 32,
+};

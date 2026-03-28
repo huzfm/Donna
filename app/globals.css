@@ -88,9 +88,25 @@ body {
 }
 
 .nav-link:hover {
-  color: #0f172a;
-  background: #f8fafc;
-  border-color: #e2e8f0;
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.nav-link-enhanced {
+  position: relative;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  transition: color 0.15s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-link-enhanced:hover {
+  color: #065f46;
 }
 
 .lightning-grid {
@@ -200,4 +216,17 @@ body {
   100% {
     transform: translateX(-33.333%);
   }
+}
+
+/* Chat route — subtle light mesh (matches dashboard / marketing) */
+.chat-mesh {
+  background:
+    radial-gradient(ellipse 85% 55% at 50% -15%, rgba(16, 185, 129, 0.09), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 100% 30%, rgba(20, 184, 166, 0.06), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 0% 80%, rgba(16, 185, 129, 0.05), transparent 45%);
+}
+
+/* Scroll area: soft fade at bottom so composer feels anchored */
+.chat-scroll-mask {
+  mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 2.5rem), transparent 100%);
 }
