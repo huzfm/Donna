@@ -1,55 +1,37 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import { getOAuthRedirectUrl, googleOAuthQueryParams } from "@/lib/oauth-redirect";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Brain, Mail, Lock, ArrowRight, Sparkles, FileText, Zap } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import dynamic from "next/dynamic";
 
-function MagneticWrap({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-
-  const handleMove = useCallback((e: React.MouseEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left - rect.width / 2) * 0.3;
-    const y = (e.clientY - rect.top - rect.height / 2) * 0.3;
-    setPos({ x, y });
-  }, []);
-
-  const handleLeave = useCallback(() => setPos({ x: 0, y: 0 }), []);
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      animate={{ x: pos.x, y: pos.y }}
-      transition={{ type: "spring", stiffness: 200, damping: 15, mass: 0.5 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [animationData, setAnimationData] = useState<Record<string, unknown> | null>(null);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  const authError = searchParams.get("error");
+
+  useEffect(() => {
+    fetch("/animations/ai-robot.json")
+      .then((r) => r.json())
+      .then(setAnimationData)
+      .catch(() => {});
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,69 +53,65 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: getOAuthRedirectUrl(),
+          queryParams: { ...googleOAuthQueryParams },
+        },
+      });
+      if (error) throw error;
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
+      setGoogleLoading(false);
+    }
+  };
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white">
-      <div className="relative z-10 flex min-h-screen">
-        {/* Left: branding panel */}
-        <div className="hidden flex-col justify-between border-r border-slate-200 bg-slate-50 p-12 lg:flex lg:w-1/2">
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      <div className="relative z-10 min-h-screen flex">
+        {/* Left: Lottie animation panel */}
+        <div className="hidden lg:flex lg:w-1/2 bg-slate-50 border-r border-slate-200 flex-col items-center justify-center p-12 relative">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7 }}
+            className="w-full max-w-md"
           >
-            <Link href="/" className="group inline-flex items-center gap-2.5">
-              <MagneticWrap>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50">
-                  <Brain size={20} className="text-emerald-600" />
-                </div>
-              </MagneticWrap>
-              <span className="font-[--font-doto] text-lg font-bold tracking-tight text-slate-900">
-                Donna
-              </span>
-            </Link>
+            {animationData && (
+              <Lottie
+                animationData={animationData}
+                loop
+                autoplay
+                className="w-full"
+              />
+            )}
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="text-center mt-8"
           >
-            <h1 className="mb-4 font-[--font-doto] text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-              Your AI-Powered
-              <br />
-              <span className="text-emerald-600">Workspace Brain</span>
-            </h1>
-            <p className="mb-10 max-w-sm text-[15px] leading-relaxed text-slate-500">
-              Upload documents, ask questions, manage emails — all in one intelligent workspace.
+            <h2 className="text-2xl font-black text-slate-950 tracking-tight font-(family-name:--font-doto) mb-2">
+              Welcome back to <span className="text-emerald-600">Donna</span>
+            </h2>
+            <p className="text-sm text-slate-500 max-w-xs mx-auto">
+              Your AI workspace is ready. Sign in to pick up where you left off.
             </p>
-
-            <div className="space-y-4">
-              {[
-                { icon: FileText, text: "Upload & analyze documents instantly" },
-                { icon: Sparkles, text: "AI-powered answers from your files" },
-                { icon: Zap, text: "Blazing fast responses via Groq" },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + i * 0.1, duration: 0.4 }}
-                  className="flex items-center gap-3"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50">
-                    <item.icon size={14} className="text-emerald-600" />
-                  </div>
-                  <span className="text-sm text-slate-600">{item.text}</span>
-                </motion.div>
-              ))}
-            </div>
           </motion.div>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="text-xs text-slate-400"
+            className="absolute bottom-8 text-xs text-slate-400"
           >
             &copy; {new Date().getFullYear()} Donna. All rights reserved.
           </motion.p>
@@ -148,32 +126,53 @@ export default function LoginPage() {
             className="w-full max-w-md"
           >
             {/* Mobile logo */}
-            <div className="mb-8 text-center lg:hidden">
-              <Link href="/" className="mb-4 inline-flex items-center gap-2">
-                <MagneticWrap>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50">
-                    <Brain size={20} className="text-emerald-600" />
-                  </div>
-                </MagneticWrap>
-                <span className="font-[--font-doto] text-lg font-bold tracking-tight text-slate-900">
-                  Donna
-                </span>
+            <div className="lg:hidden text-center mb-8">
+              <Link href="/" className="inline-block mb-3">
+                {animationData && (
+                  <Lottie
+                    animationData={animationData}
+                    loop
+                    autoplay
+                    className="w-24 h-24 mx-auto"
+                  />
+                )}
               </Link>
+              <span className="text-lg font-bold text-slate-900 tracking-tight font-(family-name:--font-doto)">Donna</span>
             </div>
 
             <div className="mb-8">
-              <h2 className="font-[--font-doto] text-2xl font-bold tracking-tight text-slate-900">
-                Welcome back
-              </h2>
-              <p className="mt-1.5 text-sm text-slate-500">Sign in to your Donna workspace</p>
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight font-(family-name:--font-doto)">Sign in</h2>
+              <p className="text-sm text-slate-500 mt-1.5">Sign in to your Donna workspace</p>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-8">
-              {error && (
-                <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                  {error}
+              {(error || authError) && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-5 text-sm">
+                  {error || "Authentication failed. Please try again."}
                 </div>
               )}
+
+              {/* Google OAuth */}
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={googleLoading}
+                className="w-full flex items-center justify-center gap-3 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all disabled:opacity-50"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+                {googleLoading ? "Redirecting..." : "Continue with Google"}
+              </button>
+
+              <div className="flex items-center gap-3 my-6">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-xs text-slate-400 font-medium">or</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
 
               <form onSubmit={handleLogin} className="flex flex-col gap-5">
                 <div>
@@ -205,26 +204,27 @@ export default function LoginPage() {
                       className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
                     />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
+                      className="w-full pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-slate-400"
                     />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
 
-                <MagneticWrap className="w-full">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900 disabled:opacity-50 disabled:hover:bg-slate-900 disabled:hover:text-white disabled:hover:ring-0"
-                  >
-                    {loading ? "Signing in..." : "Sign in"}
-                    {!loading && <ArrowRight size={15} />}
-                  </button>
-                </MagneticWrap>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold transition-all text-sm flex items-center justify-center gap-2 hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900 disabled:opacity-50 disabled:hover:bg-slate-900 disabled:hover:text-white disabled:hover:ring-0"
+                >
+                  {loading ? "Signing in..." : "Sign in"}
+                  {!loading && <ArrowRight size={15} />}
+                </button>
               </form>
             </div>
 
