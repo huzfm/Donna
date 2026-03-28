@@ -3,14 +3,6 @@
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Brain, ArrowRight, Menu, X } from "lucide-react";
-
-const NAV_LINKS = [
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Docs", href: "#" },
-  { label: "About", href: "/about", isRoute: true },
-];
 
 function NavAuthButton() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -29,18 +21,24 @@ function NavAuthButton() {
   if (loading) return <div className="h-8 w-[100px]" />;
 
   return (
-    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-      <Link
-        href={loggedIn ? "/dashboard" : "/login"}
-        className="group inline-flex items-center gap-1.5 rounded-full bg-linear-to-r from-emerald-600 to-teal-600 px-5 py-2 text-[13px] font-semibold text-white shadow-md shadow-emerald-500/20 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/30"
-      >
-        {loggedIn ? "Dashboard" : "Get started"}
-        <ArrowRight
-          size={13}
-          className="transition-transform duration-200 group-hover:translate-x-0.5"
-        />
-      </Link>
-    </motion.div>
+    <Link
+      href={loggedIn ? "/dashboard" : "/login"}
+      className="
+        rounded-full
+        bg-slate-900/90
+        px-5 py-1.5
+        text-[13px]
+        font-semibold
+        text-white
+        backdrop-blur-md
+        transition-all duration-200
+        hover:bg-white
+        hover:text-slate-900
+        hover:ring-1 hover:ring-slate-300
+      "
+    >
+      {loggedIn ? "Dashboard" : "Log in"}
+    </Link>
   );
 }
 
@@ -60,61 +58,54 @@ export default function Navbar() {
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`w-full max-w-4xl rounded-full border px-3 py-1.5 backdrop-blur-2xl transition-all duration-300 ${
-          scrolled
-            ? "border-emerald-200/50 bg-white/90 shadow-[0_8px_32px_-8px_rgba(16,185,129,0.15)]"
-            : "border-slate-200/80 bg-white/80 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)]"
-        }`}
+        className="
+          relative w-full max-w-4xl rounded-full px-3 py-2
+
+          bg-gradient-to-b from-white/90 via-white/70 to-white/40
+          backdrop-blur-2xl
+
+          border border-white/60
+          ring-1 ring-black/5
+
+          shadow-[0_10px_40px_rgba(0,0,0,0.08)]
+
+          before:absolute before:inset-0 before:rounded-full
+          before:bg-gradient-to-b before:from-white/80 before:to-transparent
+          before:opacity-60 before:pointer-events-none
+
+          after:absolute after:inset-0 after:rounded-full
+          after:ring-1 after:ring-white/40
+          after:pointer-events-none
+        "
       >
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="group flex items-center gap-2.5 pl-2">
-            <motion.div
-              className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all duration-200 ${
-                scrolled ? "bg-emerald-500/15" : "bg-emerald-500/10"
-              } group-hover:bg-emerald-500/20 group-hover:shadow-md group-hover:shadow-emerald-500/10`}
-              whileHover={{ rotate: 6, scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 22 }}
-            >
-              <Brain size={16} className="text-emerald-600" strokeWidth={2.2} />
-            </motion.div>
-            <span className="font-(family-name:--font-doto) text-sm font-black tracking-tight text-slate-950 transition-colors group-hover:text-emerald-700">
+          <Link href="/" className="flex items-center gap-2 pl-2">
+            <span className="font-(family-name:--font-doto) text-xl font-black tracking-tight text-slate-900">
               Donna
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-0.5 md:flex" onMouseLeave={() => setHoveredLink(null)}>
-            {NAV_LINKS.map((link) => {
-              const isHovered = hoveredLink === link.label;
-              const Tag = link.isRoute ? Link : "a";
-              return (
-                <Tag
-                  key={link.label}
-                  href={link.href}
-                  className="nav-link-enhanced relative"
-                  onMouseEnter={() => setHoveredLink(link.label)}
-                >
-                  {/* Hover pill background */}
-                  <AnimatePresence>
-                    {isHovered && (
-                      <motion.span
-                        layoutId="nav-hover-pill"
-                        className="absolute inset-0 rounded-full bg-emerald-50 ring-1 ring-emerald-200/60"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                      />
-                    )}
-                  </AnimatePresence>
-                  <span className={`relative z-10 transition-colors duration-150 ${isHovered ? "text-emerald-800" : ""}`}>
-                    {link.label}
-                  </span>
-                </Tag>
-              );
-            })}
+          {/* Nav Links */}
+          <nav className="hidden items-center gap-5 md:flex font-mono">
+            <a
+              href="#features"
+className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"            >
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"            >
+              How it works
+            </a>
+        
+         
+            <a
+              href="#"
+className="px-2 py-1 text-[13px] rounded-md text-slate-700 font-semibold transition-all duration-200 hover:bg-white/40 hover:text-black"
+            >
+              About
+            </a>
           </nav>
 
           {/* Right side */}

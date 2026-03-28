@@ -6,14 +6,14 @@ import { askGroq } from "@/lib/groq";
 import { sendEmail } from "@/lib/email";
 import { getRecentEmails } from "@/lib/gmail";
 
-// Detect "send a mail / email" intent — also catches structured /email shortcuts
+// Detect "send a mail / email" intent   also catches structured /email shortcuts
 const EMAIL_INTENT = /(send\s+(a\s+|an\s+)?e?mail|^send an email to)/i;
 
 // Detect "check inbox / read my emails / summarize emails" intent
 const GMAIL_INTENT =
   /(check|read|show|summarize|what.{0,20}in)\s+(my\s+)?(inbox|emails?|mails?|gmail)/i;
 
-// Detect diagram generation intent — fires on any single diagram-related keyword
+// Detect diagram generation intent   fires on any single diagram-related keyword
 // so phrases like "give me a diagram for X file" are caught correctly
 const DIAGRAM_INTENT =
   /\b(draw|generate|create|make|show|visualize|diagram|flowchart|flow\s+chart|sequence\s+diagram|er\s+diagram|mindmap|mind\s+map|class\s+diagram|gantt|pie\s+chart|graph|chart)\b/i;
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       try {
         if (FILE_DIAGRAM_INTENT.test(question)) {
           // User specifically asked for a diagram from their uploaded files.
-          // Bypass embedding similarity — directly fetch ALL their document chunks
+          // Bypass embedding similarity   directly fetch ALL their document chunks
           // ordered by file + chunk_index so the content arrives in reading order.
           const { data: allChunks } = await supabase
             .from("documents")
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
               .join("\n\n---\n\n");
           }
         } else {
-          // Generic diagram request — use semantic similarity search as before
+          // Generic diagram request   use semantic similarity search as before
           const embeddings = await embed([question]);
           let queryEmbedding = embeddings[0];
           if (Array.isArray(queryEmbedding[0])) queryEmbedding = queryEmbedding[0];
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
           }
         }
       } catch {
-        // RAG failure is non-fatal — diagram can still be generated from general knowledge
+        // RAG failure is non-fatal   diagram can still be generated from general knowledge
       }
 
       const diagramPrompt = `
@@ -117,34 +117,34 @@ Generate a valid Mermaid.js diagram that accurately represents what the user ask
 ${historyBlock ? `Conversation history:\n${historyBlock}\n` : ""}
 User request: ${question}
 
-=== STRICT SYNTAX RULES — violating these WILL cause a parse error ===
+=== STRICT SYNTAX RULES   violating these WILL cause a parse error ===
 
-1. FLOWCHART ARROWS — use ONLY these in flowchart/graph diagrams:
+1. FLOWCHART ARROWS   use ONLY these in flowchart/graph diagrams:
    ✅  A --> B           (solid arrow)
    ✅  A -- label --> B  (labeled arrow)
    ✅  A -.-> B          (dotted arrow)
    ✅  A ==> B           (thick arrow)
-   ❌  A ->> B           FORBIDDEN in flowcharts — this is sequence diagram syntax!
+   ❌  A ->> B           FORBIDDEN in flowcharts   this is sequence diagram syntax!
    ❌  A -->> B          FORBIDDEN in flowcharts!
 
-2. RESERVED KEYWORDS — NEVER use these as bare node identifiers:
-   ❌  --> end            FORBIDDEN — 'end' is a reserved keyword
-   ❌  --> start          FORBIDDEN — 'start' is a reserved keyword
+2. RESERVED KEYWORDS   NEVER use these as bare node identifiers:
+   ❌  --> end            FORBIDDEN   'end' is a reserved keyword
+   ❌  --> start          FORBIDDEN   'start' is a reserved keyword
    ✅  --> EndNode[End]   Use a labelled node instead
    ✅  --> StartNode[Start]
 
 3. NODE LABEL TEXT rules:
-   ❌  A[**Bold text**]              FORBIDDEN — markdown bold breaks parsing
-   ❌  A[India Refunds (site.com)]  FORBIDDEN — parentheses ( ) inside [ ] labels break parsing!
+   ❌  A[**Bold text**]              FORBIDDEN   markdown bold breaks parsing
+   ❌  A[India Refunds (site.com)]  FORBIDDEN   parentheses ( ) inside [ ] labels break parsing!
    ✅  A[India Refunds site.com]    Replace ( ) with spaces or remove them entirely
    ❌  A[Very long label text that goes on and on and on]  Keep labels SHORT (under 40 chars)
    ✅  A[Short descriptive label]   Truncate if needed
 
-4. UNIQUE NODE IDs — every node identifier must be unique in the diagram:
-   ❌  A[Description]  ...  A[Description]   FORBIDDEN — duplicate ID 'A' causes silent overwrites
+4. UNIQUE NODE IDs   every node identifier must be unique in the diagram:
+   ❌  A[Description]  ...  A[Description]   FORBIDDEN   duplicate ID 'A' causes silent overwrites
    ✅  DescA[Description of X]  ...  DescB[Description of Y]   Use distinct IDs
 
-5. OUTPUT FORMAT — return ONLY:
+5. OUTPUT FORMAT   return ONLY:
 \`\`\`mermaid
 <your mermaid code here>
 \`\`\`
@@ -321,7 +321,7 @@ Answer:`;
       });
     }
 
-    // Build context from matched chunks — include file name as a header
+    // Build context from matched chunks   include file name as a header
     const context = data
       .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
       .join("\n\n---\n\n");

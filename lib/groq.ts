@@ -12,7 +12,7 @@ export async function askGroq(prompt: string) {
       {
         role: "system",
         content:
-          "You are Donna, a precise AI assistant. Answer using ONLY the information provided. Be accurate — include every relevant detail but omit anything not directly asked. Never pad, speculate, or repeat yourself.",
+          "You are Donna, a precise AI assistant. Answer using ONLY the information provided. Be accurate   include every relevant detail but omit anything not directly asked. Never pad, speculate, or repeat yourself.",
       },
       { role: "user", content: prompt },
     ],

@@ -23,30 +23,30 @@ export default function FaqItem({ question, answer, index, icon: Icon }: FaqItem
       <button
         onClick={() => setOpen((v) => !v)}
         className={`flex w-full items-center gap-4 rounded-2xl border bg-white px-6 py-5 text-left transition-all duration-300 ${
-          open ? "border-emerald-300" : "border-slate-200 hover:border-slate-400"
+          open ? "border-slate-400 bg-slate-50" : "border-slate-200 hover:border-slate-400"
         }`}
       >
         <div
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-300 ${
-            open ? "bg-emerald-50" : "bg-slate-100"
+            open ? "bg-white border border-slate-200 shadow-sm" : "bg-slate-100"
           }`}
         >
           <Icon
             size={16}
-            className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`}
+            className={`transition-colors duration-300 ${open ? "text-black" : "text-slate-400"}`}
           />
         </div>
-        <span className="flex-1 font-(family-name:--font-doto) text-sm leading-snug font-bold text-slate-950">
+        <span className="flex-1 font-(family-name:--font-doto) text-sm leading-snug font-bold text-black">
           {question}
         </span>
         <div
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
-            open ? "rotate-180 border-emerald-300 bg-emerald-50" : "border-slate-200"
+            open ? "rotate-180 border-slate-400 bg-white shadow-sm" : "border-slate-200 bg-slate-50"
           }`}
         >
           <ChevronDown
             size={14}
-            className={`transition-colors duration-300 ${open ? "text-emerald-600" : "text-slate-400"}`}
+            className={`transition-colors duration-300 ${open ? "text-black" : "text-slate-400"}`}
           />
         </div>
       </button>
@@ -59,7 +59,7 @@ export default function FaqItem({ question, answer, index, icon: Icon }: FaqItem
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="pt-2 pr-6 pb-5 pl-19 text-sm leading-relaxed text-slate-500">
+            <div className="font-mono pt-2 pr-6 pb-5 pl-19 text-sm leading-relaxed text-slate-500">
               {answer}
             </div>
           </motion.div>

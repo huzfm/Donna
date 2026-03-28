@@ -102,7 +102,7 @@ function MiniCalendar({
 }
 
 export default function MeetingPanel({ isOpen, onClose }: MeetingPanelProps) {
-  const [title, setTitle] = useState("Team Sync — Weekly Check-in");
+  const [title, setTitle] = useState("Team Sync   Weekly Check-in");
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>("10:00 AM");
   const [selectedDuration, setSelectedDuration] = useState("30 min");

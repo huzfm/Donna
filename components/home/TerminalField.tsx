@@ -32,20 +32,55 @@ export default function TerminalField() {
   const stateRef = useRef<ParticleState[]>([]);
   const [particles] = useState(() => {
     const glyphs = [
-      ">_", "~/", "./", "$", "#", ">>", "|", "&&", "=>", "//",
-      "{}", "[]", "()", "</>", "fn", "::", "++", "!=", "===", "**",
-      "0x", "...", ";", "/*", "*/", "->", "<<", "let", "if", ">>>",
+      ">_",
+      "~/",
+      "./",
+      "$",
+      "#",
+      ">>",
+      "|",
+      "&&",
+      "=>",
+      "//",
+      "{}",
+      "[]",
+      "()",
+      "</>",
+      "fn",
+      "::",
+      "++",
+      "!=",
+      "===",
+      "**",
+      "0x",
+      "...",
+      ";",
+      "/*",
+      "*/",
+      "->",
+      "<<",
+      "let",
+      "if",
+      ">>>",
     ];
     const colors = [
-      "#059669", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed",
-      "#059669", "#0d9488", "#0891b2", "#0f172a", "#7c3aed",
+      "#059669",
+      "#0d9488",
+      "#0891b2",
+      "#4f46e5",
+      "#7c3aed",
+      "#059669",
+      "#0d9488",
+      "#0891b2",
+      "#0f172a",
+      "#7c3aed",
     ];
     return Array.from({ length: COUNT }, (_, i) => {
       const col = Math.floor(i / 10);
       const row = i % 10;
       return {
-        x: (col * 10 + ((row % 2) * 5) + (((i * 7 + 3) % 11) * 0.4)) % 98 + 1,
-        y: (row * 10 + (((i * 13 + 5) % 9) * 0.8)) % 96 + 2,
+        x: ((col * 10 + (row % 2) * 5 + ((i * 7 + 3) % 11) * 0.4) % 98) + 1,
+        y: ((row * 10 + ((i * 13 + 5) % 9) * 0.8) % 96) + 2,
         glyph: glyphs[i % glyphs.length],
         color: colors[i % colors.length],
         fontSize: 10 + (i % 5) * 1.5,
@@ -68,7 +103,12 @@ export default function TerminalField() {
 
     if (!initRef.current) {
       stateRef.current = particles.map((p, i) => ({
-        vx: 0, vy: 0, ox: p.x, oy: p.y, cx: 0, cy: 0,
+        vx: 0,
+        vy: 0,
+        ox: p.x,
+        oy: p.y,
+        cx: 0,
+        cy: 0,
         floatPhase: (i * 2.39) % (Math.PI * 2),
         floatSpeed: 0.008 + (i % 7) * 0.003,
         floatAmp: 1.5 + (i % 5) * 0.6,
@@ -143,7 +183,7 @@ export default function TerminalField() {
           s.vy *= 0.5;
         }
 
-        const proximity = dist < ATTRACT_RADIUS ? (1 - dist / ATTRACT_RADIUS) : 0;
+        const proximity = dist < ATTRACT_RADIUS ? 1 - dist / ATTRACT_RADIUS : 0;
         const scale = 1 + proximity * 0.5;
         const opacity = proximity * 0.6;
         const angle = Math.atan2(dy, dx) * (180 / Math.PI);
@@ -155,7 +195,12 @@ export default function TerminalField() {
         if (proximity > 0.2) {
           el.style.textShadow = `0 0 ${proximity * 16}px ${particles[i].color}`;
           el.style.color = particles[i].color;
-          activePositions.push({ x: px + s.cx, y: py + s.cy, color: particles[i].color, proximity });
+          activePositions.push({
+            x: px + s.cx,
+            y: py + s.cy,
+            color: particles[i].color,
+            proximity,
+          });
         } else {
           el.style.textShadow = "none";
         }
@@ -171,7 +216,8 @@ export default function TerminalField() {
             const ddy = pa.y - pb.y;
             const dd = Math.sqrt(ddx * ddx + ddy * ddy);
             if (dd < LINE_RADIUS) {
-              const lineOpacity = (1 - dd / LINE_RADIUS) * Math.min(pa.proximity, pb.proximity) * 0.35;
+              const lineOpacity =
+                (1 - dd / LINE_RADIUS) * Math.min(pa.proximity, pb.proximity) * 0.35;
               lines += `<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${pa.color}" stroke-opacity="${lineOpacity}" stroke-width="0.8"/>`;
             }
           }
@@ -191,19 +237,20 @@ export default function TerminalField() {
   }, [particles]);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
+    <div ref={containerRef} className="pointer-events-none fixed inset-0 z-10 overflow-hidden">
       {/* Ambient glow */}
       <div
         ref={glowRef}
-        className="absolute w-[320px] h-[320px] rounded-full opacity-0"
+        className="absolute h-[320px] w-[320px] rounded-full opacity-0"
         style={{
-          background: "radial-gradient(circle, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 35%, transparent 65%)",
+          background:
+            "radial-gradient(circle, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 35%, transparent 65%)",
           transition: "opacity 0.4s ease",
         }}
       />
 
       {/* Connection lines */}
-      <svg ref={svgRef} className="absolute inset-0 w-full h-full" />
+      <svg ref={svgRef} className="absolute inset-0 h-full w-full" />
 
       {/* Glyphs */}
       {particles.map((p, i) => (

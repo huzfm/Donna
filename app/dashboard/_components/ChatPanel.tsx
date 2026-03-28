@@ -43,7 +43,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /* ══════════════════════════════════════════════
-   Email Compose Modal — with AI Suggestions
+   Email Compose Modal   with AI Suggestions
 ══════════════════════════════════════════════ */
 interface EmailDraft {
   to: string;
@@ -145,7 +145,13 @@ function EmailComposeModal({
       const res = await fetch("/api/email-suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "improve_body", to: draft.to, subject: draft.subject, body: draft.body, tone }),
+        body: JSON.stringify({
+          type: "improve_body",
+          to: draft.to,
+          subject: draft.subject,
+          body: draft.body,
+          tone,
+        }),
       });
       const data = await res.json();
       if (data.result) {
@@ -278,7 +284,10 @@ function EmailComposeModal({
               className="ml-1 flex shrink-0 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-800 transition-all disabled:cursor-not-allowed disabled:opacity-50"
             >
               {suggestingSubject ? (
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
                   <Sparkles size={9} />
                 </motion.div>
               ) : (
@@ -346,7 +355,10 @@ function EmailComposeModal({
               >
                 {improving ? (
                   <>
-                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                    >
                       <Sparkles size={9} />
                     </motion.div>
                     Improving…
@@ -368,7 +380,10 @@ function EmailComposeModal({
                 onChange={handle("body")}
                 onKeyDown={handleBodyKeyDown}
                 onFocus={() => setFocused("body")}
-                onBlur={() => { setFocused(null); setGhostText(""); }}
+                onBlur={() => {
+                  setFocused(null);
+                  setGhostText("");
+                }}
                 placeholder="Write your message here…"
                 rows={5}
                 className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed text-slate-900 outline-none caret-emerald-600"
@@ -515,8 +530,6 @@ function SlashPopup({
   );
 }
 
-
-
 /* ══════════════════════════════════════════════
    ChatPanel
 ══════════════════════════════════════════════ */
@@ -566,8 +579,6 @@ export default function ChatPanel({
       onInputChange(fill);
     }
   };
-
-
 
   return (
     <motion.div
@@ -741,7 +752,7 @@ export default function ChatPanel({
               />
             </div>
 
-            {/* Row 2 — Actions bar */}
+            {/* Row 2   Actions bar */}
             <div className="flex items-center justify-between px-3 pb-3">
               {/* Left: attach + command chips */}
               <div className="flex flex-wrap items-center gap-1.5">
@@ -765,7 +776,7 @@ export default function ChatPanel({
                 {/* Divider */}
                 <div className="mx-0.5 h-3.5 w-px bg-slate-300" />
 
-                {/* Command chips — email opens modal, others fill input */}
+                {/* Command chips   email opens modal, others fill input */}
                 {SLASH_COMMANDS.map((cmd) => (
                   <button
                     key={cmd.trigger}

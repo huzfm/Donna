@@ -197,7 +197,7 @@ export default function DashboardDemo() {
                           <div className="flex items-center gap-2">
                             <CheckCircle2 size={12} className="shrink-0 text-emerald-400" />
                             <p className="text-[11px] text-slate-300">
-                              Processed <strong className="text-white">Q1-Report-2026.pdf</strong> —
+                              Processed <strong className="text-white">Q1-Report-2026.pdf</strong>  
                               12 chunks indexed.
                             </p>
                           </div>
@@ -309,19 +309,6 @@ export default function DashboardDemo() {
             </div>
           </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="absolute -bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-[10px] font-medium text-slate-500">Live demo</span>
-        </motion.div>
       </motion.div>
     </div>
   );

@@ -39,7 +39,7 @@ export const features = [
     icon: Mail,
     title: "Email Integration",
     description:
-      "Read your Gmail inbox, draft responses, and send emails — all through natural conversation.",
+      "Read your Gmail inbox, draft responses, and send emails   all through natural conversation.",
     color: "text-amber-600",
     bg: "bg-amber-50",
     accent: "#d97706",
@@ -117,7 +117,7 @@ export const useCases = [
     color: "text-blue-600",
     bg: "bg-blue-50",
     accent: "#2563eb",
-    detail: "PDF, Word, Excel — all supported",
+    detail: "PDF, Word, Excel   all supported",
   },
   {
     icon: Mail,
@@ -154,7 +154,7 @@ export const faqs = [
   },
   {
     q: "Is my data private and secure?",
-    a: "Yes. Your documents and credentials are stored privately with Supabase. Only you can access your data — we never share or train on your files.",
+    a: "Yes. Your documents and credentials are stored privately with Supabase. Only you can access your data   we never share or train on your files.",
     icon: Lock,
   },
   {
@@ -169,7 +169,7 @@ export const faqs = [
   },
   {
     q: "Can I use Donna for free?",
-    a: "Yes — Donna is free to use. Sign up, upload your documents, and start chatting with your AI workspace assistant right away.",
+    a: "Yes   Donna is free to use. Sign up, upload your documents, and start chatting with your AI workspace assistant right away.",
     icon: Sparkles,
   },
 ];
@@ -184,7 +184,7 @@ export const steps = [
   {
     num: "02",
     title: "Ask Anything",
-    description: "Chat naturally — Donna searches your knowledge base and finds answers.",
+    description: "Chat naturally   Donna searches your knowledge base and finds answers.",
     icon: MessageSquare,
   },
   {
@@ -202,7 +202,9 @@ export const teamMembers = [
     bio: "Passionate about building seamless user experiences and scalable backend systems. Focused on AI integration and real-time features.",
     skills: ["React", "Next.js", "Node.js", "AI/ML"],
     gradient: "from-emerald-500 to-teal-500",
-    initial: "H",
+    initial: "Huz",
+    github: "https://github.com/huzfm",
+    linkedin: "https://linkedin.com/in/huzfm",
   },
   {
     name: "Faisal",
@@ -211,6 +213,8 @@ export const teamMembers = [
     skills: ["TypeScript", "Supabase", "Python", "DevOps"],
     gradient: "from-blue-500 to-indigo-500",
     initial: "Fab",
+    github: "https://github.com/fab-c14",
+    linkedin: "https://linkedin.com/in/fab-c14",
   },
 ];
 

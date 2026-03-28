@@ -29,17 +29,46 @@ export default function FeatureStack() {
   };
 
   const slideVariants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0, scale: 0.92 }),
+    enter: (dir: number) => ({
+      x: dir > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.92,
+    }),
     center: { x: 0, opacity: 1, scale: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0, scale: 0.92 }),
+    exit: (dir: number) => ({
+      x: dir > 0 ? -300 : 300,
+      opacity: 0,
+      scale: 0.92,
+    }),
   };
 
   const activeFeature = features[active];
 
   return (
     <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-2">
+      
+      {/* LEFT GLASS CARD */}
       <div
-        className="relative min-h-[420px] overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50"
+        className="
+          font-mono
+          relative min-h-[420px] overflow-hidden rounded-2xl
+
+          bg-gradient-to-b from-white/80 via-white/60 to-white/30
+          backdrop-blur-2xl
+
+          border border-white/60
+          ring-1 ring-black/10
+
+          shadow-[0_10px_40px_rgba(0,0,0,0.08)]
+
+          before:absolute before:inset-0 before:rounded-2xl
+          before:bg-gradient-to-b before:from-white/70 before:to-transparent
+          before:opacity-60 before:pointer-events-none
+
+          after:absolute after:inset-0 after:rounded-2xl
+          after:ring-1 after:ring-white/40
+          after:pointer-events-none
+        "
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -54,92 +83,119 @@ export default function FeatureStack() {
             transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="absolute inset-0 flex flex-col justify-center p-10"
           >
-            <div
-              className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
-              style={{ backgroundColor: `${activeFeature.accent}15` }}
-            >
-              <activeFeature.icon size={26} className={activeFeature.color} />
+            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/40 backdrop-blur-sm">
+              <activeFeature.icon size={26} className="text-black" />
             </div>
-            <span
-              className="mb-2 block font-(family-name:--font-doto) text-[11px] font-bold tracking-widest uppercase"
-              style={{ color: activeFeature.accent }}
-            >
+
+            {/* TAG */}
+            <span className="mb-2 block text-[11px] font-bold tracking-widest uppercase text-slate-500">
               {activeFeature.tag}
             </span>
-            <h3 className="mb-4 font-(family-name:--font-doto) text-2xl font-extrabold tracking-tight text-slate-950">
+
+            {/* TITLE */}
+            <h3 className="mb-4 font-(family-name:--font-doto) text-2xl font-extrabold tracking-tight text-black">
               {activeFeature.title}
             </h3>
+
+            {/* DESCRIPTION */}
             <p className="max-w-sm text-[15px] leading-relaxed text-slate-500">
               {activeFeature.description}
             </p>
           </motion.div>
         </AnimatePresence>
 
+        {/* Indicators */}
         <div className="absolute bottom-5 left-10 flex items-center gap-2">
-          {features.map((f, i) => (
+          {features.map((_, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
               className="relative h-1.5 rounded-full transition-all duration-300"
               style={{
                 width: i === active ? 28 : 8,
-                backgroundColor: i === active ? f.accent : "#cbd5e1",
+                backgroundColor: i === active ? "#000" : "#cbd5e1",
               }}
             />
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col justify-between gap-1.5 rounded-2xl border border-slate-200 px-2 py-1">
+      {/* RIGHT GLASS PANEL */}
+      <div
+        className="
+          font-mono
+          flex flex-col justify-between gap-1.5 rounded-2xl px-2 py-1
+
+          bg-gradient-to-b from-white/70 to-white/40
+          backdrop-blur-xl
+
+          border border-white/50
+          ring-1 ring-black/10
+
+          shadow-[0_6px_30px_rgba(0,0,0,0.06)]
+        "
+      >
         {features.map((feature, i) => (
           <button
             key={feature.title}
             onClick={() => goTo(i)}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
-            className={`w-full rounded-xl border px-5 py-4 text-left transition-all duration-300 ${
+            className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
               i === active
-                ? "border-slate-300 bg-white"
-                : "border-transparent bg-transparent hover:bg-slate-50"
+                ? "border-white/60 bg-white/60 backdrop-blur-md shadow-sm"
+                : "border-transparent bg-transparent hover:bg-white/40"
             }`}
           >
             <div className="flex items-center gap-3">
+              
+              {/* ICON */}
               <div
-                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-300 ${
-                  i === active ? feature.bg : "bg-slate-100"
+                className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                  i === active ? "bg-white/70" : "bg-white/40"
                 }`}
               >
                 <feature.icon
                   size={17}
-                  className={`transition-colors duration-300 ${i === active ? feature.color : "text-slate-400"}`}
+                  className={`text-black transition-all duration-300 ${
+                    i === active ? "opacity-100 scale-105" : "opacity-70"
+                  }`}
                 />
               </div>
+
               <div className="min-w-0 flex-1">
+                {/* TITLE */}
                 <span
-                  className={`block font-(family-name:--font-doto) text-sm font-bold transition-colors duration-300 ${
-                    i === active ? "text-slate-950" : "text-slate-700"
+                  className={`block font-(family-name:--font-doto) text-sm font-bold tracking-tight ${
+                    i === active ? "text-black" : "text-slate-700"
                   }`}
                 >
                   {feature.title}
                 </span>
+
+                {/* DESCRIPTION */}
                 {i === active && (
                   <motion.span
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
-                    className="mt-0.5 block text-xs leading-snug text-slate-400"
+                    className="mt-0.5 block text-xs leading-snug text-slate-500"
                   >
                     {feature.description.slice(0, 60)}...
                   </motion.span>
                 )}
               </div>
+
+              {/* PROGRESS */}
               {i === active && (
-                <div className="h-1.5 w-14 shrink-0 overflow-hidden rounded-full bg-slate-200">
+                <div className="h-1.5 w-14 shrink-0 overflow-hidden rounded-full bg-slate-200/60">
                   <motion.div
-                    className="h-full rounded-full"
-                    style={{ backgroundColor: feature.accent }}
+                    className="h-full rounded-full bg-black"
                     initial={{ width: "0%" }}
                     animate={{ width: "100%" }}
-                    transition={{ duration: INTERVAL / 1000, ease: "linear" }}
+                    transition={{
+                      duration: INTERVAL / 1000,
+                      ease: "linear",
+                    }}
                     key={active}
                   />
                 </div>

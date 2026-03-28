@@ -14,14 +14,14 @@ export default function HowItWorksSection() {
           transition={{ duration: 0.5 }}
           className="mb-16 text-center"
         >
-          <span className="mb-3 block text-xs font-semibold tracking-widest text-emerald-600 uppercase">
+          <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
             How it works
           </span>
-          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-            Get started in <span className="text-emerald-600">three steps</span>
+          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">
+            Get started in <span className="text-black">three steps</span>
           </h2>
-          <p className="text-[15px] text-slate-500">
-            No complex setup — just sign up and start working smarter.
+          <p className="font-mono text-[15px] text-slate-500">
+            No complex setup   just sign up and start working smarter.
           </p>
         </motion.div>
 
@@ -38,20 +38,20 @@ export default function HowItWorksSection() {
                 className="group relative rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-300 hover:border-slate-400"
               >
                 <div className="mb-6 flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 transition-all duration-300 group-hover:border-emerald-300 group-hover:bg-emerald-50">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 transition-all duration-300 group-hover:border-slate-300 group-hover:bg-slate-100">
                     <StepIcon
                       size={20}
-                      className="text-slate-400 transition-colors duration-300 group-hover:text-emerald-600"
+                      className="text-slate-400 transition-colors duration-300 group-hover:text-black"
                     />
                   </div>
-                  <span className="font-(family-name:--font-doto) text-4xl font-black text-slate-100 transition-colors duration-300 group-hover:text-emerald-100">
+                  <span className="font-(family-name:--font-doto) text-4xl font-black text-slate-200 transition-colors duration-300 group-hover:text-slate-300">
                     {step.num}
                   </span>
                 </div>
-                <h3 className="mb-2 font-(family-name:--font-doto) text-base font-extrabold tracking-tight text-slate-950">
+                <h3 className="mb-2 font-(family-name:--font-doto) text-base font-extrabold tracking-tight text-black">
                   {step.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-slate-500">{step.description}</p>
+                <p className="font-mono text-sm leading-relaxed text-slate-500">{step.description}</p>
                 {i < steps.length - 1 && (
                   <div className="absolute top-1/2 -right-3 hidden h-px w-6 bg-slate-200 md:block" />
                 )}

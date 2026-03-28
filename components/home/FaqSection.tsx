@@ -17,17 +17,17 @@ export default function FaqSection() {
             transition={{ duration: 0.5 }}
             className="self-start lg:sticky lg:top-32"
           >
-            <span className="mb-3 block text-xs font-semibold tracking-widest text-emerald-600 uppercase">
+            <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
               FAQ
             </span>
-            <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-              Frequently asked <span className="text-emerald-600">questions</span>
+            <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">
+              Frequently asked <span className="text-black">questions</span>
             </h2>
-            <p className="mb-6 text-[15px] leading-relaxed text-slate-500">
+            <p className="mb-6 font-mono text-[15px] leading-relaxed text-slate-500">
               Everything you need to know about Donna. Can&apos;t find what you&apos;re looking for?
               Reach out to our team.
             </p>
-            <div className="hidden items-center gap-2 text-sm text-slate-400 lg:flex">
+            <div className="hidden items-center gap-2 font-mono text-sm text-slate-400 lg:flex">
               <MessageSquare size={14} />
               <span>{faqs.length} questions answered</span>
             </div>

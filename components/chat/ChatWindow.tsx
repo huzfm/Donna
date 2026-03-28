@@ -77,7 +77,7 @@ export default function ChatWindow({
       const sysMsg: Message = {
         id: nextId.current++,
         role: "ai",
-        content: `Successfully processed **${file.name}** — ${data.chunks} chunks indexed. You can now ask questions about this document.`,
+        content: `Successfully processed **${file.name}**   ${data.chunks} chunks indexed. You can now ask questions about this document.`,
         fileName: file.name,
         timestamp: timeNow(),
       };

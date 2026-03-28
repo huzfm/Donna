@@ -14,7 +14,7 @@ interface EmailPanelProps {
 export default function EmailPanel({ isOpen, onClose }: EmailPanelProps) {
   const [recipients, setRecipients] = useState<string[]>(["sarah@company.com"]);
   const [recipientInput, setRecipientInput] = useState("");
-  const [subject, setSubject] = useState("Project Update — Q1 Progress");
+  const [subject, setSubject] = useState("Project Update   Q1 Progress");
   const [body, setBody] = useState(
     "Hi Sarah,\n\nI wanted to follow up on the project milestones we discussed. Here's a quick summary of our Q1 progress...\n\nLooking forward to your feedback.\n\nBest regards"
   );
