@@ -11,13 +11,17 @@
   "dependencies": {
     "@cyber2024/pdf-parse-fixed": "^1.2.5",
     "@supabase/supabase-js": "^2.100.1",
+    "framer-motion": "^12.38.0",
     "groq-sdk": "^1.1.2",
+    "lottie-react": "^2.4.1",
+    "lucide-react": "^1.7.0",
     "mammoth": "^1.12.0",
     "next": "16.2.1",
     "openai": "^6.33.0",
     "pdf-parse": "^2.4.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "recharts": "^3.8.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
