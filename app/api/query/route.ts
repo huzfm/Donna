@@ -261,6 +261,19 @@ JSON:`;
       }
 
       try {
+        const { data: settings } = await supabase
+          .from("user_settings")
+          .select("gmail_user, gmail_app_password")
+          .eq("user_id", user.id)
+          .single();
+
+        if (!settings?.gmail_user || !settings?.gmail_app_password) {
+          return Response.json({
+            answer:
+              "⚙️ Your Gmail is not configured. Click the Settings icon in the sidebar to add your Gmail and App Password to enable sending emails.",
+          });
+        }
+
         await sendEmail(to, subject, body);
         return Response.json({
           answer: `Email sent to **${to}**".`,

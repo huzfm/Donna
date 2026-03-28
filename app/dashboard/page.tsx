@@ -630,6 +630,8 @@ export default function DashboardPage() {
                 e.target.value = "";
               }}
               fileCount={savedFiles.length}
+              gmailUser={gmailUser}
+              gmailPassword={gmailPassword}
             />
           )}
           {activeTab === "files" && (

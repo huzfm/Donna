@@ -62,9 +62,13 @@ const TONES: { id: Tone; label: string;  }[] = [
 function EmailComposeModal({
   onSend,
   onClose,
+  gmailUser,
+  gmailPassword,
 }: {
   onSend: (msg: string) => void;
   onClose: () => void;
+  gmailUser?: string;
+  gmailPassword?: string;
 }) {
   const [draft, setDraft] = useState<EmailDraft>({ to: "", subject: "", body: "" });
   const [focused, setFocused] = useState<keyof EmailDraft | null>(null);
@@ -126,7 +130,8 @@ function EmailComposeModal({
     }
   };
 
-  const canSend = draft.to.trim() && draft.subject.trim() && draft.body.trim();
+  const isConfigured = !!gmailUser && !!gmailPassword;
+  const canSend = isConfigured && draft.to.trim() && draft.subject.trim() && draft.body.trim();
 
   const submit = () => {
     if (!canSend) return;
@@ -410,7 +415,11 @@ function EmailComposeModal({
 
       {/* Footer */}
       <div className="flex items-center justify-between px-4 pb-4">
-        <p className="text-[11px] text-slate-500">Email will be sent via your configured Gmail</p>
+        <p className={`text-[11px] ${!isConfigured ? "font-semibold text-red-500" : "text-slate-500"}`}>
+          {!isConfigured 
+            ? "⚠️ Please add your Gmail credentials in Settings first" 
+            : "Email will be sent via your configured Gmail"}
+        </p>
         <button
           onClick={submit}
           disabled={!canSend}
@@ -545,6 +554,8 @@ export default function ChatPanel({
   fileInputRef,
   onFileSelect,
   fileCount,
+  gmailUser,
+  gmailPassword,
 }: {
   messages: ChatMessage[];
   input: string;
@@ -557,6 +568,8 @@ export default function ChatPanel({
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileCount: number;
+  gmailUser?: string;
+  gmailPassword?: string;
 }) {
   const showSlash = input.startsWith("/") && !input.includes(" ");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -730,7 +743,14 @@ export default function ChatPanel({
       <div className="shrink-0 px-4 pt-3 pb-5">
         <div className="relative mx-auto max-w-3xl">
           <AnimatePresence>
-            {emailOpen && <EmailComposeModal onSend={onSend} onClose={() => setEmailOpen(false)} />}
+            {emailOpen && (
+              <EmailComposeModal
+                onClose={() => setEmailOpen(false)}
+                onSend={onSend}
+                gmailUser={gmailUser}
+                gmailPassword={gmailPassword}
+              />
+            )}
             {!emailOpen && showSlash && (
               <SlashPopup
                 query={input}
@@ -741,7 +761,7 @@ export default function ChatPanel({
           </AnimatePresence>
 
           {/* Input box */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.04] transition-all focus-within:border-slate-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.15)] focus-within:ring-2 focus-within:ring-slate-300/15">
+          <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/4 transition-all focus-within:border-slate-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.15)] focus-within:ring-2 focus-within:ring-slate-300/15">
             {/* Row 1 — Textarea */}
             <div className="px-4 pt-3.5 pb-2">
               <textarea

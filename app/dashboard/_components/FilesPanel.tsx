@@ -161,7 +161,7 @@ export default function FilesPanel({
                   File breakdown
                 </p>
                 <div className="flex-1">
-                  <div className="mx-auto h-[140px] w-[140px]">
+                  <div className="mx-auto h-35 w-35">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -268,13 +268,13 @@ export default function FilesPanel({
             </div>
           ) : files.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="flex h-32 w-32 items-center justify-center rounded-[32px] bg-slate-50 text-slate-300 ring-2 ring-slate-100 transition-all group-hover:bg-slate-100 group-hover:text-black group-hover:ring-slate-300/50">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-300 bg-slate-100/80 ring-1 ring-slate-300/50">
                 <FolderOpen size={26} className="text-black" />
               </div>
               <p className="font-(family-name:--font-doto) text-base font-black tracking-tight text-slate-900">
                 No files yet
               </p>
-              <p className="mt-1.5 max-w-[280px] text-center text-sm leading-relaxed text-slate-500">
+              <p className="mt-1.5 max-w-xs text-center text-sm leading-relaxed text-slate-500">
                 Upload documents above to start building your knowledge base.
               </p>
             </div>
