@@ -751,52 +751,22 @@ export default function ChatPanel({
                 <Sparkles size={28} className="text-white" />
               </motion.div>
               <h2 className="mb-2 text-2xl font-semibold" style={{ color: "hsl(0,0%,90%)" }}>
-                Hello! How can I help?
+                Hello! my name is Donna
               </h2>
               <p
                 className="mx-auto mb-10 max-w-sm text-sm leading-relaxed"
                 style={{ color: "hsl(240,5%,45%)" }}
               >
-                Search documents, check email, generate diagrams, and more. Type{" "}
-                <span
-                  className="rounded px-1 py-0.5 font-mono text-xs"
-                  style={{ background: "hsl(240,6%,18%)", color: "hsl(0,0%,75%)" }}
-                >
-                  /
-                </span>{" "}
-                for commands.
+                I am your personal AI Assitant
+               
               </p>
-
-              {/* Suggestions grid */}
-              <div className="grid w-full max-w-lg grid-cols-2 gap-2">
-                {SUGGESTIONS.map((s, i) => (
-                  <motion.button
-                    key={s.label}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05, duration: 0.3 }}
-                    onClick={() => handleSuggestion(s.fill)}
-                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-all"
-                    style={{ background: "hsl(240,6%,13%)", border: "1px solid hsl(240,6%,17%)" }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "hsl(240,6%,16%)";
-                      e.currentTarget.style.borderColor = "hsl(240,6%,22%)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "hsl(240,6%,13%)";
-                      e.currentTarget.style.borderColor = "hsl(240,6%,17%)";
-                    }}
-                  >
-                    <span className="shrink-0 text-lg">{s.emoji}</span>
-                    <span
-                      className="text-[12.5px] leading-tight"
-                      style={{ color: "hsl(240,5%,60%)" }}
-                    >
-                      {s.label}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
+              <p
+                className="mx-auto mb-10 max-w-sm text-sm leading-relaxed"
+                style={{ color: "hsl(240,5%,45%)" }}
+              >
+                How may i help you
+               
+              </p>
             </motion.div>
           </div>
         ) : (
