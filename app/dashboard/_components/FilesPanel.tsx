@@ -96,7 +96,7 @@ export default function FilesPanel({
       className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 px-6 py-4 backdrop-blur-md">
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 pl-14 md:pl-6 pr-6 py-4 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-200 text-black ring-1 ring-slate-300/60">
             <Database size={15} strokeWidth={2} />
@@ -268,7 +268,7 @@ export default function FilesPanel({
             </div>
           ) : files.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-300 bg-slate-100/80 ring-1 ring-slate-300/50">
+              <div className="flex h-32 w-32 items-center justify-center rounded-[32px] bg-slate-50 text-slate-300 ring-2 ring-slate-100 transition-all group-hover:bg-slate-100 group-hover:text-black group-hover:ring-slate-300/50">
                 <FolderOpen size={26} className="text-black" />
               </div>
               <p className="font-(family-name:--font-doto) text-base font-black tracking-tight text-slate-900">
@@ -319,7 +319,7 @@ export default function FilesPanel({
                         >
                           <Icon size={16} style={{ color: cat.color }} />
                         </div>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 max-w-64">
                           <p className="truncate text-[13px] font-semibold text-slate-900">
                             {f.file_name}
                           </p>
