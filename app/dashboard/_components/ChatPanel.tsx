@@ -588,7 +588,7 @@ function SlashPopup({
                 onSelect(
                   hoveredCmd.trigger === "/email"
                     ? hoveredCmd.fill // open compose modal instead
-                    : hoveredCmd.fill + (s.includes("about") ? "" : " " + s)
+                    : s              // use the suggestion as-is — it IS the query
                 )
               }
               className="flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left transition-all"
@@ -614,17 +614,7 @@ function SlashPopup({
   );
 }
 
-/* ══════════════════════════════════════════════
-   Prompt Suggestions (empty state)
-══════════════════════════════════════════════ */
-const SUGGESTIONS = [
-  { emoji: "📄", label: "Summarize my resume", fill: "Summarize the uploaded resume" },
-  { emoji: "📬", label: "Check my inbox", fill: "Check my emails and summarize my inbox" },
-  { emoji: "✉️", label: "Send an email", fill: "__EMAIL_MODAL__" },
-  { emoji: "🔍", label: "Find key facts", fill: "Find the key facts in my uploaded documents" },
-  { emoji: "📊", label: "Diagram my files", fill: "visualize my documents" },
-  { emoji: "💬", label: "What can you help with?", fill: "What can you help me with?" },
-];
+
 
 /* ══════════════════════════════════════════════
    ChatPanel
@@ -676,13 +666,7 @@ export default function ChatPanel({
     }
   };
 
-  const handleSuggestion = (fill: string) => {
-    if (fill === "__EMAIL_MODAL__") {
-      setEmailOpen(true);
-      return;
-    }
-    onSend(fill);
-  };
+
 
   return (
     <motion.div

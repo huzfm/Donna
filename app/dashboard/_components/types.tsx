@@ -42,9 +42,9 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     description: "Compose and send an email",
     fill: "/email",
     suggestions: [
-      "to: john@company.com subject: Meeting Tomorrow body: Hi John, are you free at 3pm?",
-      "to: hr@company.com subject: Leave Request body: I'd like to request leave for next week.",
-      "to: client@gmail.com subject: Follow Up body: Just checking in on our proposal.",
+      "Email john@company.com about tomorrow's meeting at 3pm",
+      "Send a leave request to hr@company.com for next week",
+      "Follow up with client@gmail.com on our proposal",
     ],
   },
   {
@@ -67,8 +67,8 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     fill: "Summarize the uploaded document",
     suggestions: [
       "Summarize the key points of my resume",
-      "Give me a bullet-point summary of my uploaded file",
-      "What is the main topic of my document?",
+      "Give me a bullet-point summary of my document",
+      "What is the main topic of my uploaded file?",
     ],
   },
   {

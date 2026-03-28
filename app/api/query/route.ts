@@ -133,17 +133,24 @@ User request: ${question}
    ✅  --> EndNode[End]   Use a labelled node instead
    ✅  --> StartNode[Start]
 
-3. NODE LABEL TEXT — no markdown formatting inside Mermaid code:
-   ❌  A[**Bold text**]   FORBIDDEN — bold inside node labels breaks parsing
-   ✅  A[Bold text]       Just plain text inside brackets
+3. NODE LABEL TEXT rules:
+   ❌  A[**Bold text**]              FORBIDDEN — markdown bold breaks parsing
+   ❌  A[India Refunds (site.com)]  FORBIDDEN — parentheses ( ) inside [ ] labels break parsing!
+   ✅  A[India Refunds site.com]    Replace ( ) with spaces or remove them entirely
+   ❌  A[Very long label text that goes on and on and on]  Keep labels SHORT (under 40 chars)
+   ✅  A[Short descriptive label]   Truncate if needed
 
-4. OUTPUT FORMAT — return ONLY:
+4. UNIQUE NODE IDs — every node identifier must be unique in the diagram:
+   ❌  A[Description]  ...  A[Description]   FORBIDDEN — duplicate ID 'A' causes silent overwrites
+   ✅  DescA[Description of X]  ...  DescB[Description of Y]   Use distinct IDs
+
+5. OUTPUT FORMAT — return ONLY:
 \`\`\`mermaid
 <your mermaid code here>
 \`\`\`
 Then 1-2 sentences explaining the diagram. No other text before the code block.
 
-5. SUPPORTED TYPES: flowchart, sequenceDiagram, erDiagram, mindmap, classDiagram, gantt, pie, gitGraph
+6. SUPPORTED TYPES: flowchart, sequenceDiagram, erDiagram, mindmap, classDiagram, gantt, pie, gitGraph
 
 CORRECT flowchart example:
 \`\`\`mermaid
