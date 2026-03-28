@@ -71,7 +71,7 @@ export default function FeatureCards({ onSelectFeature }: FeatureCardsProps) {
           key={feature.id}
           variants={staggerItem}
           onClick={() => onSelectFeature(feature.prompt)}
-          className="group flex flex-col items-start gap-3 p-4 rounded-xl border border-border bg-white hover:border-accent/30 card-glow text-left transition-all"
+          className="group flex flex-col items-start gap-3 p-4 rounded-xl border border-border bg-slate-900 hover:border-accent/30 card-glow text-left transition-all"
           whileHover={{ y: -3, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.97 }}
         >

@@ -27,7 +27,7 @@ const statusMap: Record<string, { label: string; variant: "success" | "warning" 
 
 export default function ActivityList() {
   return (
-    <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-base font-semibold text-primary">Recent Activity</h3>
         <button className="text-sm text-accent hover:text-accent-hover transition-colors">

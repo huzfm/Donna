@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+const PUBLIC_PATHS = ["/", "/login", "/signup"];
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request: {
@@ -31,28 +33,23 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect all routes except /login and static Next.js paths
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/api/upload") && // API routes have their own auth checks
-    !request.nextUrl.pathname.startsWith("/api/query") &&
-    !request.nextUrl.pathname.startsWith("/api/gmail")
-  ) {
+  const pathname = request.nextUrl.pathname;
+  const isPublicPath = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  const isApiPath = pathname.startsWith("/api/");
+
+  if (!user && !isPublicPath && !isApiPath) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // If user is logged in and tries to access /login, redirect to home
-  if (user && request.nextUrl.pathname.startsWith("/login")) {
+  if (user && (pathname === "/login" || pathname === "/signup")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
@@ -61,13 +58,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json|lottie)$).*)",
   ],
 };

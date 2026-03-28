@@ -52,7 +52,7 @@ export default function ChatPage() {
   }, [handleNewChat]);
 
   return (
-    <div className="flex h-screen bg-white overflow-hidden">
+    <div className="flex h-screen bg-[#020617] overflow-hidden">
       <Sidebar />
       <ChatSidebar
         sessions={sessions}

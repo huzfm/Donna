@@ -22,7 +22,7 @@ export default function ContextPanel({ files, onRemoveFile, onClose, isOpen }: C
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="w-[300px] border-l border-border bg-white flex flex-col shrink-0"
+          className="w-[300px] border-l border-border bg-slate-950 flex flex-col shrink-0"
           initial={{ width: 0, opacity: 0 }}
           animate={{ width: 300, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}

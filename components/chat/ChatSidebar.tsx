@@ -31,7 +31,7 @@ export default function ChatSidebar({
   onFeaturePrompt,
 }: ChatSidebarProps) {
   return (
-    <div className="w-[260px] border-r border-border bg-white flex flex-col shrink-0">
+    <div className="w-[260px] border-r border-border bg-slate-950 flex flex-col shrink-0">
       {/* New Chat button */}
       <div className="p-4 border-b border-border">
         <motion.button
