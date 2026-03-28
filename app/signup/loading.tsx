@@ -2,23 +2,25 @@ import { Brain } from "lucide-react";
 
 export default function SignupLoading() {
   return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-      <div className="w-full max-w-md mx-auto px-6">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8 animate-pulse">
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-              <Brain size={18} className="text-emerald-400" />
-            </div>
-            <div className="h-5 w-16 bg-slate-800 rounded" />
+    <div className="min-h-screen bg-white flex">
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-50 border-r border-slate-200 items-center justify-center">
+        <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center animate-pulse">
+          <Brain size={24} className="text-emerald-600" />
+        </div>
+      </div>
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-md">
+          <div className="mb-8 animate-pulse">
+            <div className="h-7 w-48 bg-slate-200 rounded mb-2" />
+            <div className="h-4 w-52 bg-slate-100 rounded" />
           </div>
-          <div className="space-y-4">
-            <div className="h-4 w-12 bg-slate-800 rounded" />
-            <div className="h-11 w-full bg-slate-800 rounded-lg" />
-            <div className="h-4 w-16 bg-slate-800 rounded" />
-            <div className="h-11 w-full bg-slate-800 rounded-lg" />
-            <div className="h-4 w-28 bg-slate-800 rounded" />
-            <div className="h-11 w-full bg-slate-800 rounded-lg" />
-            <div className="h-11 w-full bg-emerald-500/20 rounded-lg mt-6" />
+          <div className="rounded-2xl border border-slate-200 p-8 animate-pulse">
+            <div className="space-y-5">
+              <div><div className="h-4 w-24 bg-slate-100 rounded mb-1.5" /><div className="h-12 w-full bg-slate-100 rounded-xl" /></div>
+              <div><div className="h-4 w-16 bg-slate-100 rounded mb-1.5" /><div className="h-12 w-full bg-slate-100 rounded-xl" /></div>
+              <div><div className="h-4 w-32 bg-slate-100 rounded mb-1.5" /><div className="h-12 w-full bg-slate-100 rounded-xl" /></div>
+              <div className="h-12 w-full bg-slate-200 rounded-xl mt-2" />
+            </div>
           </div>
         </div>
       </div>
