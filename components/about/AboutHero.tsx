@@ -49,7 +49,7 @@ export default function AboutHero() {
           className="mx-auto max-w-2xl text-lg leading-relaxed text-slate-500"
         >
           Donna is an AI-powered workspace assistant that helps you manage documents, email, and
-          calendar — all through natural conversation. Built for speed, privacy, and simplicity.
+          calendar   all through natural conversation. Built for speed, privacy, and simplicity.
         </motion.p>
       </div>
     </section>

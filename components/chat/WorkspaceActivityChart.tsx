@@ -13,7 +13,7 @@ import {
 import { Activity } from "lucide-react";
 import { chatStaggerItem } from "@/lib/animations";
 
-/** Demo series — placeholder for future real usage metrics */
+/** Demo series   placeholder for future real usage metrics */
 const WEEKLY = [
   { day: "Mon", queries: 3 },
   { day: "Tue", queries: 5 },

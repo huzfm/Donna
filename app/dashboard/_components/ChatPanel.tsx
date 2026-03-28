@@ -311,7 +311,7 @@ function EmailComposeModal({
                 className="border-t border-slate-100 px-4 py-2"
               >
                 <p className="mb-1.5 text-[9.5px] tracking-wider text-slate-500 uppercase">
-                  AI Suggestions — click to use
+                  AI Suggestions   click to use
                 </p>
                 <div className="flex flex-col gap-1">
                   {subjectSuggestions.map((s, i) => (
@@ -762,7 +762,7 @@ export default function ChatPanel({
 
           {/* Input box */}
           <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/4 transition-all focus-within:border-slate-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.15)] focus-within:ring-2 focus-within:ring-slate-300/15">
-            {/* Row 1 — Textarea */}
+            {/* Row 1   Textarea */}
             <div className="px-4 pt-3.5 pb-2">
               <textarea
                 ref={textareaRef}

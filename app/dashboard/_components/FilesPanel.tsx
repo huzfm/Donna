@@ -126,7 +126,7 @@ export default function FilesPanel({
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-6 py-6">
 
-          {/* Stats row — only when files exist */}
+          {/* Stats row   only when files exist */}
           {files.length > 0 && (
             <div className="mb-6 grid grid-cols-4 gap-3">
               {/* Stat cards */}
@@ -154,7 +154,7 @@ export default function FilesPanel({
 
           {/* Chart + Upload row */}
           <div className={`mb-6 grid gap-4 ${files.length > 0 && pieData.length > 0 ? "grid-cols-5" : "grid-cols-1"}`}>
-            {/* Pie chart — 2/5 width */}
+            {/* Pie chart   2/5 width */}
             {files.length > 0 && pieData.length > 0 && (
               <div className="col-span-2 flex flex-col rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
                 <p className="mb-3 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
@@ -204,7 +204,7 @@ export default function FilesPanel({
               </div>
             )}
 
-            {/* Upload drop zone — 3/5 or full */}
+            {/* Upload drop zone   3/5 or full */}
             <label
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
@@ -297,7 +297,7 @@ export default function FilesPanel({
                 )}
               </div>
 
-              {/* File grid — cards instead of rows */}
+              {/* File grid   cards instead of rows */}
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 <AnimatePresence>
                   {filteredFiles.map((f, i) => {

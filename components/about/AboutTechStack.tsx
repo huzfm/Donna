@@ -21,7 +21,7 @@ export default function AboutTechStack() {
             Built on the <span className="text-emerald-600">best stack</span>
           </h2>
           <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-slate-500">
-            Modern, fast, and reliable — every layer is chosen for performance and developer
+            Modern, fast, and reliable   every layer is chosen for performance and developer
             experience.
           </p>
         </motion.div>

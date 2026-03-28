@@ -8,7 +8,7 @@ const values = [
     icon: Target,
     title: "Purpose-built",
     description:
-      "Every feature exists because it solves a real problem. No bloat, no feature creep — just the tools you actually need.",
+      "Every feature exists because it solves a real problem. No bloat, no feature creep   just the tools you actually need.",
   },
   {
     icon: Zap,
@@ -26,7 +26,7 @@ const values = [
     icon: Lightbulb,
     title: "Intuitive design",
     description:
-      "A clean, focused interface that gets out of your way. Upload docs, ask questions, take action — no learning curve.",
+      "A clean, focused interface that gets out of your way. Upload docs, ask questions, take action   no learning curve.",
   },
 ];
 

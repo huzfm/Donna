@@ -218,7 +218,7 @@ body {
   }
 }
 
-/* Chat route — subtle light mesh (matches dashboard / marketing) */
+/* Chat route   subtle light mesh (matches dashboard / marketing) */
 .chat-mesh {
   background:
     radial-gradient(ellipse 85% 55% at 50% -15%, rgba(16, 185, 129, 0.09), transparent 55%),

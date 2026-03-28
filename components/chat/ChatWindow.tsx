@@ -264,7 +264,7 @@ export default function ChatWindow({
                     variants={chatStaggerItem}
                     className="mb-8 max-w-md text-center text-sm leading-relaxed text-slate-600"
                   >
-                    Upload documents and ask anything, or try a feature below — same polish as the homepage hero.
+                    Upload documents and ask anything, or try a feature below   same polish as the homepage hero.
                   </motion.p>
 
                   <motion.div variants={chatStaggerItem} className="mb-8 w-full">

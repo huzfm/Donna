@@ -44,7 +44,7 @@ export const staggerItem: Variants = {
   },
 };
 
-/** Chat empty state — snappier stagger */
+/** Chat empty state   snappier stagger */
 export const chatStaggerContainer: Variants = {
   hidden: {},
   visible: {

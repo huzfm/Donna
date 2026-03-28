@@ -472,7 +472,7 @@ export default function DashboardPage() {
                 </div>
               ) : sessions.length === 0 ? (
                 <p className="px-3 py-8 text-center text-xs leading-relaxed text-slate-500">
-                  No conversations yet — start with <span className="font-medium text-black">New chat</span>.
+                  No conversations yet   start with <span className="font-medium text-black">New chat</span>.
                 </p>
               ) : (
                 <div className="py-2">

@@ -151,7 +151,7 @@ export default function ChatSidebar({
             </motion.div>
             <p className="text-xs font-medium text-slate-600">No conversations yet</p>
             <p className="mt-1 px-4 text-[11px] leading-relaxed text-slate-400">
-              Start a new chat — your history will show up here.
+              Start a new chat   your history will show up here.
             </p>
           </motion.div>
         )}

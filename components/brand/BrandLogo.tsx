@@ -78,7 +78,7 @@ export function BrandLogo({
   return <div className={`group flex items-center gap-2.5 ${className}`}>{inner}</div>;
 }
 
-/** Icon-only mark for avatars / typing — matches homepage logo tile. */
+/** Icon-only mark for avatars / typing   matches homepage logo tile. */
 export function BrandMark({
   size = "md",
   className = "",

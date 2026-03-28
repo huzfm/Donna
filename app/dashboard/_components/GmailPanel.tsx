@@ -111,7 +111,7 @@ export default function GmailPanel({
 
             {/* Main content: Chart + Capabilities side by side */}
             <div className="grid grid-cols-5 gap-4">
-              {/* Chart — 3/5 */}
+              {/* Chart   3/5 */}
               <div className="col-span-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export default function GmailPanel({
                 </div>
               </div>
 
-              {/* Right column — 2/5 */}
+              {/* Right column   2/5 */}
               <div className="col-span-2 flex flex-col gap-4">
                 {/* Account card */}
                 <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
@@ -252,12 +252,12 @@ export default function GmailPanel({
               Connect your Gmail
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
-              Link your Gmail account so Donna can send emails, attach calendar links, and manage your inbox — all from chat.
+              Link your Gmail account so Donna can send emails, attach calendar links, and manage your inbox   all from chat.
             </p>
           </div>
 
           <div className="grid grid-cols-5 gap-5">
-            {/* Form — 3/5 */}
+            {/* Form   3/5 */}
             <div className="col-span-3 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-2.5">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-200 ring-1 ring-slate-300/60">
@@ -323,7 +323,7 @@ export default function GmailPanel({
               </form>
             </div>
 
-            {/* Steps guide — 2/5 */}
+            {/* Steps guide   2/5 */}
             <div className="col-span-2 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-2.5">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-200 ring-1 ring-slate-300/60">
