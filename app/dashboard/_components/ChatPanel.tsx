@@ -236,7 +236,7 @@ function EmailComposeModal({
                 border: `1px solid ${tone === t.id ? "#94a3b8" : "#e2e8f0"}`,
               }}
             >
-              {t.emoji} {t.label}
+              {t.label}
             </button>
           ))}
         </div>

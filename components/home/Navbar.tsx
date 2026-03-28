@@ -5,6 +5,12 @@ import Link from "next/link";
 import { X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 
+const NAV_LINKS = [
+  { label: "Features", href: "#features", isRoute: false },
+  { label: "How it works", href: "#how-it-works", isRoute: false },
+  { label: "About", href: "#", isRoute: false },
+];
+
 function NavAuthButton() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -117,7 +123,7 @@ export default function Navbar() {
             <motion.button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-800 md:hidden"
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 md:hidden"
               whileTap={{ scale: 0.9 }}
               aria-label="Toggle menu"
             >
@@ -144,7 +150,7 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-emerald-50 hover:text-emerald-800"
+                  className="flex w-full items-center rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 hover:text-slate-900"
                 >
                   {link.label}
                 </Tag>
