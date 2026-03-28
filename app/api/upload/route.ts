@@ -155,7 +155,7 @@ export async function POST(req: Request) {
     }
 
     // ==============================
-    // ❌ Unsupported
+    //  Unsupported
     // ==============================
     else {
       return Response.json({ error: "Unsupported file type" }, { status: 400 });
