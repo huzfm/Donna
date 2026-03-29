@@ -653,24 +653,7 @@ export default function ChatPanel({
                   Type a message below or use <span className="font-mono text-xs text-black">/</span> commands.
                 </p>
 
-                {/* Quick-start suggestions */}
-                <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  {[
-                    "What can you do?",
-                    "Summarize my files",
-                    "Check my inbox",
-                    "Help me write an email",
-                  ].map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      onClick={() => onSend(suggestion)}
-                      className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 font-mono text-[11px] font-medium text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-black hover:shadow-md active:scale-95"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
+
               </div>
             </motion.div>
           </div>
