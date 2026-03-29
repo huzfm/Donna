@@ -260,7 +260,7 @@ JSON:`;
 
         if (parsed.can_extract === false) {
           return Response.json({
-            answer: `❌ I couldn't send that email: ${parsed.reason || "Missing details"}. You can also type \`/email\` to open the manual compose form.`,
+            answer: ` I couldn't send that email: ${parsed.reason || "Missing details"}. You can also type \`/email\` to open the manual compose form.`,
           });
         }
 
@@ -284,7 +284,7 @@ JSON:`;
         } else {
           return Response.json({
             answer:
-              '❌ I couldn\'t understand the email details. Please specify a recipient (e.g., "Send an email to name@email.com") or type `/email` to use the manual form.',
+              'I couldn\'t understand the email details. Please specify a recipient (e.g., "Send an email to name@email.com") or type `/email` to use the manual form.',
           });
         }
       }
@@ -292,7 +292,7 @@ JSON:`;
       try {
         await sendEmail(to, subject, body);
         return Response.json({
-          answer: `Email sent to **${to}**".`,
+          answer: `Email sent to **${to}**.`,
         });
       } catch (emailErr: unknown) {
         const msg = emailErr instanceof Error ? emailErr.message : "Unknown error";
