@@ -410,7 +410,7 @@ function EmailComposeModal({
 
       {/* Footer */}
       <div className="flex items-center justify-between px-4 pb-4">
-        <p className="text-[11px] text-slate-500">Email will be sent via your configured Gmail</p>
+        <p className="text-[11px] text-slate-500">Email will be sent via server</p>
         <button
           onClick={submit}
           disabled={!canSend}
