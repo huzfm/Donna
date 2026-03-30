@@ -14,7 +14,7 @@ export default function TechStackSection() {
           transition={{ duration: 0.5 }}
           className="mb-12 text-center"
         >
-          <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
+          <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             Powered By
           </span>
           <h2 className="font-(family-name:--font-doto) text-2xl font-black tracking-tight text-black md:text-3xl">
@@ -36,9 +36,7 @@ export default function TechStackSection() {
                   key={`${setIdx}-${tech.name}`}
                   className="group flex shrink-0 items-center gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-4 transition-all duration-300 hover:border-slate-400"
                 >
-                  <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100"
-                  >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100">
                     <TechIcon size={18} className="text-black" />
                   </div>
                   <div className="text-left">

@@ -59,7 +59,13 @@ function EmailChart() {
               boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
             }}
           />
-          <Bar dataKey="received" name="Received" fill="#334155" radius={[6, 6, 0, 0]} barSize={16} />
+          <Bar
+            dataKey="received"
+            name="Received"
+            fill="#334155"
+            radius={[6, 6, 0, 0]}
+            barSize={16}
+          />
           <Bar dataKey="sent" name="Sent" fill="#94a3b8" radius={[6, 6, 0, 0]} barSize={16} />
         </BarChart>
       </ResponsiveContainer>
@@ -90,7 +96,7 @@ function ConnectedView({
       transition={{ duration: 0.2 }}
       className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
-      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 py-4 pl-14 pr-4 backdrop-blur-md sm:pr-6 md:pl-6">
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 py-4 pr-4 pl-14 backdrop-blur-md sm:pr-6 md:pl-6">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-200 text-black ring-1 ring-slate-300/60">
             <Mail size={15} strokeWidth={2} />
@@ -111,7 +117,7 @@ function ConnectedView({
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
           {/* Quick stats */}
-          <div className="mb-6 grid grid-cols-1 gap-3 xs:grid-cols-3">
+          <div className="xs:grid-cols-3 mb-6 grid grid-cols-1 gap-3">
             {[
               { label: "Account", value: gmailUser, icon: UserCircle },
               { label: "Capabilities", value: "Send · Read · Compose", icon: Zap },
@@ -255,7 +261,7 @@ function DisconnectedView({
       transition={{ duration: 0.2 }}
       className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
-      <div className="shrink-0 border-b border-slate-200/90 bg-white/60 py-4 pl-14 pr-4 backdrop-blur-md sm:pr-6 md:pl-6">
+      <div className="shrink-0 border-b border-slate-200/90 bg-white/60 py-4 pr-4 pl-14 backdrop-blur-md sm:pr-6 md:pl-6">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 ring-1 ring-slate-200/60">
             <Mail size={15} strokeWidth={2} />
@@ -271,7 +277,6 @@ function DisconnectedView({
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
-
           {/* Hero prompt */}
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-200 ring-1 ring-slate-300/60">
@@ -281,7 +286,8 @@ function DisconnectedView({
               Connect your Gmail
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
-              Link your Gmail account so Donna can send emails, attach calendar links, and manage your inbox   all from chat.
+              Link your Gmail account so Donna can send emails, attach calendar links, and manage
+              your inbox all from chat.
             </p>
           </div>
 
@@ -345,8 +351,12 @@ function DisconnectedView({
                   disabled={saving}
                   className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/25 transition-all hover:ring-2 hover:ring-slate-300/20 disabled:opacity-30"
                 >
-                  {saving ? "Connecting…" : (
-                    <>Connect Gmail <ArrowRight size={14} /></>
+                  {saving ? (
+                    "Connecting…"
+                  ) : (
+                    <>
+                      Connect Gmail <ArrowRight size={14} />
+                    </>
                   )}
                 </button>
               </form>
@@ -378,7 +388,9 @@ function DisconnectedView({
                     </span>
                     <div>
                       <p className="text-xs font-semibold text-slate-800">{item.step}</p>
-                      <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{item.desc}</p>
+                      <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                        {item.desc}
+                      </p>
                     </div>
                   </li>
                 ))}

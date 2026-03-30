@@ -53,10 +53,10 @@ interface EmailDraft {
 
 type Tone = "professional" | "friendly" | "concise";
 
-const TONES: { id: Tone; label: string;  }[] = [
-  { id: "professional", label: "Professional", },
-  { id: "friendly", label: "Friendly"},
-  { id: "concise", label: "Concise"},
+const TONES: { id: Tone; label: string }[] = [
+  { id: "professional", label: "Professional" },
+  { id: "friendly", label: "Friendly" },
+  { id: "concise", label: "Concise" },
 ];
 
 function EmailComposeModal({
@@ -223,8 +223,10 @@ function EmailComposeModal({
       {/* Tone selector */}
       <div className="flex items-center gap-2 border-b border-slate-100 bg-white/80 px-4 py-2.5">
         <Sparkles size={10} className="shrink-0 text-black" />
-        <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Tone</span>
-        <div className="flex gap-1.5 ml-1">
+        <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+          Tone
+        </span>
+        <div className="ml-1 flex gap-1.5">
           {TONES.map((t) => (
             <button
               key={t.id}
@@ -306,7 +308,7 @@ function EmailComposeModal({
                 className="border-t border-slate-100 px-4 py-2"
               >
                 <p className="mb-1.5 text-[9.5px] tracking-wider text-slate-500 uppercase">
-                  AI Suggestions   click to use
+                  AI Suggestions click to use
                 </p>
                 <div className="flex flex-col gap-1">
                   {subjectSuggestions.map((s, i) => (
@@ -386,7 +388,7 @@ function EmailComposeModal({
                 }}
                 placeholder="Write your message here…"
                 rows={5}
-                className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed text-slate-900 outline-none caret-black"
+                className="w-full resize-none bg-transparent text-[13.5px] leading-relaxed text-slate-900 caret-black outline-none"
               />
               {/* Ghost text shown below current text */}
               {ghostText && (
@@ -511,13 +513,7 @@ function SlashPopup({
           {(hoveredCmd?.suggestions ?? []).map((s, i) => (
             <button
               key={i}
-              onClick={() =>
-                onSelect(
-                  hoveredCmd.trigger === "/email"
-                    ? hoveredCmd.fill
-                    : s
-                )
-              }
+              onClick={() => onSelect(hoveredCmd.trigger === "/email" ? hoveredCmd.fill : s)}
               className="flex w-full items-start gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left transition-all hover:border-slate-300 hover:bg-slate-100/80"
             >
               <ChevronRight size={11} className="mt-0.5 shrink-0 text-black" />
@@ -562,16 +558,42 @@ export default function ChatPanel({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [emailOpen, setEmailOpen] = useState(false);
 
-  const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
+  const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
   let loadingText = "Thinking";
   if (lastUserMsg && loading) {
     const text = lastUserMsg.content.toLowerCase();
     if (text.includes("/email") || text.includes("mail")) loadingText = "Drafting email";
-    else if (text.includes("/diagram") || text.includes("diagram") || text.includes("chart") || text.includes("mermaid")) loadingText = "Generating diagram";
-    else if (text.includes("/doc") || text.includes("document") || text.includes("file") || text.includes("report") || text.includes("pdf")) loadingText = "Analyzing document";
-    else if (text.includes("/search") || text.includes("search") || text.includes("find")) loadingText = "Searching";
-    else if (text.includes("code") || text.includes("debug") || text.includes("fix") || text.includes("error")) loadingText = "Analyzing code";
-    else if (text.includes("/jira") || text.includes("ticket") || text.includes("issue") || text.includes("task")) loadingText = "Updating tasks";
+    else if (
+      text.includes("/diagram") ||
+      text.includes("diagram") ||
+      text.includes("chart") ||
+      text.includes("mermaid")
+    )
+      loadingText = "Generating diagram";
+    else if (
+      text.includes("/doc") ||
+      text.includes("document") ||
+      text.includes("file") ||
+      text.includes("report") ||
+      text.includes("pdf")
+    )
+      loadingText = "Analyzing document";
+    else if (text.includes("/search") || text.includes("search") || text.includes("find"))
+      loadingText = "Searching";
+    else if (
+      text.includes("code") ||
+      text.includes("debug") ||
+      text.includes("fix") ||
+      text.includes("error")
+    )
+      loadingText = "Analyzing code";
+    else if (
+      text.includes("/jira") ||
+      text.includes("ticket") ||
+      text.includes("issue") ||
+      text.includes("task")
+    )
+      loadingText = "Updating tasks";
   }
 
   // Auto-resize textarea
@@ -601,7 +623,7 @@ export default function ChatPanel({
       className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
       {/* ── Topbar ── */}
-      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 pl-14 md:pl-6 pr-6 py-3 backdrop-blur-md">
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 py-3 pr-6 pl-14 backdrop-blur-md md:pl-6">
         <div className="flex items-center gap-3">
           <div>
             <span className="font-(family-name:--font-doto) text-xl font-black tracking-tight text-slate-950">
@@ -638,22 +660,19 @@ export default function ChatPanel({
               <div className="lightning-grid pointer-events-none absolute inset-0 opacity-[0.22]">
                 <div className="lightning-grid-lines" />
               </div>
-           
+
               <div className="relative">
-                <h2 className="font-(family-name:--font-doto) mb-2 text-2xl font-black tracking-tight text-slate-950 md:text-3xl">
+                <h2 className="mb-2 font-(family-name:--font-doto) text-2xl font-black tracking-tight text-slate-950 md:text-3xl">
                   Hello, I&apos;m{" "}
-                  <span className="bg-slate-900 bg-clip-text text-transparent">
-                    Donna
-                  </span>
+                  <span className="bg-slate-900 bg-clip-text text-transparent">Donna</span>
                 </h2>
-                <p className="mx-auto mb-3 font-mono max-w-md text-sm leading-relaxed text-slate-600">
+                <p className="mx-auto mb-3 max-w-md font-mono text-sm leading-relaxed text-slate-600">
                   Your personal AI assistant for documents, email, and calendar.
                 </p>
-                <p className="mx-auto font-mono max-w-md text-sm text-slate-500">
-                  Type a message below or use <span className="font-mono text-xs text-black">/</span> commands.
+                <p className="mx-auto max-w-md font-mono text-sm text-slate-500">
+                  Type a message below or use{" "}
+                  <span className="font-mono text-xs text-black">/</span> commands.
                 </p>
-
-
               </div>
             </motion.div>
           </div>
@@ -732,12 +751,7 @@ export default function ChatPanel({
       <div className="shrink-0 px-4 pt-3 pb-5">
         <div className="relative mx-auto max-w-3xl">
           <AnimatePresence>
-            {emailOpen && (
-              <EmailComposeModal
-                onClose={() => setEmailOpen(false)}
-                onSend={onSend}
-              />
-            )}
+            {emailOpen && <EmailComposeModal onClose={() => setEmailOpen(false)} onSend={onSend} />}
             {!emailOpen && showSlash && (
               <SlashPopup
                 query={input}
@@ -764,7 +778,7 @@ export default function ChatPanel({
                 }}
                 placeholder="Talk to Donna or type / for commands"
                 rows={1}
-                className="max-h-[180px] w-full resize-none bg-transparent text-[14px] leading-relaxed text-slate-900 outline-none caret-black placeholder:text-slate-400"
+                className="max-h-[180px] w-full resize-none bg-transparent text-[14px] leading-relaxed text-slate-900 caret-black outline-none placeholder:text-slate-400"
               />
             </div>
 

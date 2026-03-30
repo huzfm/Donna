@@ -14,14 +14,14 @@ export default function UseCasesSection() {
           transition={{ duration: 0.5 }}
           className="mb-14 text-center"
         >
-          <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
+          <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             Use Cases
           </span>
           <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">
             Built for the way <span className="text-black">you work</span>
           </h2>
           <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">
-            Whether you&apos;re researching, managing emails, or building a knowledge base   Donna
+            Whether you&apos;re researching, managing emails, or building a knowledge base Donna
             adapts to your workflow.
           </p>
         </motion.div>
@@ -38,13 +38,9 @@ export default function UseCasesSection() {
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-300 hover:border-slate-400 md:p-8"
               >
-                <div
-                  className="absolute top-0 left-0 h-full w-1 rounded-r-full bg-black opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                />
+                <div className="absolute top-0 left-0 h-full w-1 rounded-r-full bg-black opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="flex items-start gap-5 md:gap-6">
-                  <div
-                    className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl bg-slate-100"
-                  >
+                  <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl bg-slate-100">
                     <UcIcon size={24} className="text-black" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -52,13 +48,13 @@ export default function UseCasesSection() {
                       <h3 className="font-(family-name:--font-doto) text-lg font-extrabold tracking-tight text-black">
                         {uc.title}
                       </h3>
-                      <span
-                        className="rounded-full border border-slate-300 px-2.5 py-0.5 font-mono text-[9px] font-semibold tracking-wider text-slate-500 uppercase"
-                      >
+                      <span className="rounded-full border border-slate-300 px-2.5 py-0.5 font-mono text-[9px] font-semibold tracking-wider text-slate-500 uppercase">
                         {uc.detail}
                       </span>
                     </div>
-                    <p className="font-mono text-sm leading-relaxed text-slate-500">{uc.description}</p>
+                    <p className="font-mono text-sm leading-relaxed text-slate-500">
+                      {uc.description}
+                    </p>
                   </div>
                 </div>
               </motion.div>

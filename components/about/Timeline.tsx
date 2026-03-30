@@ -31,7 +31,8 @@ const milestones = [
   {
     icon: BarChart3,
     title: "Dashboard & polish",
-    description: "Full dashboard with file management, session history, and brand-consistent design.",
+    description:
+      "Full dashboard with file management, session history, and brand-consistent design.",
     date: "March 2026",
   },
 ];
@@ -50,7 +51,7 @@ export default function Timeline() {
           <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             Journey
           </span>
-          <h2 className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
+          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
             How we <span className="text-slate-400">built it</span>
           </h2>
           <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">
@@ -84,7 +85,9 @@ export default function Timeline() {
                       {m.date}
                     </span>
                   </div>
-                  <p className="font-mono text-sm leading-relaxed text-slate-500">{m.description}</p>
+                  <p className="font-mono text-sm leading-relaxed text-slate-500">
+                    {m.description}
+                  </p>
                 </div>
               </motion.div>
             ))}

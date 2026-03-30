@@ -46,29 +46,9 @@ export default function FeatureStack() {
 
   return (
     <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-2">
-      
       {/* LEFT GLASS CARD */}
       <div
-        className="
-          font-mono
-          relative min-h-[420px] overflow-hidden rounded-2xl
-
-          bg-gradient-to-b from-white/80 via-white/60 to-white/30
-          backdrop-blur-2xl
-
-          border border-white/60
-          ring-1 ring-black/10
-
-          shadow-[0_10px_40px_rgba(0,0,0,0.08)]
-
-          before:absolute before:inset-0 before:rounded-2xl
-          before:bg-gradient-to-b before:from-white/70 before:to-transparent
-          before:opacity-60 before:pointer-events-none
-
-          after:absolute after:inset-0 after:rounded-2xl
-          after:ring-1 after:ring-white/40
-          after:pointer-events-none
-        "
+        className="relative min-h-[420px] overflow-hidden rounded-2xl border border-white/60 bg-gradient-to-b from-white/80 via-white/60 to-white/30 font-mono shadow-[0_10px_40px_rgba(0,0,0,0.08)] ring-1 ring-black/10 backdrop-blur-2xl before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-b before:from-white/70 before:to-transparent before:opacity-60 after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/40"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -88,7 +68,7 @@ export default function FeatureStack() {
             </div>
 
             {/* TAG */}
-            <span className="mb-2 block text-[11px] font-bold tracking-widest uppercase text-slate-500">
+            <span className="mb-2 block text-[11px] font-bold tracking-widest text-slate-500 uppercase">
               {activeFeature.tag}
             </span>
 
@@ -121,20 +101,7 @@ export default function FeatureStack() {
       </div>
 
       {/* RIGHT GLASS PANEL */}
-      <div
-        className="
-          font-mono
-          flex flex-col justify-between gap-1.5 rounded-2xl px-2 py-1
-
-          bg-gradient-to-b from-white/70 to-white/40
-          backdrop-blur-xl
-
-          border border-white/50
-          ring-1 ring-black/10
-
-          shadow-[0_6px_30px_rgba(0,0,0,0.06)]
-        "
-      >
+      <div className="flex flex-col justify-between gap-1.5 rounded-2xl border border-white/50 bg-gradient-to-b from-white/70 to-white/40 px-2 py-1 font-mono shadow-[0_6px_30px_rgba(0,0,0,0.06)] ring-1 ring-black/10 backdrop-blur-xl">
         {features.map((feature, i) => (
           <button
             key={feature.title}
@@ -143,12 +110,11 @@ export default function FeatureStack() {
             onMouseLeave={() => setPaused(false)}
             className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
               i === active
-                ? "border-white/60 bg-white/60 backdrop-blur-md shadow-sm"
+                ? "border-white/60 bg-white/60 shadow-sm backdrop-blur-md"
                 : "border-transparent bg-transparent hover:bg-white/40"
             }`}
           >
             <div className="flex items-center gap-3">
-              
               {/* ICON */}
               <div
                 className={`flex h-9 w-9 items-center justify-center rounded-lg ${
@@ -158,7 +124,7 @@ export default function FeatureStack() {
                 <feature.icon
                   size={17}
                   className={`text-black transition-all duration-300 ${
-                    i === active ? "opacity-100 scale-105" : "opacity-70"
+                    i === active ? "scale-105 opacity-100" : "opacity-70"
                   }`}
                 />
               </div>

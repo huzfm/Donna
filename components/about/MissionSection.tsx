@@ -44,12 +44,13 @@ export default function MissionSection() {
           <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             Our Mission
           </span>
-          <h2 className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
+          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
             Make AI work <span className="text-slate-400">for you</span>
           </h2>
           <p className="mx-auto max-w-xl font-mono text-[15px] leading-relaxed text-slate-500">
-            We believe AI should amplify your productivity, not add complexity. Donna brings together
-            document intelligence, email management, and smart chat into one seamless workspace.
+            We believe AI should amplify your productivity, not add complexity. Donna brings
+            together document intelligence, email management, and smart chat into one seamless
+            workspace.
           </p>
         </motion.div>
 
@@ -66,7 +67,7 @@ export default function MissionSection() {
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 ring-1 ring-slate-200/60 transition-colors group-hover:bg-slate-900 group-hover:text-white group-hover:ring-slate-900">
                 <v.icon size={20} strokeWidth={2} />
               </div>
-              <h3 className="font-(family-name:--font-doto) mb-2 text-lg font-black tracking-tight text-slate-950">
+              <h3 className="mb-2 font-(family-name:--font-doto) text-lg font-black tracking-tight text-slate-950">
                 {v.title}
               </h3>
               <p className="font-mono text-sm leading-relaxed text-slate-500">{v.description}</p>

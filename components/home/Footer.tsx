@@ -55,7 +55,7 @@ function FooterLink({
       </span>
       <ArrowUpRight
         size={11}
-        className="opacity-0 -translate-x-1 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-60"
+        className="-translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-60"
       />
     </Tag>
   );
@@ -79,7 +79,8 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mb-6 max-w-xs font-mono text-sm leading-relaxed text-slate-300">
-              Your personal AI workspace — understands documents, manages emails, and helps you work smarter.
+              Your personal AI workspace — understands documents, manages emails, and helps you work
+              smarter.
             </p>
 
             {/* Socials */}
@@ -136,7 +137,11 @@ export default function Footer() {
           </motion.div>
 
           {/* Legal */}
-          <motion.div className="md:col-span-2" {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
+          <motion.div
+            className="md:col-span-2"
+            {...fadeUp}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <h4 className="mb-4 font-mono text-xs font-semibold tracking-widest text-slate-200 uppercase">
               Legal
             </h4>

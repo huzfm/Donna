@@ -20,24 +20,50 @@ import {
 } from "lucide-react";
 import { UploadedFile, timeAgo } from "./types";
 
-const LazyPieChart = lazy(() =>
-  import("recharts").then((m) => ({ default: m.PieChart }))
-);
-const LazyPie = lazy(() =>
-  import("recharts").then((m) => ({ default: m.Pie }))
-);
+const LazyPieChart = lazy(() => import("recharts").then((m) => ({ default: m.PieChart })));
+const LazyPie = lazy(() => import("recharts").then((m) => ({ default: m.Pie })));
 
 function getFileCategory(fileName: string) {
   const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
   if (ext === "pdf")
-    return { label: "PDF", color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", icon: FileType2 };
+    return {
+      label: "PDF",
+      color: "#ef4444",
+      bg: "rgba(239,68,68,0.08)",
+      border: "rgba(239,68,68,0.18)",
+      icon: FileType2,
+    };
   if (["doc", "docx"].includes(ext))
-    return { label: "Word", color: "#3b82f6", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.18)", icon: FileText };
+    return {
+      label: "Word",
+      color: "#3b82f6",
+      bg: "rgba(59,130,246,0.08)",
+      border: "rgba(59,130,246,0.18)",
+      icon: FileText,
+    };
   if (["xls", "xlsx", "csv"].includes(ext))
-    return { label: "Sheet", color: "#10b981", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.18)", icon: FileSpreadsheet };
+    return {
+      label: "Sheet",
+      color: "#10b981",
+      bg: "rgba(16,185,129,0.08)",
+      border: "rgba(16,185,129,0.18)",
+      icon: FileSpreadsheet,
+    };
   if (ext === "txt")
-    return { label: "Text", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)", border: "rgba(139,92,246,0.18)", icon: FileText };
-  return { label: "File", color: "#94a3b8", bg: "rgba(148,163,184,0.08)", border: "rgba(148,163,184,0.18)", icon: File };
+    return {
+      label: "Text",
+      color: "#8b5cf6",
+      bg: "rgba(139,92,246,0.08)",
+      border: "rgba(139,92,246,0.18)",
+      icon: FileText,
+    };
+  return {
+    label: "File",
+    color: "#94a3b8",
+    bg: "rgba(148,163,184,0.08)",
+    border: "rgba(148,163,184,0.18)",
+    icon: File,
+  };
 }
 
 const PIE_COLORS = ["#ef4444", "#3b82f6", "#10b981", "#8b5cf6", "#94a3b8"];
@@ -68,9 +94,7 @@ const FileCard = memo(function FileCard({ file, index, deleting, onDelete }: Fil
         <Icon size={16} style={{ color: cat.color }} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-semibold text-slate-900">
-          {file.file_name}
-        </p>
+        <p className="truncate text-[13px] font-semibold text-slate-900">{file.file_name}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <span
             className="rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase"
@@ -153,7 +177,10 @@ function PieChartInner({ pieData }: { pieData: { name: string; value: number }[]
       </div>
       <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1.5">
         {pieData.map((d: { name: string; value: number }, i: number) => (
-          <span key={d.name} className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700">
+          <span
+            key={d.name}
+            className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700"
+          >
             <span
               className="inline-block h-2.5 w-2.5 rounded-full"
               style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
@@ -242,7 +269,7 @@ function FilesPanel({
       className="flex flex-1 flex-col overflow-hidden bg-transparent"
     >
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 py-4 pl-14 pr-4 backdrop-blur-md sm:pr-6 md:pl-6">
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/60 py-4 pr-4 pl-14 backdrop-blur-md sm:pr-6 md:pl-6">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-200 text-black ring-1 ring-slate-300/60">
             <Database size={15} strokeWidth={2} />
@@ -257,8 +284,12 @@ function FilesPanel({
           </div>
         </div>
         <label className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-lg shadow-slate-300/25 transition-all hover:ring-2 hover:ring-slate-300/20 sm:px-3.5">
-          {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} strokeWidth={2.5} />}
-          <span className="hidden xs:inline">{uploading ? "Uploading…" : "Add files"}</span>
+          {uploading ? (
+            <Loader2 size={13} className="animate-spin" />
+          ) : (
+            <Plus size={13} strokeWidth={2.5} />
+          )}
+          <span className="xs:inline hidden">{uploading ? "Uploading…" : "Add files"}</span>
           <input
             type="file"
             className="hidden"
@@ -271,7 +302,6 @@ function FilesPanel({
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-
           {/* Stats row */}
           {files.length > 0 && (
             <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -291,14 +321,18 @@ function FilesPanel({
                     </span>
                   </div>
                   <p className="text-lg font-bold text-slate-900 sm:text-xl">{stat.value}</p>
-                  <p className="text-[10px] tracking-wider text-slate-500 uppercase">{stat.label}</p>
+                  <p className="text-[10px] tracking-wider text-slate-500 uppercase">
+                    {stat.label}
+                  </p>
                 </div>
               ))}
             </div>
           )}
 
           {/* Chart + Upload row */}
-          <div className={`mb-6 grid gap-4 ${hasPie ? "grid-cols-1 md:grid-cols-5" : "grid-cols-1"}`}>
+          <div
+            className={`mb-6 grid gap-4 ${hasPie ? "grid-cols-1 md:grid-cols-5" : "grid-cols-1"}`}
+          >
             {hasPie && (
               <div className="flex flex-col rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm md:col-span-2">
                 <p className="mb-3 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">

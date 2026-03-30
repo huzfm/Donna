@@ -24,10 +24,9 @@ export default function AboutHero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
-          className="font-(family-name:--font-doto) mb-6 text-4xl font-black tracking-tight text-slate-950 md:text-5xl lg:text-6xl"
+          className="mb-6 font-(family-name:--font-doto) text-4xl font-black tracking-tight text-slate-950 md:text-5xl lg:text-6xl"
         >
-          Your AI workspace,{" "}
-          <span className="text-slate-400">reimagined</span>
+          Your AI workspace, <span className="text-slate-400">reimagined</span>
         </motion.h1>
 
         <motion.p
@@ -37,7 +36,7 @@ export default function AboutHero() {
           className="mx-auto max-w-2xl font-mono text-lg leading-relaxed text-slate-500"
         >
           Donna is an AI-powered workspace assistant that helps you manage documents, email, and
-          calendar   all through natural conversation. Built for speed, privacy, and simplicity.
+          calendar all through natural conversation. Built for speed, privacy, and simplicity.
         </motion.p>
       </div>
     </section>

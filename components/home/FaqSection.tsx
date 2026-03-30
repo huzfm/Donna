@@ -17,7 +17,7 @@ export default function FaqSection() {
             transition={{ duration: 0.5 }}
             className="self-start lg:sticky lg:top-32"
           >
-            <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
+            <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
               FAQ
             </span>
             <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">

@@ -42,7 +42,7 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
 
       {isUser && (
         <motion.div
-          className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-slate-800 to-slate-950 text-[11px] font-bold tracking-wide text-white shadow-md shadow-slate-900/20 ring-1 ring-white/10"
+          className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-slate-800 to-slate-950 text-[11px] font-bold tracking-wide text-white shadow-md ring-1 shadow-slate-900/20 ring-white/10"
           whileHover={{ scale: 1.06 }}
           transition={{ type: "spring", stiffness: 400, damping: 22 }}
         >
@@ -50,7 +50,9 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
         </motion.div>
       )}
 
-      <div className={`flex max-w-[min(85%,32rem)] flex-col ${isUser ? "items-end" : "items-start"}`}>
+      <div
+        className={`flex max-w-[min(85%,32rem)] flex-col ${isUser ? "items-end" : "items-start"}`}
+      >
         {fileName && (
           <motion.div
             className="mb-1.5 flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-2.5 py-1 text-[10px] font-medium text-emerald-900"
@@ -82,7 +84,7 @@ export default function MessageBubble({ role, content, fileName, timestamp }: Me
         </div>
 
         {timestamp && (
-          <span className="mt-1.5 text-[10px] tabular-nums text-slate-400">{timestamp}</span>
+          <span className="mt-1.5 text-[10px] text-slate-400 tabular-nums">{timestamp}</span>
         )}
       </div>
     </motion.div>

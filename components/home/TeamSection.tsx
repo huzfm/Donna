@@ -15,7 +15,7 @@ export default function TeamSection() {
           transition={{ duration: 0.5 }}
           className="mb-16 text-center"
         >
-          <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
+          <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             The Team
           </span>
           <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">
@@ -37,14 +37,10 @@ export default function TeamSection() {
               transition={{ delay: i * 0.15, duration: 0.5 }}
               className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-300 hover:border-slate-400"
             >
-              <div
-                className="absolute top-0 right-0 left-0 h-1 bg-black"
-              />
+              <div className="absolute top-0 right-0 left-0 h-1 bg-black" />
 
               <div className="mb-6 flex items-start gap-5">
-                <div
-                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-900"
-                >
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-900">
                   <span className="font-(family-name:--font-doto) text-2xl font-black text-white">
                     {member.initial}
                   </span>
@@ -55,7 +51,9 @@ export default function TeamSection() {
                   </h3>
                   <div className="mt-0.5 flex items-center gap-2">
                     <Code2 size={13} className="text-slate-400" />
-                    <span className="font-mono text-sm font-medium text-slate-500">{member.role}</span>
+                    <span className="font-mono text-sm font-medium text-slate-500">
+                      {member.role}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -78,7 +76,7 @@ export default function TeamSection() {
                   href={member.github || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 font-mono text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
                 >
                   <Code2 size={12} /> GitHub
                 </a>
@@ -86,7 +84,7 @@ export default function TeamSection() {
                   href={member.linkedin || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 font-mono text-xs font-medium text-slate-400 transition-all hover:border-slate-400 hover:text-slate-900"
                 >
                   <ExternalLink size={12} /> LinkedIn
                 </a>

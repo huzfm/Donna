@@ -12,9 +12,16 @@ export async function POST(req: Request) {
     }
 
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const metadata = user?.user_metadata;
-    const userName = (metadata?.full_name || metadata?.name || metadata?.display_name || "")?.trim();
+    const userName = (
+      metadata?.full_name ||
+      metadata?.name ||
+      metadata?.display_name ||
+      ""
+    )?.trim();
 
     await sendEmail(to, subject, body, userName || undefined);
 

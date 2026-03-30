@@ -28,7 +28,7 @@ export default function FaqItem({ question, answer, index, icon: Icon }: FaqItem
       >
         <div
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-300 ${
-            open ? "bg-white border border-slate-200 shadow-sm" : "bg-slate-100"
+            open ? "border border-slate-200 bg-white shadow-sm" : "bg-slate-100"
           }`}
         >
           <Icon
@@ -59,7 +59,7 @@ export default function FaqItem({ question, answer, index, icon: Icon }: FaqItem
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="font-mono pt-2 pr-6 pb-5 pl-19 text-sm leading-relaxed text-slate-500">
+            <div className="pt-2 pr-6 pb-5 pl-19 font-mono text-sm leading-relaxed text-slate-500">
               {answer}
             </div>
           </motion.div>

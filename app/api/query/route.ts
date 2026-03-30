@@ -250,7 +250,9 @@ User message: "${question}"
 JSON:`;
 
       const raw = await askGroq(extractionPrompt, { temperature: 0 });
-      let to = "", subject = "", body = "";
+      let to = "",
+        subject = "",
+        body = "";
 
       try {
         // Robust JSON extraction
@@ -271,10 +273,9 @@ JSON:`;
         if (!to || !to.includes("@")) throw new Error("Invalid or missing recipient email");
         if (!subject) subject = "Hello";
         if (!body) body = question;
-
       } catch (parseErr) {
         console.error("Email extraction failed:", parseErr, "Raw:", raw);
-        
+
         // Fallback: simple regex extraction for common "send email to X" patterns
         const emailMatch = question.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/i);
         if (emailMatch) {
@@ -291,7 +292,12 @@ JSON:`;
 
       try {
         const metadata = user?.user_metadata;
-        const userName = (metadata?.full_name || metadata?.name || metadata?.display_name || "")?.trim();
+        const userName = (
+          metadata?.full_name ||
+          metadata?.name ||
+          metadata?.display_name ||
+          ""
+        )?.trim();
         await sendEmail(to, subject, body, userName || undefined);
         return Response.json({
           answer: `Email sent to **${to}**.`,

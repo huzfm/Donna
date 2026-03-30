@@ -291,10 +291,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
       </div>
 
       {/* Canvas   always mounted */}
-      <div
-        className="relative overflow-auto bg-white"
-        style={{ minHeight: error ? 0 : 120 }}
-      >
+      <div className="relative overflow-auto bg-white" style={{ minHeight: error ? 0 : 120 }}>
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
             <div className="flex items-center gap-2 text-slate-500">
@@ -325,7 +322,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           >
             <AlertTriangle size={12} />
             <span className="flex-1 text-[11px] font-medium">
-              Diagram syntax error   click to inspect
+              Diagram syntax error click to inspect
             </span>
             {showErr ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           </button>

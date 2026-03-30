@@ -4,9 +4,24 @@ import { motion } from "framer-motion";
 import { FileText, Zap, Lock, Clock } from "lucide-react";
 
 const stats = [
-  { value: "10+", label: "File formats", icon: FileText, desc: "PDF, Word, Excel, CSV, TXT and more" },
-  { value: "< 3s", label: "Response time", icon: Zap, desc: "Powered by Groq's blazing-fast inference" },
-  { value: "100%", label: "Private", icon: Lock, desc: "Your data is never shared or used for training" },
+  {
+    value: "10+",
+    label: "File formats",
+    icon: FileText,
+    desc: "PDF, Word, Excel, CSV, TXT and more",
+  },
+  {
+    value: "< 3s",
+    label: "Response time",
+    icon: Zap,
+    desc: "Powered by Groq's blazing-fast inference",
+  },
+  {
+    value: "100%",
+    label: "Private",
+    icon: Lock,
+    desc: "Your data is never shared or used for training",
+  },
   { value: "24/7", label: "Available", icon: Clock, desc: "Always on, always ready to help" },
 ];
 
@@ -31,7 +46,9 @@ export default function AboutStats() {
                 {stat.value}
               </p>
               <p className="mt-1 font-mono text-sm font-semibold text-slate-700">{stat.label}</p>
-              <p className="mt-1 font-mono text-[11px] leading-relaxed text-slate-400">{stat.desc}</p>
+              <p className="mt-1 font-mono text-[11px] leading-relaxed text-slate-400">
+                {stat.desc}
+              </p>
             </motion.div>
           ))}
         </div>

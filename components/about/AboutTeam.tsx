@@ -18,12 +18,12 @@ export default function AboutTeam() {
           <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             The Team
           </span>
-          <h2 className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
+          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
             Meet the <span className="text-slate-400">builders</span>
           </h2>
           <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">
-            Two full-stack developers passionate about building AI-powered tools that make
-            work easier.
+            Two full-stack developers passionate about building AI-powered tools that make work
+            easier.
           </p>
         </motion.div>
 
@@ -57,7 +57,9 @@ export default function AboutTeam() {
                   </h3>
                   <div className="mt-0.5 flex items-center gap-2">
                     <Code2 size={13} className="text-slate-500" />
-                    <span className="font-mono text-sm font-medium text-slate-500">{member.role}</span>
+                    <span className="font-mono text-sm font-medium text-slate-500">
+                      {member.role}
+                    </span>
                   </div>
                 </div>
               </div>

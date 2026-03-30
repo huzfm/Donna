@@ -52,7 +52,9 @@ export default function Sidebar() {
                   <item.icon
                     size={18}
                     className={
-                      active ? "text-emerald-600" : "text-slate-500 transition-colors group-hover:text-slate-800"
+                      active
+                        ? "text-emerald-600"
+                        : "text-slate-500 transition-colors group-hover:text-slate-800"
                     }
                   />
                 </motion.span>

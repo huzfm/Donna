@@ -392,9 +392,9 @@ export default function DashboardPage() {
   return (
     <div className="relative flex h-screen overflow-hidden bg-slate-50/50 text-slate-900">
       {/* Grid Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-white" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-size-[3rem_3rem] mask-[radial-gradient(ellipse_80%_80%_at_50%_0%,#000_70%,transparent_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] mask-[radial-gradient(ellipse_80%_80%_at_50%_0%,#000_70%,transparent_100%)] bg-size-[3rem_3rem]" />
       </div>
 
       {/* ═══ Sidebar ═══ */}
@@ -414,185 +414,191 @@ export default function DashboardPage() {
               animate={{ width: 280, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute inset-y-0 left-0 z-50 md:static md:my-4 md:ml-4 flex h-full md:h-[calc(100vh-2rem)] shrink-0 flex-col overflow-hidden rounded-r-2xl md:rounded-2xl border-r md:border border-slate-200/90 bg-white shadow-2xl md:shadow-xl transition-transform"
+              className="absolute inset-y-0 left-0 z-50 flex h-full shrink-0 flex-col overflow-hidden rounded-r-2xl border-r border-slate-200/90 bg-white shadow-2xl transition-transform md:static md:my-4 md:ml-4 md:h-[calc(100vh-2rem)] md:rounded-2xl md:border md:shadow-xl"
             >
-            {/* Top: Logo + collapse */}
-            <div className="flex items-center justify-between px-3 pt-4 pb-2">
-              <Link href="/" className="px-2 font-(family-name:--font-doto) text-2xl font-black tracking-tight text-slate-900">
-                Donna
-              </Link>
-              <button
-                type="button"
-                onClick={() => setSidebarOpen(false)}
-                className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
-                aria-label="Collapse sidebar"
-              >
-                <PanelLeftClose size={16} />
-              </button>
-            </div>
+              {/* Top: Logo + collapse */}
+              <div className="flex items-center justify-between px-3 pt-4 pb-2">
+                <Link
+                  href="/"
+                  className="px-2 font-(family-name:--font-doto) text-2xl font-black tracking-tight text-slate-900"
+                >
+                  Donna
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(false)}
+                  className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+                  aria-label="Collapse sidebar"
+                >
+                  <PanelLeftClose size={16} />
+                </button>
+              </div>
 
-            {/* New Chat */}
-            <div className="px-3 pb-2">
-              <button
-                type="button"
-                onClick={handleNewChat}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 py-2.5 text-[13px] font-semibold text-white shadow-lg shadow-slate-900/25 transition-all hover:ring-2 hover:ring-slate-900/20"
-              >
-                <Plus size={15} strokeWidth={2.5} /> New chat
-              </button>
-            </div>
+              {/* New Chat */}
+              <div className="px-3 pb-2">
+                <button
+                  type="button"
+                  onClick={handleNewChat}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 py-2.5 text-[13px] font-semibold text-white shadow-lg shadow-slate-900/25 transition-all hover:ring-2 hover:ring-slate-900/20"
+                >
+                  <Plus size={15} strokeWidth={2.5} /> New chat
+                </button>
+              </div>
 
-            {/* Non-chat nav */}
-            <div className="space-y-0.5 px-3 pb-2">
-              {TABS.filter((t) => t.id !== "chat").map((tab) => {
-                const active = activeTab === tab.id;
-                return (
-                  <button
-                    type="button"
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition-all ${
-                      active
-                        ? "bg-slate-100 text-black shadow-sm ring-1 ring-slate-200"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                    }`}
-                  >
-                    <tab.icon size={14} className={active ? "text-black" : undefined} />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
+              {/* Non-chat nav */}
+              <div className="space-y-0.5 px-3 pb-2">
+                {TABS.filter((t) => t.id !== "chat").map((tab) => {
+                  const active = activeTab === tab.id;
+                  return (
+                    <button
+                      type="button"
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition-all ${
+                        active
+                          ? "bg-slate-100 text-black shadow-sm ring-1 ring-slate-200"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      <tab.icon size={14} className={active ? "text-black" : undefined} />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
 
-            {/* Sessions */}
-            <div className="flex-1 overflow-y-auto border-t border-slate-200/80 px-2 pt-1">
-              {sessionsLoading ? (
-                <div className="space-y-1 px-2 py-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-8 animate-pulse rounded-lg bg-slate-100/80" />
-                  ))}
-                </div>
-              ) : sessions.length === 0 ? (
-                <p className="px-3 py-8 text-center text-xs leading-relaxed text-slate-500">
-                  No conversations yet   start with <span className="font-medium text-black">New chat</span>.
-                </p>
-              ) : (
-                <div className="py-2">
-                  {groupOrder.map((group) => {
-                    const groupSessions = groupedSessions[group];
-                    if (!groupSessions?.length) return null;
-                    return (
-                      <div key={group} className="mb-3">
-                        <p className="mb-1.5 px-3 text-[10px] font-semibold tracking-widest text-slate-500 uppercase">
-                          {group}
-                        </p>
-                        {groupSessions.map((session) => {
-                          const isActive = activeSessionId === session.id && activeTab === "chat";
-                          return (
-                            <div
-                              key={session.id}
-                              className={`group flex cursor-pointer items-center gap-2 rounded-xl border-l-[3px] px-3 py-2 transition-all ${
-                                isActive
-                                  ? "border-black bg-slate-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]"
-                                  : "border-transparent hover:bg-slate-50/90"
-                              }`}
-                              onClick={() => handleSelectSession(session.id)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                  e.preventDefault();
-                                  handleSelectSession(session.id);
-                                }
-                              }}
-                              role="button"
-                              tabIndex={0}
-                            >
-                              <p
-                                className={`flex-1 truncate text-[12.5px] leading-tight ${
-                                  isActive ? "font-medium text-black" : "text-slate-600"
-                                }`}
-                              >
-                                {session.title}
-                              </p>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteSession(session.id);
-                                }}
-                                className="shrink-0 rounded p-1 text-slate-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
-                              >
-                                <Trash2 size={11} />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Account */}
-            <div className="relative border-t border-slate-200 p-2">
-              <button
-                onClick={() => setShowAccountPopup((v) => !v)}
-                className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-slate-100/90"
-              >
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white shadow-sm shadow-slate-900/25 ring-2 ring-white">
-                  {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
-                </div>
-                <div className="min-w-0 flex-1 text-left">
-                  <p className="truncate text-[12.5px] font-medium text-slate-800">
-                    {userName ?? userEmail ?? "…"}
+              {/* Sessions */}
+              <div className="flex-1 overflow-y-auto border-t border-slate-200/80 px-2 pt-1">
+                {sessionsLoading ? (
+                  <div className="space-y-1 px-2 py-2">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="h-8 animate-pulse rounded-lg bg-slate-100/80" />
+                    ))}
+                  </div>
+                ) : sessions.length === 0 ? (
+                  <p className="px-3 py-8 text-center text-xs leading-relaxed text-slate-500">
+                    No conversations yet start with{" "}
+                    <span className="font-medium text-black">New chat</span>.
                   </p>
-                </div>
-                <Settings size={13} className="text-slate-500" />
-              </button>
-
-              <AnimatePresence>
-                {showAccountPopup && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.97 }}
-                    transition={{ duration: 0.14 }}
-                    className="absolute right-2 bottom-full left-2 z-50 mb-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
-                  >
-                    <div className="border-b border-slate-100 px-4 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 font-bold text-white shadow-md shadow-slate-900/20 ring-2 ring-white">
-                          {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
+                ) : (
+                  <div className="py-2">
+                    {groupOrder.map((group) => {
+                      const groupSessions = groupedSessions[group];
+                      if (!groupSessions?.length) return null;
+                      return (
+                        <div key={group} className="mb-3">
+                          <p className="mb-1.5 px-3 text-[10px] font-semibold tracking-widest text-slate-500 uppercase">
+                            {group}
+                          </p>
+                          {groupSessions.map((session) => {
+                            const isActive = activeSessionId === session.id && activeTab === "chat";
+                            return (
+                              <div
+                                key={session.id}
+                                className={`group flex cursor-pointer items-center gap-2 rounded-xl border-l-[3px] px-3 py-2 transition-all ${
+                                  isActive
+                                    ? "border-black bg-slate-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]"
+                                    : "border-transparent hover:bg-slate-50/90"
+                                }`}
+                                onClick={() => handleSelectSession(session.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    handleSelectSession(session.id);
+                                  }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                              >
+                                <p
+                                  className={`flex-1 truncate text-[12.5px] leading-tight ${
+                                    isActive ? "font-medium text-black" : "text-slate-600"
+                                  }`}
+                                >
+                                  {session.title}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteSession(session.id);
+                                  }}
+                                  className="shrink-0 rounded p-1 text-slate-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
+                                >
+                                  <Trash2 size={11} />
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
-                        <div className="min-w-0">
-                          {userName && (
-                            <p className="truncate text-sm font-semibold text-slate-900">{userName}</p>
-                          )}
-                          <p className="truncate text-xs text-slate-600">{userEmail}</p>
-                          {userCreated && (
-                            <p className="mt-0.5 text-[10px] text-slate-500">
-                              Since{" "}
-                              {new Date(userCreated).toLocaleDateString("en-US", {
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
-                          )}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Account */}
+              <div className="relative border-t border-slate-200 p-2">
+                <button
+                  onClick={() => setShowAccountPopup((v) => !v)}
+                  className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-slate-100/90"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white shadow-sm ring-2 shadow-slate-900/25 ring-white">
+                    {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="truncate text-[12.5px] font-medium text-slate-800">
+                      {userName ?? userEmail ?? "…"}
+                    </p>
+                  </div>
+                  <Settings size={13} className="text-slate-500" />
+                </button>
+
+                <AnimatePresence>
+                  {showAccountPopup && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                      transition={{ duration: 0.14 }}
+                      className="absolute right-2 bottom-full left-2 z-50 mb-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+                    >
+                      <div className="border-b border-slate-100 px-4 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 font-bold text-white shadow-md ring-2 shadow-slate-900/20 ring-white">
+                            {(userName ?? userEmail)?.[0]?.toUpperCase() ?? "?"}
+                          </div>
+                          <div className="min-w-0">
+                            {userName && (
+                              <p className="truncate text-sm font-semibold text-slate-900">
+                                {userName}
+                              </p>
+                            )}
+                            <p className="truncate text-xs text-slate-600">{userEmail}</p>
+                            {userCreated && (
+                              <p className="mt-0.5 text-[10px] text-slate-500">
+                                Since{" "}
+                                {new Date(userCreated).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="p-2">
-                      <button
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-red-600 transition-all hover:bg-red-50"
-                      >
-                        <LogOut size={14} /> Log out
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.aside>
+                      <div className="p-2">
+                        <button
+                          onClick={handleLogout}
+                          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-red-600 transition-all hover:bg-red-50"
+                        >
+                          <LogOut size={14} /> Log out
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.aside>
           </>
         )}
       </AnimatePresence>
@@ -614,51 +620,51 @@ export default function DashboardPage() {
         <main className="relative z-10 flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-none border-0 border-slate-200 bg-white shadow-none sm:rounded-2xl sm:border sm:shadow-xl md:max-h-212.5">
           <div className="chat-mesh pointer-events-none absolute inset-0" />
           <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col">
-        <AnimatePresence mode="wait">
-          {activeTab === "chat" && (
-            <ChatPanel
-              key="chat"
-              messages={messages}
-              input={chatInput}
-              onInputChange={setChatInput}
-              onSend={sendMessage}
-              onStop={stopGeneration}
-              onClear={clearChat}
-              loading={chatLoading}
-              chatEndRef={chatEndRef}
-              fileInputRef={fileInputRef}
-              onFileSelect={(e) => {
-                if (e.target.files) Array.from(e.target.files).forEach(handleUpload);
-                e.target.value = "";
-              }}
-              fileCount={savedFiles.length}
-            />
-          )}
-          {activeTab === "files" && (
-            <FilesPanel
-              key="files"
-              files={savedFiles}
-              filesLoading={filesLoading}
-              uploading={uploading}
-              onUpload={handleUpload}
-              onDelete={handleDelete}
-            />
-          )}
-          {activeTab === "gmail" && (
-            <GmailPanel
-              key="gmail"
-              gmailUser={gmailUser}
-              gmailPassword={gmailPassword}
-              onGmailUserChange={setGmailUser}
-              onGmailPasswordChange={setGmailPassword}
-              onSave={handleSaveSettings}
-              saving={settingsSaving}
-              message={settingsMsg}
-            />
-          )}
-        </AnimatePresence>
-        </div>
-      </main>
+            <AnimatePresence mode="wait">
+              {activeTab === "chat" && (
+                <ChatPanel
+                  key="chat"
+                  messages={messages}
+                  input={chatInput}
+                  onInputChange={setChatInput}
+                  onSend={sendMessage}
+                  onStop={stopGeneration}
+                  onClear={clearChat}
+                  loading={chatLoading}
+                  chatEndRef={chatEndRef}
+                  fileInputRef={fileInputRef}
+                  onFileSelect={(e) => {
+                    if (e.target.files) Array.from(e.target.files).forEach(handleUpload);
+                    e.target.value = "";
+                  }}
+                  fileCount={savedFiles.length}
+                />
+              )}
+              {activeTab === "files" && (
+                <FilesPanel
+                  key="files"
+                  files={savedFiles}
+                  filesLoading={filesLoading}
+                  uploading={uploading}
+                  onUpload={handleUpload}
+                  onDelete={handleDelete}
+                />
+              )}
+              {activeTab === "gmail" && (
+                <GmailPanel
+                  key="gmail"
+                  gmailUser={gmailUser}
+                  gmailPassword={gmailPassword}
+                  onGmailUserChange={setGmailUser}
+                  onGmailPasswordChange={setGmailPassword}
+                  onSave={handleSaveSettings}
+                  saving={settingsSaving}
+                  message={settingsMsg}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+        </main>
       </div>
     </div>
   );

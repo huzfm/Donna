@@ -107,7 +107,10 @@ export default function ChatSidebar({
                     active ? "bg-emerald-100 ring-1 ring-emerald-200/60" : "bg-slate-100"
                   }`}
                 >
-                  <MessageSquare size={13} className={active ? "text-emerald-800" : "text-slate-500"} />
+                  <MessageSquare
+                    size={13}
+                    className={active ? "text-emerald-800" : "text-slate-500"}
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -125,7 +128,7 @@ export default function ChatSidebar({
                     e.stopPropagation();
                     onDeleteSession(session.id);
                   }}
-                  className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+                  className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
                   whileTap={{ scale: 0.85 }}
                 >
                   <Trash2 size={11} />
@@ -151,7 +154,7 @@ export default function ChatSidebar({
             </motion.div>
             <p className="text-xs font-medium text-slate-600">No conversations yet</p>
             <p className="mt-1 px-4 text-[11px] leading-relaxed text-slate-400">
-              Start a new chat   your history will show up here.
+              Start a new chat your history will show up here.
             </p>
           </motion.div>
         )}

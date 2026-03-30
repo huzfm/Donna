@@ -5,8 +5,12 @@ import { Navbar, HeroSection, Footer } from "@/components/home";
 
 const FeatureStack = dynamic(() => import("@/components/home/FeatureStack"), { ssr: false });
 const UseCasesSection = dynamic(() => import("@/components/home/UseCasesSection"), { ssr: false });
-const HowItWorksSection = dynamic(() => import("@/components/home/HowItWorksSection"), { ssr: false });
-const TechStackSection = dynamic(() => import("@/components/home/TechStackSection"), { ssr: false });
+const HowItWorksSection = dynamic(() => import("@/components/home/HowItWorksSection"), {
+  ssr: false,
+});
+const TechStackSection = dynamic(() => import("@/components/home/TechStackSection"), {
+  ssr: false,
+});
 const TeamSection = dynamic(() => import("@/components/home/TeamSection"), { ssr: false });
 const FaqSection = dynamic(() => import("@/components/home/FaqSection"), { ssr: false });
 const CtaSection = dynamic(() => import("@/components/home/CtaSection"), { ssr: false });

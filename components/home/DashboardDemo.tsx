@@ -197,7 +197,7 @@ export default function DashboardDemo() {
                           <div className="flex items-center gap-2">
                             <CheckCircle2 size={12} className="shrink-0 text-emerald-400" />
                             <p className="text-[11px] text-slate-300">
-                              Processed <strong className="text-white">Q1-Report-2026.pdf</strong>  
+                              Processed <strong className="text-white">Q1-Report-2026.pdf</strong>
                               12 chunks indexed.
                             </p>
                           </div>

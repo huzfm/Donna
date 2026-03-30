@@ -17,7 +17,7 @@ export default function AboutTechStack() {
           <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             Technology
           </span>
-          <h2 className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
+          <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
             Built on the <span className="text-slate-400">best stack</span>
           </h2>
           <p className="mx-auto max-w-lg font-mono text-[15px] leading-relaxed text-slate-500">

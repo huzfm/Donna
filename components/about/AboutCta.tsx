@@ -28,7 +28,7 @@ export default function AboutCta() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1, duration: 0.5 }}
-          className="font-(family-name:--font-doto) mb-4 text-3xl font-black tracking-tight text-white md:text-4xl"
+          className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-white md:text-4xl"
         >
           Ready to meet Donna?
         </motion.h2>
@@ -40,8 +40,7 @@ export default function AboutCta() {
           transition={{ delay: 0.2, duration: 0.5 }}
           className="mx-auto mb-8 max-w-md font-mono text-[15px] leading-relaxed text-slate-400"
         >
-          Sign up for free and start chatting with your documents, emails, and calendar in
-          seconds.
+          Sign up for free and start chatting with your documents, emails, and calendar in seconds.
         </motion.p>
 
         <motion.div

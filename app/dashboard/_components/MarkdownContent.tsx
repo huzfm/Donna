@@ -33,7 +33,7 @@ function CodeBlock({ children, className }: { children?: React.ReactNode; classN
         </button>
       </div>
       {/* Code body */}
-      <pre className="overflow-x-auto bg-slate-50 px-4 py-3.5 text-[13px] leading-relaxed text-slate-800 [margin:0]">
+      <pre className="[margin:0] overflow-x-auto bg-slate-50 px-4 py-3.5 text-[13px] leading-relaxed text-slate-800">
         <code>{code}</code>
       </pre>
     </div>
@@ -77,17 +77,13 @@ export default function MarkdownContent({ content }: { content: string }) {
         strong: ({ children }) => (
           <strong className="font-semibold text-slate-900">{children}</strong>
         ),
-        em: ({ children }) => (
-          <em className="italic text-slate-600">{children}</em>
-        ),
+        em: ({ children }) => <em className="text-slate-600 italic">{children}</em>,
 
         /* Unordered list */
         ul: ({ children }) => <ul className="my-2 list-none space-y-1.5 pl-1">{children}</ul>,
 
         /* Ordered list */
-        ol: ({ children }) => (
-          <ol className="my-2 space-y-1.5 pl-5 text-black">{children}</ol>
-        ),
+        ol: ({ children }) => <ol className="my-2 space-y-1.5 pl-5 text-black">{children}</ol>,
 
         li: ({ children, ...props }) => {
           // @ts-expect-error – node provided by react-markdown
@@ -168,11 +164,11 @@ export default function MarkdownContent({ content }: { content: string }) {
         ),
         tbody: ({ children }) => <tbody>{children}</tbody>,
         tr: ({ children }) => (
-          <tr className="border-b border-slate-100 transition-colors hover:bg-slate-50">{children}</tr>
+          <tr className="border-b border-slate-100 transition-colors hover:bg-slate-50">
+            {children}
+          </tr>
         ),
-        td: ({ children }) => (
-          <td className="px-4 py-2.5 text-slate-700">{children}</td>
-        ),
+        td: ({ children }) => <td className="px-4 py-2.5 text-slate-700">{children}</td>,
       }}
     >
       {content}

@@ -84,7 +84,9 @@ export default function FeatureCards({ onSelectFeature }: FeatureCardsProps) {
           </motion.div>
           <div>
             <p className="text-sm font-semibold text-slate-900">{feature.label}</p>
-            <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{feature.description}</p>
+            <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+              {feature.description}
+            </p>
           </div>
         </motion.button>
       ))}

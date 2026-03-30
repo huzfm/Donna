@@ -41,7 +41,7 @@ export default function WorkspaceActivityChart() {
           <p className="text-[11px] text-slate-400">Sample weekly activity</p>
         </div>
       </div>
-      <div className="h-[168px] min-h-[168px] min-w-0 w-full px-2 pb-3 pt-1">
+      <div className="h-[168px] min-h-[168px] w-full min-w-0 px-2 pt-1 pb-3">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={WEEKLY} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <defs>

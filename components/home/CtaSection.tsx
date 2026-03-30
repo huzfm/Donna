@@ -39,7 +39,7 @@ export default function CtaSection() {
                   Ready to work <span className="text-black">smarter?</span>
                 </h2>
                 <p className="mb-8 max-w-sm font-mono text-[15px] leading-relaxed text-slate-500">
-                  Join Donna and let AI handle the heavy lifting   from document analysis to email
+                  Join Donna and let AI handle the heavy lifting from document analysis to email
                   management.
                 </p>
                 <div className="flex flex-col items-start gap-3 sm:flex-row">
@@ -88,7 +88,9 @@ export default function CtaSection() {
                       <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100">
                         <ItemIcon size={14} className="text-black" />
                       </div>
-                      <span className="font-mono text-sm leading-relaxed text-slate-600">{item.text}</span>
+                      <span className="font-mono text-sm leading-relaxed text-slate-600">
+                        {item.text}
+                      </span>
                     </motion.div>
                   );
                 })}

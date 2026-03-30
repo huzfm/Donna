@@ -7,10 +7,22 @@ import { Brain } from "lucide-react";
 const sizes = {
   sm: { box: "h-7 w-7 rounded-lg", icon: 15 as const, word: "text-sm font-bold tracking-tight" },
   md: { box: "h-8 w-8 rounded-lg", icon: 16 as const, word: "text-lg font-black tracking-tight" },
-  lg: { box: "h-12 w-12 rounded-2xl", icon: 24 as const, word: "text-xl font-black tracking-tight" },
-  hero: { box: "h-[4.5rem] w-[4.5rem] rounded-2xl", icon: 32 as const, word: "text-3xl font-black tracking-tight" },
+  lg: {
+    box: "h-12 w-12 rounded-2xl",
+    icon: 24 as const,
+    word: "text-xl font-black tracking-tight",
+  },
+  hero: {
+    box: "h-[4.5rem] w-[4.5rem] rounded-2xl",
+    icon: 32 as const,
+    word: "text-3xl font-black tracking-tight",
+  },
   /** Message / typing row (matches previous 9×9 avatars) */
-  bubble: { box: "h-9 w-9 rounded-xl", icon: 15 as const, word: "text-sm font-bold tracking-tight" },
+  bubble: {
+    box: "h-9 w-9 rounded-xl",
+    icon: 15 as const,
+    word: "text-sm font-bold tracking-tight",
+  },
 };
 
 export type BrandSize = keyof typeof sizes;

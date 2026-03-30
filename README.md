@@ -12,12 +12,14 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
 ### Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone <repository-url>
    cd donna
    ```
 
 2. **Install dependencies**:
+
    ```bash
    pnpm install
    ```
@@ -27,7 +29,7 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
    ```bash
    cp .env.example .env
    ```
-   *Note: Open `.env` and provide your API keys for OpenAI, Groq, Supabase, and Resend.*
+   _Note: Open `.env` and provide your API keys for OpenAI, Groq, Supabase, and Resend._
 
 ### Running the Project
 
@@ -48,15 +50,15 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
 
 ## 🔑 Environment Variables
 
-| Variable | Description |
-| :--- | :--- |
-| `OPENAI_API_KEY` | Your OpenAI secret key. |
-| `GROQ_API_KEY` | API key for Groq's high-speed LLM inference. |
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key for client-side access. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key for admin-level operations. |
-| `RESEND_API_KEY` | API key for sending emails via Resend. |
-| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Credentials for Gmail IMAP/SMTP integration. |
+| Variable                            | Description                                    |
+| :---------------------------------- | :--------------------------------------------- |
+| `OPENAI_API_KEY`                    | Your OpenAI secret key.                        |
+| `GROQ_API_KEY`                      | API key for Groq's high-speed LLM inference.   |
+| `NEXT_PUBLIC_SUPABASE_URL`          | Your Supabase project URL.                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`     | Supabase anonymous key for client-side access. |
+| `SUPABASE_SERVICE_ROLE_KEY`         | Service role key for admin-level operations.   |
+| `RESEND_API_KEY`                    | API key for sending emails via Resend.         |
+| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Credentials for Gmail IMAP/SMTP integration.   |
 
 ## 🏗 Scripts
 
@@ -67,4 +69,5 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
 - `pnpm format`: Formats code using Prettier.
 
 ---
+
 Built with ❤️ for the Hackathon.

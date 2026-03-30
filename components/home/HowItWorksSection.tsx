@@ -14,14 +14,14 @@ export default function HowItWorksSection() {
           transition={{ duration: 0.5 }}
           className="mb-16 text-center"
         >
-          <span className="mb-3 block text-xs font-mono font-semibold tracking-widest text-slate-500 uppercase">
+          <span className="mb-3 block font-mono text-xs font-semibold tracking-widest text-slate-500 uppercase">
             How it works
           </span>
           <h2 className="mb-4 font-(family-name:--font-doto) text-3xl font-black tracking-tight text-black md:text-4xl">
             Get started in <span className="text-black">three steps</span>
           </h2>
           <p className="font-mono text-[15px] text-slate-500">
-            No complex setup   just sign up and start working smarter.
+            No complex setup just sign up and start working smarter.
           </p>
         </motion.div>
 
@@ -51,7 +51,9 @@ export default function HowItWorksSection() {
                 <h3 className="mb-2 font-(family-name:--font-doto) text-base font-extrabold tracking-tight text-black">
                   {step.title}
                 </h3>
-                <p className="font-mono text-sm leading-relaxed text-slate-500">{step.description}</p>
+                <p className="font-mono text-sm leading-relaxed text-slate-500">
+                  {step.description}
+                </p>
                 {i < steps.length - 1 && (
                   <div className="absolute top-1/2 -right-3 hidden h-px w-6 bg-slate-200 md:block" />
                 )}

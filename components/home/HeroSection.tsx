@@ -32,18 +32,18 @@ export default function HeroSection() {
 
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
-        <motion.div
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="mb-6 flex justify-start"
->
-  <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-xs text-gray-500 shadow-sm">
-    <span className="text-gray-400">Built with</span>
-    <span className="font-semibold font-mono text-orange-500">Groq</span>
-    <span className="text-gray-300">+</span>
-    <span className="font-semibold font-mono text-yellow-400">Hugging Face</span>
-  </div>
-</motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex justify-start"
+          >
+            <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-xs text-gray-500 shadow-sm">
+              <span className="text-gray-400">Built with</span>
+              <span className="font-mono font-semibold text-orange-500">Groq</span>
+              <span className="text-gray-300">+</span>
+              <span className="font-mono font-semibold text-yellow-400">Hugging Face</span>
+            </div>
+          </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -53,9 +53,7 @@ export default function HeroSection() {
           >
             Your Personal
             <br />
-            <span className=" text-black font-black">
-              AI Assistant
-            </span>
+            <span className="font-black text-black">AI Assistant</span>
           </motion.h1>
 
           <motion.p
@@ -64,7 +62,7 @@ export default function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mb-9 max-w-md font-mono text-[15px] leading-relaxed text-slate-600 md:text-base"
           >
-            Upload documents, ask questions, manage emails   all in one intelligent workspace. Donna
+            Upload documents, ask questions, manage emails all in one intelligent workspace. Donna
             understands your files and helps you work smarter.
           </motion.p>
 
@@ -76,7 +74,7 @@ export default function HeroSection() {
           >
             <Link
               href="/signup"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-mono font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 font-mono text-sm font-semibold text-white transition-all hover:bg-transparent hover:text-slate-900 hover:ring-2 hover:ring-slate-900"
             >
               Get Started
               <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
