@@ -290,7 +290,9 @@ JSON:`;
       }
 
       try {
-        await sendEmail(to, subject, body);
+        const metadata = user?.user_metadata;
+        const userName = (metadata?.full_name || metadata?.name || metadata?.display_name || "")?.trim();
+        await sendEmail(to, subject, body, userName || undefined);
         return Response.json({
           answer: `Email sent to **${to}**.`,
         });

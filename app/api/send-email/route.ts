@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 
 import { sendEmail } from "@/lib/email";
+import { createClient } from "@/lib/supabase-server";
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +11,12 @@ export async function POST(req: Request) {
       return Response.json({ error: "Missing to, subject, or body" }, { status: 400 });
     }
 
-    await sendEmail(to, subject, body);
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const metadata = user?.user_metadata;
+    const userName = (metadata?.full_name || metadata?.name || metadata?.display_name || "")?.trim();
+
+    await sendEmail(to, subject, body, userName || undefined);
 
     return Response.json({ success: true });
   } catch (e: unknown) {

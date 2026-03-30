@@ -51,7 +51,7 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mb-6 font-(family-name:--font-doto) text-5xl leading-[1.08] font-black tracking-tight text-slate-950 md:text-6xl lg:text-[4.1rem]"
           >
-            Your Perosnal
+            Your Personal
             <br />
             <span className=" text-black font-black">
               AI Assistant
