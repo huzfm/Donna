@@ -32,6 +32,9 @@ function timeNow() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+const STORAGE_KEY = "donna_chat_messages";
+const MAX_STORED = 60;
+
 export default function ChatWindow({
   onToggleContext,
   contextOpen,
@@ -45,6 +48,32 @@ export default function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nextId = useRef(1);
+
+  // Restore messages from localStorage on first mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed: Message[] = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+          nextId.current = Math.max(...parsed.map((m) => m.id)) + 1;
+        }
+      }
+    } catch {
+      // ignore corrupted storage
+    }
+  }, []);
+
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length === 0) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-MAX_STORED)));
+    } catch {
+      // storage quota exceeded — silently ignore
+    }
+  }, [messages]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -117,10 +146,15 @@ export default function ChatWindow({
     setIsTyping(true);
 
     try {
+      const history = messages
+        .filter((m) => m.content?.trim())
+        .slice(-6)
+        .map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }));
+
       const res = await fetch("/api/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, history }),
       });
       const data = await res.json();
 

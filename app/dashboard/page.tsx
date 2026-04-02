@@ -67,6 +67,24 @@ export default function DashboardPage() {
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsMsg, setSettingsMsg] = useState<string | null>(null);
 
+  const sessionCacheKey = (id: string) => `donna_msgs_${id}`;
+
+  const writeMsgCache = useCallback((sessionId: string, msgs: ChatMessage[]) => {
+    try {
+      sessionStorage.setItem(sessionCacheKey(sessionId), JSON.stringify(msgs.slice(-80)));
+    } catch {}
+  }, []);
+
+  const readMsgCache = useCallback((sessionId: string): ChatMessage[] | null => {
+    try {
+      const raw = sessionStorage.getItem(sessionCacheKey(sessionId));
+      if (!raw) return null;
+      return JSON.parse(raw) as ChatMessage[];
+    } catch {
+      return null;
+    }
+  }, []);
+
   const persistMessage = useCallback(
     (sessionId: string, role: "user" | "assistant", content: string, status?: string) => {
       fetch("/api/chat-history", {
@@ -79,6 +97,13 @@ export default function DashboardPage() {
   );
 
   const loadSessionMessages = useCallback(async (sessionId: string) => {
+    // Show cached messages instantly so the UI never goes blank
+    const cached = readMsgCache(sessionId);
+    if (cached && cached.length > 0) {
+      setMessages(cached);
+      nextMsgId.current = Math.max(...cached.map((m) => m.id)) + 1;
+    }
+
     try {
       const res = await fetch(`/api/chat-history?session_id=${sessionId}`);
       const { messages: msgs } = await res.json();
@@ -102,13 +127,14 @@ export default function DashboardPage() {
           })
         );
         setMessages(loaded);
+        writeMsgCache(sessionId, loaded);
       } else {
-        setMessages([]);
+        if (!cached) setMessages([]);
       }
     } catch {
-      setMessages([]);
+      if (!cached) setMessages([]);
     }
-  }, []);
+  }, [readMsgCache, writeMsgCache]);
 
   const createNewSession = useCallback(async (title?: string) => {
     try {
@@ -250,10 +276,14 @@ export default function DashboardPage() {
       }
       const processed = preprocessSlashCommand(raw);
       const isFirstMessage = messages.length === 0;
-      setMessages((prev) => [
-        ...prev,
-        { id: nextMsgId.current++, role: "user", content: raw, timestamp: timeNow() },
-      ]);
+      setMessages((prev) => {
+        const updated = [
+          ...prev,
+          { id: nextMsgId.current++, role: "user" as const, content: raw, timestamp: timeNow() },
+        ];
+        writeMsgCache(sessionId, updated);
+        return updated;
+      });
       persistMessage(sessionId, "user", raw);
       if (isFirstMessage) autoTitleSession(sessionId, raw);
       setChatInput("");
@@ -275,36 +305,45 @@ export default function DashboardPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Query failed");
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: nextMsgId.current++,
-            role: "assistant",
-            content: data.answer,
-            timestamp: timeNow(),
-          },
-        ]);
+        setMessages((prev) => {
+          const updated = [
+            ...prev,
+            {
+              id: nextMsgId.current++,
+              role: "assistant" as const,
+              content: data.answer,
+              timestamp: timeNow(),
+            },
+          ];
+          writeMsgCache(sessionId, updated);
+          return updated;
+        });
         persistMessage(sessionId, "assistant", data.answer);
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") return;
         const m = err instanceof Error ? err.message : "Something went wrong";
         const errContent = `Sorry, I hit an error: ${m}`;
-        setMessages((prev) => [
-          ...prev,
-          { id: nextMsgId.current++, role: "assistant", content: errContent, timestamp: timeNow() },
-        ]);
+        setMessages((prev) => {
+          const updated = [
+            ...prev,
+            { id: nextMsgId.current++, role: "assistant" as const, content: errContent, timestamp: timeNow() },
+          ];
+          writeMsgCache(sessionId, updated);
+          return updated;
+        });
         persistMessage(sessionId, "assistant", errContent);
       } finally {
         abortRef.current = null;
         setChatLoading(false);
       }
     },
-    [chatInput, persistMessage, activeSessionId, createNewSession, autoTitleSession, messages]
+    [chatInput, persistMessage, activeSessionId, createNewSession, autoTitleSession, messages, writeMsgCache]
   );
 
   const clearChat = useCallback(() => {
     setMessages([]);
     if (activeSessionId) {
+      try { sessionStorage.removeItem(sessionCacheKey(activeSessionId)); } catch {}
       fetch("/api/chat-history", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },

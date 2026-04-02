@@ -2,29 +2,10 @@ export const runtime = "nodejs";
 
 import { embed } from "@/lib/embed";
 import { createClient } from "@/lib/supabase-server";
-import { askGroq } from "@/lib/groq";
+import { runAgentLoop, AgentMessage } from "@/lib/groq";
 import { sendEmail } from "@/lib/email";
 import { getRecentEmails } from "@/lib/gmail";
 
-// Detect "send a mail / email" intent   also catches structured /email shortcuts
-// Detect "send a mail / email" intent   catches direct commands
-const EMAIL_INTENT = /^(send\s+(an?\s+)?e?mail\s+|email\s+|mail\s+to\s+)/i;
-
-// Detect "check inbox / read my emails / summarize emails" intent
-const GMAIL_INTENT =
-  /(check|read|show|summarize|what.{0,20}in)\s+(my\s+)?(inbox|emails?|mails?|gmail)/i;
-
-// Detect diagram generation intent   fires on any single diagram-related keyword
-// so phrases like "give me a diagram for X file" are caught correctly
-const DIAGRAM_INTENT =
-  /\b(draw|generate|create|make|show|visualize|diagram|flowchart|flow\s+chart|sequence\s+diagram|er\s+diagram|mindmap|mind\s+map|class\s+diagram|gantt|pie\s+chart|graph|chart)\b/i;
-
-// Detect when the user wants a diagram FROM their uploaded/personal files
-// e.g. "diagram for my files", "visualize my uploaded data", "chart from huzfm.xlsx"
-const FILE_DIAGRAM_INTENT =
-  /(diagram|flowchart|chart|visualize|graph).{0,40}(file|upload|document|data|my\s+data|personal|stored|excel|xlsx|csv|pdf|doc)/i;
-
-// Conversation turn shape coming from the frontend
 interface HistoryMessage {
   role: "user" | "assistant";
   content: string;
@@ -41,347 +22,159 @@ export async function POST(req: Request) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Accept optional conversation history from the frontend
-    const { question, history = [] }: { question: string; history?: HistoryMessage[] } =
-      await req.json();
+    const {
+      question,
+      history = [],
+    }: { question: string; history?: HistoryMessage[] } = await req.json();
 
     if (!question) {
       return Response.json({ error: "No question provided" }, { status: 400 });
     }
 
-    // Build a readable history block for the prompt (last 10 turns max to stay within token limits)
-    const recentHistory: HistoryMessage[] = history.slice(-10);
-    const historyBlock =
-      recentHistory.length > 0
-        ? recentHistory
-            .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
-            .join("\n")
-        : "";
+    // Build messages array in the OpenAI chat format
+    const historyMessages: AgentMessage[] = history
+      .filter((m) => m.content?.trim())
+      .slice(-6)
+      .map((m) => ({ role: m.role, content: m.content }));
 
-    // ==============================
-    // 📊 DIAGRAM / MERMAID INTENT
-    // Run RAG first so diagrams can be built from uploaded file data
-    // ==============================
-    if (DIAGRAM_INTENT.test(question)) {
-      let ragContext = "";
-      try {
-        if (FILE_DIAGRAM_INTENT.test(question)) {
-          // User specifically asked for a diagram from their uploaded files.
-          // Bypass embedding similarity   directly fetch ALL their document chunks
-          // ordered by file + chunk_index so the content arrives in reading order.
-          const { data: allChunks } = await supabase
-            .from("documents")
-            .select("content, file_name, chunk_index")
-            .eq("user_id", user.id)
-            .order("file_name", { ascending: true })
-            .order("chunk_index", { ascending: true })
-            .limit(60); // cap to avoid token overflow
+    const messages: AgentMessage[] = [
+      ...historyMessages,
+      { role: "user", content: question },
+    ];
 
-          if (allChunks && allChunks.length > 0) {
-            ragContext = allChunks
-              .map(
-                (d: { content: string; file_name: string }) =>
-                  `[Source: ${d.file_name}]\n${d.content}`
-              )
-              .join("\n\n---\n\n");
-          }
-        } else {
-          // Generic diagram request   use semantic similarity search as before
-          const embeddings = await embed([question]);
+    // ── Tool executor ────────────────────────────────────────────────────────
+    const executeTool = async (
+      name: string,
+      args: Record<string, unknown>
+    ): Promise<string> => {
+      // ── search_documents ──────────────────────────────────────────────────
+      if (name === "search_documents") {
+        const query = String(args.query ?? question);
+        try {
+          const embeddings = await embed([query]);
           let queryEmbedding = embeddings[0];
-          if (Array.isArray(queryEmbedding[0])) queryEmbedding = queryEmbedding[0];
+          if (Array.isArray(queryEmbedding[0]))
+            queryEmbedding = queryEmbedding[0];
 
-          const { data: ragData } = await supabase.rpc("match_documents", {
+          const { data, error } = await supabase.rpc("match_documents", {
             query_embedding: queryEmbedding,
             match_count: 12,
             filter_user_id: user.id,
           });
 
-          if (ragData && ragData.length > 0) {
-            ragContext = ragData
-              .map(
-                (d: { content: string; file_name: string }) =>
-                  `[Source: ${d.file_name}]\n${d.content}`
-              )
-              .join("\n\n---\n\n");
+          if (error) return `Search error: ${error.message}`;
+
+          if (!data || data.length === 0) {
+            return "No relevant documents found. The user may not have uploaded any files yet.";
           }
-        }
-      } catch {
-        // RAG failure is non-fatal   diagram can still be generated from general knowledge
-      }
 
-      const diagramPrompt = `
-You are an expert in Mermaid.js diagram syntax (v11). The user wants a diagram.
-${ragContext ? `Use the following data extracted from their uploaded file(s) to build the diagram:\n\n${ragContext}\n\n` : ""}
-Generate a valid Mermaid.js diagram that accurately represents what the user asked for.
-
-${historyBlock ? `Conversation history:\n${historyBlock}\n` : ""}
-User request: ${question}
-
-=== STRICT SYNTAX RULES   violating these WILL cause a parse error ===
-
-1. FLOWCHART ARROWS   use ONLY these in flowchart/graph diagrams:
-   ✅  A --> B           (solid arrow)
-   ✅  A -- label --> B  (labeled arrow)
-   ✅  A -.-> B          (dotted arrow)
-   ✅  A ==> B           (thick arrow)
-   ❌  A ->> B           FORBIDDEN in flowcharts   this is sequence diagram syntax!
-   ❌  A -->> B          FORBIDDEN in flowcharts!
-
-2. RESERVED KEYWORDS   NEVER use these as bare node identifiers:
-   ❌  --> end            FORBIDDEN   'end' is a reserved keyword
-   ❌  --> start          FORBIDDEN   'start' is a reserved keyword
-   ✅  --> EndNode[End]   Use a labelled node instead
-   ✅  --> StartNode[Start]
-
-3. NODE LABEL TEXT rules:
-   ❌  A[**Bold text**]              FORBIDDEN   markdown bold breaks parsing
-   ❌  A[India Refunds (site.com)]  FORBIDDEN   parentheses ( ) inside [ ] labels break parsing!
-   ✅  A[India Refunds site.com]    Replace ( ) with spaces or remove them entirely
-   ❌  A[Very long label text that goes on and on and on]  Keep labels SHORT (under 40 chars)
-   ✅  A[Short descriptive label]   Truncate if needed
-
-4. UNIQUE NODE IDs   every node identifier must be unique in the diagram:
-   ❌  A[Description]  ...  A[Description]   FORBIDDEN   duplicate ID 'A' causes silent overwrites
-   ✅  DescA[Description of X]  ...  DescB[Description of Y]   Use distinct IDs
-
-5. OUTPUT FORMAT   return ONLY:
-\`\`\`mermaid
-<your mermaid code here>
-\`\`\`
-Then 1-2 sentences explaining the diagram. No other text before the code block.
-
-6. SUPPORTED TYPES: flowchart, sequenceDiagram, erDiagram, mindmap, classDiagram, gantt, pie, gitGraph
-
-CORRECT flowchart example:
-\`\`\`mermaid
-flowchart TD
-    StartNode[Start] --> B{Valid?}
-    B -- Yes --> C[Dashboard]
-    B -- No --> D[Retry]
-    C --> EndNode[End]
-\`\`\`
-`;
-
-      const answer = await askGroq(diagramPrompt);
-      return Response.json({ answer });
-    }
-
-    // ==============================
-    // 📬 GMAIL READ INTENT
-    // ==============================
-    if (GMAIL_INTENT.test(question)) {
-      try {
-        const { data: settings } = await supabase
-          .from("user_settings")
-          .select("gmail_user, gmail_app_password")
-          .eq("user_id", user.id)
-          .single();
-
-        if (!settings?.gmail_user || !settings?.gmail_app_password) {
-          return Response.json({
-            answer:
-              "⚙️ Your Gmail is not configured. Click the Settings (⚙️) icon in the sidebar to add your Gmail and App Password.",
-          });
-        }
-
-        const emails = await getRecentEmails(settings.gmail_user, settings.gmail_app_password, 15);
-
-        if (emails.length === 0) {
-          return Response.json({ answer: "📭 Your inbox appears to be empty." });
-        }
-
-        const emailList = emails
-          .map((e, i) => `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`)
-          .join("\n\n");
-
-        const prompt = `
-You are a smart email assistant. Here are the user's latest Gmail messages:
-
-${emailList}
-
-${historyBlock ? `Conversation so far:\n${historyBlock}\n` : ""}
-User question: ${question}
-
-Give a concise, helpful summary:
-- 🔴 Any urgent or important emails (meetings, deadlines, action items)
-- 📬 Key senders and what they want
-- 📋 Quick summary of overall inbox state
-
-Be clear and structured. Use bullet points where helpful.
-`;
-
-        const answer = await askGroq(prompt);
-        return Response.json({ answer });
-      } catch (gmailErr: unknown) {
-        const msg = gmailErr instanceof Error ? gmailErr.message : "Unknown error";
-        console.error("GMAIL IMAP ERROR:", msg);
-        return Response.json({
-          answer: `❌ Couldn't read Gmail: ${msg}`,
-        });
-      }
-    }
-
-    // ==============================
-    // 📧 EMAIL SEND INTENT
-    // ==============================
-    if (EMAIL_INTENT.test(question)) {
-      const extractionPrompt = `
-You are a helpful assistant. The user wants to send an email.
-Extract the email details from their message using the conversation history for context if needed (e.g., if they mention a name or email earlier).
-
-Return ONLY valid JSON in this exact format:
-{
-  "to": "recipient@example.com",
-  "subject": "Subject line here",
-  "body": "Email body here",
-  "can_extract": true,
-  "reason": "" 
-}
-
-If you cannot extract a recipient email address, set "can_extract" to false and provide a helpful "reason" (e.g., "I need a recipient email address").
-If subject or body is missing, use a sensible default (e.g. subject: "Hello", body: the full message).
-
-Recent history:
-${historyBlock || "No history"}
-
-User message: "${question}"
-
-JSON:`;
-
-      const raw = await askGroq(extractionPrompt, { temperature: 0 });
-      let to = "",
-        subject = "",
-        body = "";
-
-      try {
-        // Robust JSON extraction
-        const jsonMatch = raw?.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("No JSON found");
-        const parsed = JSON.parse(jsonMatch[0]);
-
-        if (parsed.can_extract === false) {
-          return Response.json({
-            answer: ` I couldn't send that email: ${parsed.reason || "Missing details"}. You can also type \`/email\` to open the manual compose form.`,
-          });
-        }
-
-        to = parsed.to;
-        subject = parsed.subject;
-        body = parsed.body;
-
-        if (!to || !to.includes("@")) throw new Error("Invalid or missing recipient email");
-        if (!subject) subject = "Hello";
-        if (!body) body = question;
-      } catch (parseErr) {
-        console.error("Email extraction failed:", parseErr, "Raw:", raw);
-
-        // Fallback: simple regex extraction for common "send email to X" patterns
-        const emailMatch = question.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/i);
-        if (emailMatch) {
-          to = emailMatch[0];
-          subject = "Hello";
-          body = question;
-        } else {
-          return Response.json({
-            answer:
-              'I couldn\'t understand the email details. Please specify a recipient (e.g., "Send an email to name@email.com") or type `/email` to use the manual form.',
-          });
+          return data
+            .map(
+              (d: { content: string; file_name: string }) =>
+                `[Source: ${d.file_name}]\n${d.content}`
+            )
+            .join("\n\n---\n\n");
+        } catch (err: unknown) {
+          return `Search failed: ${err instanceof Error ? err.message : String(err)}`;
         }
       }
 
-      try {
-        const metadata = user?.user_metadata;
-        const userName = (
-          metadata?.full_name ||
-          metadata?.name ||
-          metadata?.display_name ||
-          ""
-        )?.trim();
-        await sendEmail(to, subject, body, userName || undefined);
-        return Response.json({
-          answer: `Email sent to **${to}**.`,
-        });
-      } catch (emailErr: unknown) {
-        const msg = emailErr instanceof Error ? emailErr.message : "Unknown error";
-        console.error("Email send failed:", msg);
-        return Response.json({
-          answer: `Failed to send email: ${msg}`,
-        });
+      // ── get_all_documents ─────────────────────────────────────────────────
+      if (name === "get_all_documents") {
+        try {
+          const { data, error } = await supabase
+            .from("documents")
+            .select("content, file_name, chunk_index")
+            .eq("user_id", user.id)
+            .order("file_name", { ascending: true })
+            .order("chunk_index", { ascending: true })
+            .limit(60);
+
+          if (error) return `Fetch error: ${error.message}`;
+
+          if (!data || data.length === 0) {
+            return "No documents found. The user has not uploaded any files yet.";
+          }
+
+          return data
+            .map(
+              (d: { content: string; file_name: string }) =>
+                `[Source: ${d.file_name}]\n${d.content}`
+            )
+            .join("\n\n---\n\n");
+        } catch (err: unknown) {
+          return `Fetch failed: ${err instanceof Error ? err.message : String(err)}`;
+        }
       }
-    }
 
-    // ==============================
-    // 🔍 RAG PIPELINE
-    // ==============================
+      // ── send_email ────────────────────────────────────────────────────────
+      if (name === "send_email") {
+        const to = String(args.to ?? "");
+        const subject = String(args.subject ?? "Hello");
+        const body = String(args.body ?? "");
 
-    const embeddings = await embed([question]);
+        if (!to || !to.includes("@")) {
+          return "Cannot send email: missing or invalid recipient address.";
+        }
 
-    let queryEmbedding = embeddings[0];
-    if (Array.isArray(queryEmbedding[0])) {
-      queryEmbedding = queryEmbedding[0];
-    }
+        try {
+          const metadata = user?.user_metadata;
+          const userName = (
+            metadata?.full_name ||
+            metadata?.name ||
+            metadata?.display_name ||
+            ""
+          )?.trim();
+          await sendEmail(to, subject, body, userName || undefined);
+          return `Email sent successfully to ${to} with subject "${subject}".`;
+        } catch (err: unknown) {
+          return `Email send failed: ${err instanceof Error ? err.message : String(err)}`;
+        }
+      }
 
-    console.log("EMBEDDING DIM:", queryEmbedding.length);
+      // ── read_gmail ────────────────────────────────────────────────────────
+      if (name === "read_gmail") {
+        try {
+          const { data: settings } = await supabase
+            .from("user_settings")
+            .select("gmail_user, gmail_app_password")
+            .eq("user_id", user.id)
+            .single();
 
-    // Increased match_count to 12 for more complete answers
-    const { data, error } = await supabase.rpc("match_documents", {
-      query_embedding: queryEmbedding,
-      match_count: 12,
-      filter_user_id: user.id,
-    });
+          if (!settings?.gmail_user || !settings?.gmail_app_password) {
+            return "Gmail is not configured. The user needs to add their Gmail address and App Password in Settings.";
+          }
 
-    if (error) {
-      console.error("Supabase RPC error:", error);
-      return Response.json({ error: error.message }, { status: 500 });
-    }
+          const emails = await getRecentEmails(
+            settings.gmail_user,
+            settings.gmail_app_password,
+            15
+          );
 
-    console.log("MATCHED CHUNKS:", data?.length ?? 0);
+          if (emails.length === 0) {
+            return "Inbox is empty — no emails found.";
+          }
 
-    if (!data || data.length === 0) {
-      const generalPrompt = `
-You are Donna, a helpful AI workspace assistant. The user hasn't uploaded any documents relevant to this question (or hasn't uploaded any files yet).
+          return emails
+            .map(
+              (e, i) =>
+                `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`
+            )
+            .join("\n\n");
+        } catch (err: unknown) {
+          return `Gmail fetch failed: ${err instanceof Error ? err.message : String(err)}`;
+        }
+      }
 
-Answer based on your general knowledge. Be helpful, concise, and accurate.
-If the question seems to be about a specific document, let them know they can upload files for better answers.
+      return `Unknown tool: ${name}`;
+    };
+    // ────────────────────────────────────────────────────────────────────────
 
-${historyBlock ? `Conversation history:\n${historyBlock}\n` : ""}
-User: ${question}
-
-Answer:`;
-      const answer = await askGroq(generalPrompt);
-      return Response.json({ answer });
-    }
-
-    // Build context from matched chunks   include file name as a header
-    const context = data
-      .map((d: { content: string; file_name: string }) => `[Source: ${d.file_name}]\n${d.content}`)
-      .join("\n\n---\n\n");
-
-    const prompt = `Answer the user's question using the document context below. Prioritize information from the documents, but you may supplement with general knowledge when helpful.
-
-Rules:
-- Include every relevant fact from the context that answers the question
-- Mention source file names when citing specific information (e.g. "According to report.pdf...")
-- Don't repeat the same point — be concise
-- Use markdown formatting when it improves readability
-- If the specific answer isn't in the documents, say so and offer what you can from general knowledge
-- Maintain conversation continuity using the history below
-
-${historyBlock ? `## Conversation History\n${historyBlock}\n` : ""}
-## Document Context
-${context}
-
-## Question
-${question}
-
-## Answer:`;
-
-    const answer = await askGroq(prompt);
+    const answer = await runAgentLoop(messages, executeTool);
 
     return Response.json({ answer });
   } catch (e: unknown) {
-    console.error("QUERY ERROR:", e);
+    console.error("AGENT ERROR:", e);
     const message = e instanceof Error ? e.message : "Unknown error";
     return Response.json({ error: message }, { status: 500 });
   }
