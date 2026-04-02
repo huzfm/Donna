@@ -1,8 +1,8 @@
-# Donna - AI Career Assistant
+# Donna, Your personal AI Assistant
 
-Donna is a premium AI-driven platform designed to streamline your career workflow. From analyzing documents and generating insights to managing emails and visualizing data with Mermaid diagrams, Donna is your all-in-one career productivity hub.
+Donna is a  AI-driven platform designed to streamline your career workflow. From analyzing documents and generating insights to managing emails and visualizing data with Mermaid diagrams, Donna is your all-in-one career productivity hub.
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -40,7 +40,7 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
 2. **Open the app**:
    Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 🛠 Features
+## Features
 
 - **AI Chat**: Powered by OpenAI and Groq for blazing-fast responses.
 - **Knowledge Base**: Integrated with Supabase for document storage and RAG (Retrieval-Augmented Generation).
@@ -48,7 +48,7 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
 - **Email Integration**: Automated email sending via Resend and Gmail integration.
 - **Document Analysis**: Supports PDF, DOCX, and XLSX parsing.
 
-## 🔑 Environment Variables
+##  Environment Variables
 
 | Variable                            | Description                                    |
 | :---------------------------------- | :--------------------------------------------- |
@@ -58,9 +58,8 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY`     | Supabase anonymous key for client-side access. |
 | `SUPABASE_SERVICE_ROLE_KEY`         | Service role key for admin-level operations.   |
 | `RESEND_API_KEY`                    | API key for sending emails via Resend.         |
-| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Credentials for Gmail IMAP/SMTP integration.   |
 
-## 🏗 Scripts
+## Scripts
 
 - `pnpm dev`: Runs the app in development mode.
 - `pnpm build`: Builds the application for production.
@@ -69,5 +68,3 @@ Donna is a premium AI-driven platform designed to streamline your career workflo
 - `pnpm format`: Formats code using Prettier.
 
 ---
-
-Built with ❤️ for the Hackathon.
