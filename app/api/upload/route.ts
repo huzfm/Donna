@@ -97,34 +97,27 @@ export async function POST(req: Request) {
 
     let text = "";
 
-    // ==============================
-    // 📄 PDF
-    // ==============================
+
+    // PDF
     if (fileName.endsWith(".pdf")) {
       const pdfParse = require("@cyber2024/pdf-parse-fixed");
       const data = await pdfParse(buffer);
       text = data.text;
     }
 
-    // ==============================
-    // 📄 WORD
-    // ==============================
+    // WORD
     else if (fileName.endsWith(".docx") || fileName.endsWith(".doc")) {
       const mammoth = require("mammoth");
       const result = await mammoth.extractRawText({ buffer });
       text = result.value;
     }
 
-    // ==============================
-    // 📄 TXT
-    // ==============================
+    // TXT
     else if (fileName.endsWith(".txt")) {
       text = buffer.toString("utf-8");
     }
 
-    // ==============================
-    // 📊 EXCEL / CSV
-    // ==============================
+    // EXCEL / CSV
     else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls") || fileName.endsWith(".csv")) {
       const XLSX = require("xlsx");
       const workbook = XLSX.read(buffer, { type: "buffer" });
@@ -154,25 +147,19 @@ export async function POST(req: Request) {
       text = allText;
     }
 
-    // ==============================
     //  Unsupported
-    // ==============================
     else {
       return Response.json({ error: "Unsupported file type" }, { status: 400 });
     }
 
-    // ==============================
-    // ⚠️ Clean text
-    // ==============================
+    //  Clean text
     text = text.replace(/\s+/g, " ").trim();
 
     if (!text) {
       return Response.json({ error: "Could not extract text" }, { status: 400 });
     }
 
-    // ==============================
-    // 🔥 RAG PIPELINE
-    // ==============================
+    // RAG PIPELINE
 
     // limit size (avoid API crash)
     if (text.length > 50000) {

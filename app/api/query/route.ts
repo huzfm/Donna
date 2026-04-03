@@ -42,12 +42,12 @@ export async function POST(req: Request) {
       { role: "user", content: question },
     ];
 
-    // ── Tool executor ────────────────────────────────────────────────────────
+    //  Tool executor 
     const executeTool = async (
       name: string,
       args: Record<string, unknown>
     ): Promise<string> => {
-      // ── search_documents ──────────────────────────────────────────────────
+      //  search_documents 
       if (name === "search_documents") {
         const query = String(args.query ?? question);
         try {
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
         }
       }
 
-      // ── get_all_documents ─────────────────────────────────────────────────
+      //  get_all_documents 
       if (name === "get_all_documents") {
         try {
           const { data, error } = await supabase
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
         }
       }
 
-      // ── send_email ────────────────────────────────────────────────────────
+      //  send_email 
       if (name === "send_email") {
         const to = String(args.to ?? "");
         const subject = String(args.subject ?? "Hello");
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
         }
       }
 
-      // ── read_gmail ────────────────────────────────────────────────────────
+      //  read_gmail 
       if (name === "read_gmail") {
         try {
           const { data: settings } = await supabase
@@ -167,8 +167,7 @@ export async function POST(req: Request) {
       }
 
       return `Unknown tool: ${name}`;
-    };
-    // ────────────────────────────────────────────────────────────────────────
+    }; 
 
     const answer = await runAgentLoop(messages, executeTool);
 

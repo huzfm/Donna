@@ -47,9 +47,9 @@ You are a smart email assistant. Here are the user's latest Gmail messages:
 ${emailList}
 
 Give a concise, helpful crux:
-- 🔴 Any urgent or important emails (meetings, deadlines, action items)
-- 📬 Key senders and what they want
-- 📋 Quick summary of overall inbox state
+-  Any urgent or important emails (meetings, deadlines, action items)
+-  Key senders and what they want
+-  Quick summary of overall inbox state
 
 Be brief, use bullet points, and highlight what needs attention first.
 `;

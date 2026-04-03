@@ -86,7 +86,7 @@ export default function MarkdownContent({ content }: { content: string }) {
         ol: ({ children }) => <ol className="my-2 space-y-1.5 pl-5 text-black">{children}</ol>,
 
         li: ({ children, ...props }) => {
-          // @ts-expect-error – node provided by react-markdown
+          // @ts-expect-error  node provided by react-markdown
           const isOrdered = props?.node?.parent?.tagName === "ol";
           return (
             <li className="flex items-start gap-2.5 text-[14px] leading-relaxed text-slate-700">
@@ -141,7 +141,7 @@ export default function MarkdownContent({ content }: { content: string }) {
           }
 
           // ── Code block ──
-          // @ts-expect-error – react-markdown passes inline prop but types vary
+          // @ts-expect-error  react-markdown passes inline prop but types vary
           const isInline = props.inline;
           if (!isInline && className?.startsWith("language-")) {
             return <CodeBlock className={className}>{children}</CodeBlock>;

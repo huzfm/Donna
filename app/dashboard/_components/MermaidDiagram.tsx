@@ -11,11 +11,11 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-/* ── Module-level Mermaid singleton ─────────────────────────────────────────
+/*  Module-level Mermaid singleton 
    Mermaid is imported and initialized ONCE for the lifetime of the page.
    Calling initialize() on every render() is what caused the first-render
    race condition   the module loads async while parse/render already run.
-── */
+*/
 type MermaidType = (typeof import("mermaid"))["default"];
 let mermaidSingleton: MermaidType | null = null;
 let initPromise: Promise<MermaidType> | null = null;
@@ -56,8 +56,8 @@ async function getMermaid(): Promise<MermaidType> {
 
   return initPromise;
 }
-
-/* ── Known first-line diagram type keywords ─────────────────────────────── */
+    
+//Known first-line diagram type keywords 
 const MERMAID_STARTERS = [
   "flowchart ",
   "flowchart\n",
@@ -89,7 +89,7 @@ function isValidMermaid(raw: string): boolean {
   return MERMAID_STARTERS.some((t) => first.startsWith(t));
 }
 
-/* ── Strip fences the AI sometimes puts inside the block ────────────────── */
+// Strip fences the AI sometimes puts inside the block 
 function stripFences(raw: string): string {
   return raw
     .replace(/```mermaid\s*/gi, "")
@@ -97,7 +97,7 @@ function stripFences(raw: string): string {
     .trim();
 }
 
-/* ── Fix common LLM Mermaid mistakes ────────────────────────────────────── */
+// Fix common LLM Mermaid mistakes 
 function sanitize(raw: string): string {
   const lines = raw.split("\n");
   const first = lines[0]?.trim().toLowerCase() ?? "";
@@ -136,7 +136,7 @@ function sanitize(raw: string): string {
     .join("\n");
 }
 
-/* ── Remove all Mermaid error divs Mermaid appended to <body> ──────────── */
+// Remove all Mermaid error divs Mermaid appended to <body> 
 function cleanMermaidBodyArtifacts(renderId: string) {
   // Mermaid v10/v11 appends #d{renderId} to document.body during render
   // On error it's never removed   we must do it ourselves
@@ -154,15 +154,13 @@ function cleanMermaidBodyArtifacts(renderId: string) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MermaidDiagram   ALL hooks unconditionally before any early return
-═══════════════════════════════════════════════════════════════════════════ */
+// MermaidDiagram   ALL hooks unconditionally before any early return
 export default function MermaidDiagram({ chart }: { chart: string }) {
-  /* ── 1. Pure computations (not hooks) ── */
+  // 1. Pure computations (not hooks) 
   const rawChart = stripFences(chart);
   const valid = isValidMermaid(rawChart);
 
-  /* ── 2. ALL hooks   unconditional ── */
+  // 2. ALL hooks   unconditional 
   const containerRef = useRef<HTMLDivElement>(null);
   const renderCount = useRef(0);
   const [error, setError] = useState<string | null>(null);
@@ -223,10 +221,10 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
     render();
   }, [render]);
 
-  /* ── 3. Early return AFTER all hooks ── */
+      // 3. Early return AFTER all hooks 
   if (!valid) return null;
 
-  /* ── 4. Download helper ── */
+  // 4. Download helper 
   const handleDownload = () => {
     const el = containerRef.current?.querySelector("svg");
     if (!el) return;
@@ -239,7 +237,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
     URL.revokeObjectURL(url);
   };
 
-  /* ── 5. Render ── */
+  // 5. Render 
   return (
     <div className="my-4 overflow-hidden rounded-2xl border border-slate-200">
       {/* Toolbar */}
@@ -290,7 +288,6 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         </div>
       </div>
 
-      {/* Canvas   always mounted */}
       <div className="relative overflow-auto bg-white" style={{ minHeight: error ? 0 : 120 }}>
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
@@ -301,7 +298,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           </div>
         )}
 
-        {/* SVG target   always in DOM, hidden when errored */}
+
         <div
           ref={containerRef}
           className="p-4"
@@ -313,7 +310,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         />
       </div>
 
-      {/* Collapsible error   compact, non-intrusive */}
+
       {error && (
         <div className="border-t border-slate-200">
           <button

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     const { type, to, subject, body, tone } = await req.json();
 
-    // ── Improve email body ──────────────────────────────────────────────
+    //  Improve email body 
     if (type === "improve_body") {
       if (!body?.trim()) {
         return Response.json({ error: "No body provided" }, { status: 400 });

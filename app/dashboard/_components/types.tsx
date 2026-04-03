@@ -1,6 +1,6 @@
 import { Mail, Inbox, FileSearch, Hash, BarChart2, MessageSquare, FileText } from "lucide-react";
 
-/* ─── Types ─── */
+// Types 
 
 export interface UploadedFile {
   file_name: string;
@@ -28,11 +28,10 @@ export interface SlashCommand {
   icon: React.ElementType;
   description: string;
   fill: string;
-  /** Short AI-generated example suggestions shown below the command */
   suggestions?: string[];
 }
 
-/* ─── Constants ─── */
+// Constants 
 
 export const SLASH_COMMANDS: SlashCommand[] = [
   {
@@ -105,7 +104,7 @@ export const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "gmail", label: "Gmail", icon: Mail },
 ];
 
-/* ─── Utils ─── */
+// Utils 
 
 export function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();

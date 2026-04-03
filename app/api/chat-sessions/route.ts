@@ -21,7 +21,7 @@ import { createClient } from "@/lib/supabase-server";
   CREATE POLICY "Users can delete own sessions" ON chat_sessions FOR DELETE USING (auth.uid() = user_id);
 */
 
-// GET – list all sessions for the user (newest first)
+// GET  list all sessions for the user (newest first)
 export async function GET() {
   const supabase = await createClient();
   const {
@@ -39,7 +39,7 @@ export async function GET() {
   return NextResponse.json({ sessions: data ?? [] });
 }
 
-// POST – create a new session
+// POST  create a new session
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ session: data });
 }
 
-// PATCH – update session title
+// PATCH  update session title
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -81,7 +81,7 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-// DELETE – delete a session (messages cascade via FK or we delete manually)
+// DELETE delete a session (messages cascade via FK or we delete manually)
 export async function DELETE(req: NextRequest) {
   const supabase = await createClient();
   const {

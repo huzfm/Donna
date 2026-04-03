@@ -104,7 +104,7 @@ export default function DashboardPage() {
       nextMsgId.current = Math.max(...cached.map((m) => m.id)) + 1;
     }
 
-    try {
+    try { 
       const res = await fetch(`/api/chat-history?session_id=${sessionId}`);
       const { messages: msgs } = await res.json();
       if (Array.isArray(msgs) && msgs.length > 0) {

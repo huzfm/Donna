@@ -24,7 +24,7 @@ import { createClient } from "@/lib/supabase-server";
   CREATE POLICY "Users can delete own messages" ON chat_messages FOR DELETE USING (auth.uid() = user_id);
 */
 
-// GET – load messages for a session (pass ?session_id=xxx)
+// GET  load messages for a session (pass ?session_id=xxx)
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ messages: data ?? [] });
 }
 
-// POST – save a new message to a session
+// POST  save a new message to a session
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-// DELETE – clear all messages in a session
+// DELETE  clear all messages in a session
 export async function DELETE(req: NextRequest) {
   const supabase = await createClient();
   const {
