@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Paperclip,
@@ -527,8 +527,74 @@ function SlashPopup({
 }
 
 /* ══════════════════════════════════════════════
+   MessageRow — memoized so only the new message
+   triggers a re-render; MarkdownContent below it
+   is also memo'd, so old messages are static.
+══════════════════════════════════════════════ */
+const MessageRow = memo(function MessageRow({
+  msg,
+  animate,
+}: {
+  msg: ChatMessage;
+  animate: boolean;
+}) {
+  if (msg.role === "user") {
+    return (
+      <motion.div
+        initial={animate ? { opacity: 0, y: 8 } : false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22 }}
+        className="group flex justify-end gap-3"
+      >
+        <div className="max-w-[min(82%,32rem)] rounded-2xl rounded-br-sm border border-slate-200/90 bg-slate-100/95 px-5 py-3.5 text-[14.5px] leading-relaxed whitespace-pre-wrap text-slate-900 shadow-sm ring-1 ring-slate-900/4">
+          {msg.content}
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={animate ? { opacity: 0, y: 8 } : false}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.22 }}
+      className="group flex items-start gap-3.5"
+    >
+      <div className="mt-0.5 shrink-0 shadow-sm shadow-slate-300/10">
+        <BrandMark size="bubble" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="prose-response">
+          <MarkdownContent content={msg.content} />
+        </div>
+        <div className="mt-2 flex items-center gap-1">
+          <CopyButton text={msg.content} />
+          <span className="text-[10px] text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
+            {msg.timestamp}
+          </span>
+          {msg.status === "cancelled" && (
+            <span className="ml-1 text-[10px]" style={{ color: "#fbbf24" }}>
+              · Stopped
+            </span>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+
+/* ══════════════════════════════════════════════
    ChatPanel
 ══════════════════════════════════════════════ */
+const FREE_PROMPTS = 3;
+
+interface UploadItem {
+  id: string;
+  name: string;
+  status: "uploading" | "done" | "error";
+  error?: string;
+}
+
 export default function ChatPanel({
   messages,
   input,
@@ -541,6 +607,9 @@ export default function ChatPanel({
   fileInputRef,
   onFileSelect,
   fileCount,
+  usage,
+  onUpgrade,
+  uploadQueue,
 }: {
   messages: ChatMessage[];
   input: string;
@@ -553,48 +622,31 @@ export default function ChatPanel({
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileCount: number;
+  usage: { prompts_used: number; uploads_used: number; is_subscribed: boolean } | null;
+  onUpgrade: () => void;
+  uploadQueue: UploadItem[];
 }) {
   const showSlash = input.startsWith("/") && !input.includes(" ");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [emailOpen, setEmailOpen] = useState(false);
 
-  const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
-  let loadingText = "Thinking";
-  if (lastUserMsg && loading) {
+  const loadingText = useMemo(() => {
+    if (!loading) return "Thinking";
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
+    if (!lastUserMsg) return "Thinking";
     const text = lastUserMsg.content.toLowerCase();
-    if (text.includes("/email") || text.includes("mail")) loadingText = "Drafting email";
-    else if (
-      text.includes("/diagram") ||
-      text.includes("diagram") ||
-      text.includes("chart") ||
-      text.includes("mermaid")
-    )
-      loadingText = "Generating diagram";
-    else if (
-      text.includes("/doc") ||
-      text.includes("document") ||
-      text.includes("file") ||
-      text.includes("report") ||
-      text.includes("pdf")
-    )
-      loadingText = "Analyzing document";
-    else if (text.includes("/search") || text.includes("search") || text.includes("find"))
-      loadingText = "Searching";
-    else if (
-      text.includes("code") ||
-      text.includes("debug") ||
-      text.includes("fix") ||
-      text.includes("error")
-    )
-      loadingText = "Analyzing code";
-    else if (
-      text.includes("/jira") ||
-      text.includes("ticket") ||
-      text.includes("issue") ||
-      text.includes("task")
-    )
-      loadingText = "Updating tasks";
-  }
+    if (text.includes("/email") || text.includes("mail")) return "Drafting email";
+    if (text.includes("/diagram") || text.includes("diagram") || text.includes("chart") || text.includes("mermaid"))
+      return "Generating diagram";
+    if (text.includes("/doc") || text.includes("document") || text.includes("file") || text.includes("report") || text.includes("pdf"))
+      return "Analyzing document";
+    if (text.includes("/search") || text.includes("search") || text.includes("find")) return "Searching";
+    if (text.includes("code") || text.includes("debug") || text.includes("fix") || text.includes("error"))
+      return "Analyzing code";
+    if (text.includes("/jira") || text.includes("ticket") || text.includes("issue") || text.includes("task"))
+      return "Updating tasks";
+    return "Thinking";
+  }, [loading, messages]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -605,14 +657,14 @@ export default function ChatPanel({
   }, [input]);
 
   // Open email modal when /email command is selected
-  const handleSlashSelect = (fill: string) => {
+  const handleSlashSelect = useCallback((fill: string) => {
     if (fill === "/email") {
       setEmailOpen(true);
       onInputChange("");
     } else {
       onInputChange(fill);
     }
-  };
+  }, [onInputChange]);
 
   return (
     <motion.div
@@ -679,43 +731,11 @@ export default function ChatPanel({
         ) : (
           <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-8">
             {messages.map((msg, idx) => (
-              <motion.div
+              <MessageRow
                 key={msg.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.22, delay: idx === messages.length - 1 ? 0.04 : 0 }}
-                className="group"
-              >
-                {msg.role === "user" ? (
-                  <div className="flex justify-end gap-3">
-                    <div className="max-w-[min(82%,32rem)] rounded-2xl rounded-br-sm border border-slate-200/90 bg-slate-100/95 px-5 py-3.5 text-[14.5px] leading-relaxed whitespace-pre-wrap text-slate-900 shadow-sm ring-1 ring-slate-900/4">
-                      {msg.content}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-start gap-3.5">
-                    <div className="mt-0.5 shrink-0 shadow-sm shadow-slate-300/10">
-                      <BrandMark size="bubble" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="prose-response">
-                        <MarkdownContent content={msg.content} />
-                      </div>
-                      <div className="mt-2 flex items-center gap-1">
-                        <CopyButton text={msg.content} />
-                        <span className="text-[10px] text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
-                          {msg.timestamp}
-                        </span>
-                        {msg.status === "cancelled" && (
-                          <span className="ml-1 text-[10px]" style={{ color: "#fbbf24" }}>
-                            · Stopped
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
+                msg={msg}
+                animate={idx === messages.length - 1}
+              />
             ))}
 
             {loading && (
@@ -747,6 +767,31 @@ export default function ChatPanel({
         )}
       </div>
 
+      {/* ── Usage bar (free tier only) ── */}
+      {usage && !usage.is_subscribed && (
+        <div className="shrink-0 border-t border-slate-100 bg-slate-50/60 px-4 py-2">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <div className="flex flex-1 items-center gap-2 min-w-0">
+              <span className="shrink-0 text-[10px] font-semibold text-slate-500">
+                {usage.prompts_used}/{FREE_PROMPTS} prompts
+              </span>
+              <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full bg-slate-800 transition-all"
+                  style={{ width: `${Math.min((usage.prompts_used / FREE_PROMPTS) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={onUpgrade}
+              className="shrink-0 rounded-lg bg-slate-900 px-3 py-1 text-[11px] font-semibold text-white transition-all hover:bg-slate-700"
+            >
+              Upgrade →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Input ── */}
       <div className="shrink-0 px-4 pt-3 pb-5">
         <div className="relative mx-auto max-w-3xl">
@@ -763,6 +808,57 @@ export default function ChatPanel({
 
           {/* Input box */}
           <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/4 transition-all focus-within:border-slate-300/80 focus-within:shadow-[0_12px_40px_-16px_rgba(16,185,129,0.15)] focus-within:ring-2 focus-within:ring-slate-300/15">
+            {/* Upload status strip */}
+            <AnimatePresence>
+              {uploadQueue.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.16 }}
+                  className="overflow-hidden border-b border-slate-100"
+                >
+                  <div className="flex flex-col gap-1 px-4 py-2">
+                    {uploadQueue.map((item) => (
+                      <div key={item.id} className="flex items-center gap-2">
+                        {item.status === "uploading" ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="shrink-0"
+                          >
+                            <svg className="h-3 w-3 text-slate-500" viewBox="0 0 24 24" fill="none">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                            </svg>
+                          </motion.div>
+                        ) : item.status === "done" ? (
+                          <svg className="h-3 w-3 shrink-0 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : (
+                          <svg className="h-3 w-3 shrink-0 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        )}
+                        <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-slate-600">
+                          {item.name}
+                        </span>
+                        <span className={`shrink-0 text-[10px] font-semibold ${
+                          item.status === "uploading" ? "text-slate-400" :
+                          item.status === "done" ? "text-emerald-500" : "text-red-400"
+                        }`}>
+                          {item.status === "uploading" ? "Indexing…" :
+                           item.status === "done" ? "Ready" :
+                           (item.error ?? "Error")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Row 1 — Textarea */}
             <div className="px-4 pt-3.5 pb-2">
               <textarea
@@ -789,10 +885,23 @@ export default function ChatPanel({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-slate-100 hover:text-black"
-                  title="Attach file"
+                  disabled={uploadQueue.some((i) => i.status === "uploading")}
+                  className="relative flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-slate-100 hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+                  title={uploadQueue.some((i) => i.status === "uploading") ? "Uploading…" : "Attach file"}
                 >
-                  <Paperclip size={15} />
+                  {uploadQueue.some((i) => i.status === "uploading") ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    >
+                      <svg className="h-[15px] w-[15px]" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      </svg>
+                    </motion.div>
+                  ) : (
+                    <Paperclip size={15} />
+                  )}
                 </button>
                 <input
                   ref={fileInputRef}

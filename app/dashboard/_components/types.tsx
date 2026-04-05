@@ -1,4 +1,4 @@
-import { Mail, Inbox, FileSearch, Hash, BarChart2, MessageSquare, FileText } from "lucide-react";
+import { Mail, Inbox, FileSearch, Hash, BarChart2, MessageSquare, FileText, CreditCard } from "lucide-react";
 
 // Types 
 
@@ -96,12 +96,13 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   },
 ];
 
-export type TabId = "chat" | "files" | "gmail";
+export type TabId = "chat" | "files" | "gmail" | "billing";
 
 export const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "chat", label: "Chat", icon: MessageSquare },
   { id: "files", label: "Files", icon: FileText },
   { id: "gmail", label: "Gmail", icon: Mail },
+  { id: "billing", label: "Billing", icon: CreditCard },
 ];
 
 // Utils 

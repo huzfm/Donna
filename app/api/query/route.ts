@@ -2,9 +2,11 @@ export const runtime = "nodejs";
 
 import { embed } from "@/lib/embed";
 import { createClient } from "@/lib/supabase-server";
+import { adminClient } from "@/lib/supabase-admin";
 import { runAgentLoop, AgentMessage } from "@/lib/groq";
 import { sendEmail } from "@/lib/email";
 import { getRecentEmails } from "@/lib/gmail";
+import { FREE_LIMITS } from "@/lib/limits";
 
 interface HistoryMessage {
   role: "user" | "assistant";
@@ -30,6 +32,22 @@ export async function POST(req: Request) {
     if (!question) {
       return Response.json({ error: "No question provided" }, { status: 400 });
     }
+
+    // ── Usage gate ───────────────────────────────────────────────────────
+    await adminClient
+      .from("user_usage")
+      .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
+
+    const { data: usage } = await adminClient
+      .from("user_usage")
+      .select("prompts_used, is_subscribed")
+      .eq("user_id", user.id)
+      .single();
+
+    if (usage && !usage.is_subscribed && usage.prompts_used >= FREE_LIMITS.prompts) {
+      return Response.json({ error: "free_limit_reached" }, { status: 402 });
+    }
+    // ─────────────────────────────────────────────────────────────────────
 
     // Build messages array in the OpenAI chat format
     const historyMessages: AgentMessage[] = history
@@ -170,6 +188,9 @@ export async function POST(req: Request) {
     }; 
 
     const answer = await runAgentLoop(messages, executeTool);
+
+    // Increment prompts_used (fire-and-forget)
+    adminClient.rpc("increment_prompts_used", { target_user_id: user.id }).then(() => {}, () => {});
 
     return Response.json({ answer });
   } catch (e: unknown) {

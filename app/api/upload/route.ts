@@ -3,6 +3,8 @@ export const runtime = "nodejs";
 import { chunkText } from "@/lib/chunk";
 import { embed } from "@/lib/embed";
 import { createClient } from "@/lib/supabase-server";
+import { adminClient } from "@/lib/supabase-admin";
+import { FREE_LIMITS } from "@/lib/limits";
 
 // GET   return the list of files this user has already uploaded
 export async function GET() {
@@ -85,6 +87,23 @@ export async function POST(req: Request) {
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // ── Usage gate ───────────────────────────────────────────────────────
+    await adminClient
+      .from("user_usage")
+      .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
+
+    const { data: usage } = await adminClient
+      .from("user_usage")
+      .select("uploads_used, is_subscribed")
+      .eq("user_id", user.id)
+      .single();
+
+    if (usage && !usage.is_subscribed && usage.uploads_used >= FREE_LIMITS.uploads) {
+      return Response.json({ error: "free_limit_reached" }, { status: 402 });
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
@@ -195,12 +214,15 @@ export async function POST(req: Request) {
       throw new Error(error.message);
     }
 
+    // Increment uploads_used
+    await adminClient.rpc("increment_uploads_used", { target_user_id: user.id });
+
     return Response.json({
       success: true,
       chunks: chunks.length,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("UPLOAD ERROR:", e);
-    return Response.json({ error: e.message }, { status: 500 });
+    return Response.json({ error: e instanceof Error ? e.message : "Unknown" }, { status: 500 });
   }
 }

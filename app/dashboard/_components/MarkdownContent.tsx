@@ -2,7 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, memo } from "react";
 import { Copy, Check, RefreshCw } from "lucide-react";
 
 const MermaidDiagram = lazy(() => import("./MermaidDiagram"));
@@ -50,7 +50,7 @@ function InlineCode({ children }: { children?: React.ReactNode }) {
 }
 
 /* ── Main MarkdownContent ── */
-export default function MarkdownContent({ content }: { content: string }) {
+function MarkdownContent({ content }: { content: string }) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
@@ -175,3 +175,5 @@ export default function MarkdownContent({ content }: { content: string }) {
     </ReactMarkdown>
   );
 }
+
+export default memo(MarkdownContent);

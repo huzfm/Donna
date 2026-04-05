@@ -42,7 +42,7 @@ export default function WorkspaceActivityChart() {
         </div>
       </div>
       <div className="h-[168px] min-h-[168px] w-full min-w-0 px-2 pt-1 pb-3">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" debounce={200}>
           <AreaChart data={WEEKLY} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="chatAreaFill" x1="0" y1="0" x2="0" y2="1">

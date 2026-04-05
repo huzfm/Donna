@@ -193,16 +193,25 @@ function PieChartInner({ pieData }: { pieData: { name: string; value: number }[]
   );
 }
 
+interface UploadItem {
+  id: string;
+  name: string;
+  status: "uploading" | "done" | "error";
+  error?: string;
+}
+
 function FilesPanel({
   files,
   filesLoading,
   uploading,
+  uploadQueue,
   onUpload,
   onDelete,
 }: {
   files: UploadedFile[];
   filesLoading: boolean;
   uploading: boolean;
+  uploadQueue: UploadItem[];
   onUpload: (f: File) => void;
   onDelete: (name: string) => void;
 }) {
@@ -369,8 +378,41 @@ function FilesPanel({
                   <Upload size={24} className="text-black" />
                 )}
               </div>
-              {uploading ? (
-                <p className="animate-pulse text-sm font-medium text-slate-600">Processing…</p>
+              {uploading && uploadQueue.length > 0 ? (
+                <div className="w-full space-y-2">
+                  {uploadQueue.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-left ${
+                        item.status === "done"
+                          ? "border-emerald-200 bg-emerald-50/60"
+                          : item.status === "error"
+                            ? "border-red-200 bg-red-50/60"
+                            : "border-slate-200 bg-slate-50/60"
+                      }`}
+                    >
+                      <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${
+                        item.status === "done" ? "bg-emerald-100" : item.status === "error" ? "bg-red-100" : "bg-slate-100"
+                      }`}>
+                        {item.status === "uploading" ? (
+                          <Loader2 size={12} className="animate-spin text-slate-700" />
+                        ) : item.status === "done" ? (
+                          <CheckCircle2 size={12} className="text-emerald-600" />
+                        ) : (
+                          <span className="text-[10px] text-red-500">✕</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[12px] font-semibold text-slate-800">{item.name}</p>
+                        <p className={`text-[10px] font-medium ${
+                          item.status === "done" ? "text-emerald-600" : item.status === "error" ? "text-red-500" : "text-slate-500"
+                        }`}>
+                          {item.status === "uploading" ? "Uploading & indexing…" : item.status === "done" ? "Indexed ✓" : (item.error ?? "Failed")}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : dragOver ? (
                 <p className="text-sm font-semibold text-black">Release to upload</p>
               ) : (
