@@ -1,8 +1,8 @@
 # Donna, Your personal AI Assistant
 
-Donna is a  AI-driven platform designed to streamline your career workflow. From analyzing documents and generating insights to managing emails and visualizing data with Mermaid diagrams, Donna is your all-in-one career productivity hub.
+Donna is a AI-driven platform designed to streamline your career workflow. From analyzing documents and generating insights to managing emails and visualizing data with Mermaid diagrams, Donna is your all-in-one career productivity hub.
 
-##  Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -13,30 +13,30 @@ Donna is a  AI-driven platform designed to streamline your career workflow. From
 
 1. **Clone the repository**:
 
-   ```bash
-   git clone <repository-url>
-   cd donna
-   ```
+      ```bash
+      git clone <repository-url>
+      cd donna
+      ```
 
 2. **Install dependencies**:
 
-   ```bash
-   pnpm install
-   ```
+      ```bash
+      pnpm install
+      ```
 
 3. **Environment Setup**:
    Copy the example environment file and fill in your credentials:
-   ```bash
-   cp .env.example .env
-   ```
-   _Note: Open `.env` and provide your API keys for OpenAI, Groq, Supabase, and Resend._
+      ```bash
+      cp .env.example .env
+      ```
+      _Note: Open `.env` and provide your API keys for OpenAI, Groq, Supabase, and Resend._
 
 ### Running the Project
 
 1. **Start the development server**:
-   ```bash
-   pnpm dev
-   ```
+      ```bash
+      pnpm dev
+      ```
 2. **Open the app**:
    Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
@@ -48,16 +48,16 @@ Donna is a  AI-driven platform designed to streamline your career workflow. From
 - **Email Integration**: Automated email sending via Resend and Gmail integration.
 - **Document Analysis**: Supports PDF, DOCX, and XLSX parsing.
 
-##  Environment Variables
+## Environment Variables
 
-| Variable                            | Description                                    |
-| :---------------------------------- | :--------------------------------------------- |
-| `OPENAI_API_KEY`                    | Your OpenAI secret key.                        |
-| `GROQ_API_KEY`                      | API key for Groq's high-speed LLM inference.   |
-| `NEXT_PUBLIC_SUPABASE_URL`          | Your Supabase project URL.                     |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`     | Supabase anonymous key for client-side access. |
-| `SUPABASE_SERVICE_ROLE_KEY`         | Service role key for admin-level operations.   |
-| `RESEND_API_KEY`                    | API key for sending emails via Resend.         |
+| Variable                        | Description                                    |
+| :------------------------------ | :--------------------------------------------- |
+| `OPENAI_API_KEY`                | Your OpenAI secret key.                        |
+| `GROQ_API_KEY`                  | API key for Groq's high-speed LLM inference.   |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL.                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key for client-side access. |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Service role key for admin-level operations.   |
+| `RESEND_API_KEY`                | API key for sending emails via Resend.         |
 
 ## Scripts
 
