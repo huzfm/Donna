@@ -1,161 +1,175 @@
-import { Mail, Inbox, FileSearch, Hash, BarChart2, MessageSquare, FileText, CreditCard } from "lucide-react";
+import {
+      Mail,
+      Inbox,
+      FileSearch,
+      Hash,
+      BarChart2,
+      MessageSquare,
+      FileText,
+      CreditCard,
+} from "lucide-react";
 
-// Types 
+// Types
 
 export interface UploadedFile {
-  file_name: string;
-  uploaded_at: string;
+      file_name: string;
+      uploaded_at: string;
 }
 
 export interface ChatSession {
-  id: string;
-  title: string;
-  created_at: string;
-  updated_at: string;
+      id: string;
+      title: string;
+      created_at: string;
+      updated_at: string;
 }
 
 export interface ChatMessage {
-  id: number;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: string;
-  status?: "done" | "cancelled";
+      id: number;
+      role: "user" | "assistant";
+      content: string;
+      timestamp: string;
+      status?: "done" | "cancelled";
 }
 
 export interface SlashCommand {
-  trigger: string;
-  label: string;
-  icon: React.ElementType;
-  description: string;
-  fill: string;
-  suggestions?: string[];
+      trigger: string;
+      label: string;
+      icon: React.ElementType;
+      description: string;
+      fill: string;
+      suggestions?: string[];
 }
 
-// Constants 
+// Constants
 
 export const SLASH_COMMANDS: SlashCommand[] = [
-  {
-    trigger: "/email",
-    label: "/email",
-    icon: Mail,
-    description: "Compose and send an email",
-    fill: "/email",
-    suggestions: [
-      "Email john@company.com about tomorrow's meeting at 3pm",
-      "Send a leave request to hr@company.com for next week",
-      "Follow up with client@gmail.com on our proposal",
-    ],
-  },
-  {
-    trigger: "/inbox",
-    label: "/inbox",
-    icon: Inbox,
-    description: "Check & summarize your Gmail inbox",
-    fill: "Check my emails and summarize my inbox",
-    suggestions: [
-      "What are my most urgent emails?",
-      "Who emailed me today?",
-      "Summarize my unread emails",
-    ],
-  },
-  {
-    trigger: "/summarize",
-    label: "/summarize",
-    icon: FileSearch,
-    description: "Summarize an uploaded document",
-    fill: "Summarize the uploaded document",
-    suggestions: [
-      "Summarize the key points of my resume",
-      "Give me a bullet-point summary of my document",
-      "What is the main topic of my uploaded file?",
-    ],
-  },
-  {
-    trigger: "/find",
-    label: "/find",
-    icon: Hash,
-    description: "Find specific info in your documents",
-    fill: "Find information about ",
-    suggestions: [
-      "Find my work experience details",
-      "Find all project names in my documents",
-      "Find contact information from my files",
-    ],
-  },
-  {
-    trigger: "/diagram",
-    label: "/diagram",
-    icon: BarChart2,
-    description: "Generate a diagram from your data",
-    fill: "visualize my documents",
-    suggestions: [
-      "Create a flowchart from my uploaded files",
-      "Draw a mindmap of my resume",
-      "Visualize the structure of my document",
-    ],
-  },
+      {
+            trigger: "/email",
+            label: "/email",
+            icon: Mail,
+            description: "Compose and send an email",
+            fill: "/email",
+            suggestions: [
+                  "Email john@company.com about tomorrow's meeting at 3pm",
+                  "Send a leave request to hr@company.com for next week",
+                  "Follow up with client@gmail.com on our proposal",
+            ],
+      },
+      {
+            trigger: "/inbox",
+            label: "/inbox",
+            icon: Inbox,
+            description: "Check & summarize your Gmail inbox",
+            fill: "Check my emails and summarize my inbox",
+            suggestions: [
+                  "What are my most urgent emails?",
+                  "Who emailed me today?",
+                  "Summarize my unread emails",
+            ],
+      },
+      {
+            trigger: "/summarize",
+            label: "/summarize",
+            icon: FileSearch,
+            description: "Summarize an uploaded document",
+            fill: "Summarize the uploaded document",
+            suggestions: [
+                  "Summarize the key points of my resume",
+                  "Give me a bullet-point summary of my document",
+                  "What is the main topic of my uploaded file?",
+            ],
+      },
+      {
+            trigger: "/find",
+            label: "/find",
+            icon: Hash,
+            description: "Find specific info in your documents",
+            fill: "Find information about ",
+            suggestions: [
+                  "Find my work experience details",
+                  "Find all project names in my documents",
+                  "Find contact information from my files",
+            ],
+      },
+      {
+            trigger: "/diagram",
+            label: "/diagram",
+            icon: BarChart2,
+            description: "Generate a diagram from your data",
+            fill: "visualize my documents",
+            suggestions: [
+                  "Create a flowchart from my uploaded files",
+                  "Draw a mindmap of my resume",
+                  "Visualize the structure of my document",
+            ],
+      },
 ];
 
 export type TabId = "chat" | "files" | "gmail" | "billing";
 
 export const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
-  { id: "chat", label: "Chat", icon: MessageSquare },
-  { id: "files", label: "Files", icon: FileText },
-  { id: "gmail", label: "Gmail", icon: Mail },
-  { id: "billing", label: "Billing", icon: CreditCard },
+      { id: "chat", label: "Chat", icon: MessageSquare },
+      { id: "files", label: "Files", icon: FileText },
+      { id: "gmail", label: "Gmail", icon: Mail },
+      { id: "billing", label: "Billing", icon: CreditCard },
 ];
 
-// Utils 
+// Utils
 
 export function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "Just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+      const diff = Date.now() - new Date(iso).getTime();
+      const mins = Math.floor(diff / 60_000);
+      if (mins < 1) return "Just now";
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      return `${Math.floor(hrs / 24)}d ago`;
 }
 
 export function timeNow() {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 export function preprocessSlashCommand(raw: string): string {
-  const text = raw.trim();
-  if (/^\/email/i.test(text)) {
-    const field = (key: string) => {
-      const re = new RegExp(`${key}:\\s*\\[?([^\\]\\n]+?)\\]?(?:\\s+(?:subject|body|to):|$)`, "i");
-      return text.match(re)?.[1]?.trim() ?? "";
-    };
-    const to = field("to"),
-      subject = field("subject"),
-      body = field("body");
-    if (!to)
-      return "I couldn't parse the /email command. Format: /email to: [recipient] subject: [subject] body: [message]";
-    return `Send an email to ${to}${subject ? ` with subject "${subject}"` : ""}${body ? ` and body: ${body}` : ""}`;
-  }
-  if (/^\/inbox/i.test(text)) return "Check my emails and summarize my inbox";
-  if (/^\/summarize/i.test(text)) {
-    const r = text.replace(/^\/summarize/i, "").trim();
-    return r ? `Summarize ${r}` : "Summarize the uploaded documents";
-  }
-  if (/^\/find/i.test(text)) {
-    const r = text.replace(/^\/find/i, "").trim();
-    return r ? `Find information about ${r}` : "Find the key facts in my uploaded documents";
-  }
-  if (/^\/diagram/i.test(text)) {
-    const r = text.replace(/^\/diagram/i, "").trim();
-    return r ? `Create a diagram for ${r}` : "Visualize my documents as a diagram";
-  }
-  return text;
+      const text = raw.trim();
+      if (/^\/email/i.test(text)) {
+            const field = (key: string) => {
+                  const re = new RegExp(
+                        `${key}:\\s*\\[?([^\\]\\n]+?)\\]?(?:\\s+(?:subject|body|to):|$)`,
+                        "i"
+                  );
+                  return text.match(re)?.[1]?.trim() ?? "";
+            };
+            const to = field("to"),
+                  subject = field("subject"),
+                  body = field("body");
+            if (!to)
+                  return "I couldn't parse the /email command. Format: /email to: [recipient] subject: [subject] body: [message]";
+            return `Send an email to ${to}${subject ? ` with subject "${subject}"` : ""}${body ? ` and body: ${body}` : ""}`;
+      }
+      if (/^\/inbox/i.test(text)) return "Check my emails and summarize my inbox";
+      if (/^\/summarize/i.test(text)) {
+            const r = text.replace(/^\/summarize/i, "").trim();
+            return r ? `Summarize ${r}` : "Summarize the uploaded documents";
+      }
+      if (/^\/find/i.test(text)) {
+            const r = text.replace(/^\/find/i, "").trim();
+            return r
+                  ? `Find information about ${r}`
+                  : "Find the key facts in my uploaded documents";
+      }
+      if (/^\/diagram/i.test(text)) {
+            const r = text.replace(/^\/diagram/i, "").trim();
+            return r ? `Create a diagram for ${r}` : "Visualize my documents as a diagram";
+      }
+      return text;
 }
 
 export function fileIcon(name: string) {
-  const ext = name.split(".").pop()?.toLowerCase();
-  if (ext === "pdf") return <FileText size={16} className="text-red-500" />;
-  if (ext === "doc" || ext === "docx") return <FileText size={16} className="text-blue-500" />;
-  if (ext === "xls" || ext === "xlsx" || ext === "csv")
-    return <FileText size={16} className="text-green-600" />;
-  return <FileText size={16} className="text-neutral-400" />;
+      const ext = name.split(".").pop()?.toLowerCase();
+      if (ext === "pdf") return <FileText size={16} className="text-red-500" />;
+      if (ext === "doc" || ext === "docx") return <FileText size={16} className="text-blue-500" />;
+      if (ext === "xls" || ext === "xlsx" || ext === "csv")
+            return <FileText size={16} className="text-green-600" />;
+      return <FileText size={16} className="text-neutral-400" />;
 }

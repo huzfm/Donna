@@ -1,228 +1,149 @@
 export const runtime = "nodejs";
 
-import { chunkText } from "@/lib/chunk";
-import { embed } from "@/lib/embed";
-import { createClient } from "@/lib/supabase-server";
-import { adminClient } from "@/lib/supabase-admin";
-import { FREE_LIMITS } from "@/lib/limits";
+import { chunkText } from "@/lib/rag/chunk";
+import { embed } from "@/lib/rag/embed";
+import { extractText } from "@/lib/rag/extract-text";
+import { createClient } from "@/lib/db/supabase-server";
+import { adminClient } from "@/lib/db/supabase-admin";
+import { FREE_LIMITS, isWindowExpired } from "@/lib/payments/limits";
 
-// GET   return the list of files this user has already uploaded
 export async function GET() {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      try {
+            const supabase = await createClient();
+            const {
+                  data: { user },
+            } = await supabase.auth.getUser();
+            if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
+            const { data, error } = await supabase
+                  .from("documents")
+                  .select("file_name, created_at")
+                  .eq("user_id", user.id)
+                  .order("created_at", { ascending: false });
 
-    // Fetch all rows for this user but only pull file_name + created_at
-    const { data, error } = await supabase
-      .from("documents")
-      .select("file_name, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+            if (error) throw new Error(error.message);
 
-    if (error) throw new Error(error.message);
+            const seen = new Set<string>();
+            const files: { file_name: string; uploaded_at: string }[] = [];
+            for (const row of data ?? []) {
+                  if (!seen.has(row.file_name)) {
+                        seen.add(row.file_name);
+                        files.push({ file_name: row.file_name, uploaded_at: row.created_at });
+                  }
+            }
 
-    // De-duplicate so each file shows up once, keeping the most recent upload time
-    const seen = new Set<string>();
-    const files: { file_name: string; uploaded_at: string }[] = [];
-    for (const row of data ?? []) {
-      if (!seen.has(row.file_name)) {
-        seen.add(row.file_name);
-        files.push({ file_name: row.file_name, uploaded_at: row.created_at });
+            return Response.json({ files });
+      } catch (e: unknown) {
+            return Response.json(
+                  { error: e instanceof Error ? e.message : "Unknown error" },
+                  { status: 500 }
+            );
       }
-    }
-
-    return Response.json({ files });
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Unknown error";
-    return Response.json({ error: message }, { status: 500 });
-  }
 }
 
-// DELETE   remove a file (all its chunks) from the knowledge base
 export async function DELETE(req: Request) {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      try {
+            const supabase = await createClient();
+            const {
+                  data: { user },
+            } = await supabase.auth.getUser();
+            if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
+            const { file_name } = await req.json();
+            if (!file_name || typeof file_name !== "string")
+                  return Response.json({ error: "file_name is required" }, { status: 400 });
 
-    const { file_name } = await req.json();
+            const { error, count } = await supabase
+                  .from("documents")
+                  .delete({ count: "exact" })
+                  .eq("user_id", user.id)
+                  .eq("file_name", file_name);
 
-    if (!file_name || typeof file_name !== "string") {
-      return Response.json({ error: "file_name is required" }, { status: 400 });
-    }
-
-    const { error, count } = await supabase
-      .from("documents")
-      .delete({ count: "exact" })
-      .eq("user_id", user.id)
-      .eq("file_name", file_name);
-
-    if (error) throw new Error(error.message);
-
-    return Response.json({ success: true, deleted: count });
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Unknown error";
-    return Response.json({ error: message }, { status: 500 });
-  }
+            if (error) throw new Error(error.message);
+            return Response.json({ success: true, deleted: count });
+      } catch (e: unknown) {
+            return Response.json(
+                  { error: e instanceof Error ? e.message : "Unknown error" },
+                  { status: 500 }
+            );
+      }
 }
 
 export async function POST(req: Request) {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      try {
+            const supabase = await createClient();
+            const {
+                  data: { user },
+            } = await supabase.auth.getUser();
+            if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
+            await adminClient
+                  .from("user_usage")
+                  .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
 
-    // ── Usage gate ───────────────────────────────────────────────────────
-    await adminClient
-      .from("user_usage")
-      .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
+            const { data: usageRaw } = await adminClient
+                  .from("user_usage")
+                  .select("uploads_used, is_subscribed, last_reset_at")
+                  .eq("user_id", user.id)
+                  .single();
 
-    const { data: usage } = await adminClient
-      .from("user_usage")
-      .select("uploads_used, is_subscribed")
-      .eq("user_id", user.id)
-      .single();
+            // Reset counters if 24-hour window has expired
+            if (usageRaw && isWindowExpired(usageRaw.last_reset_at)) {
+                  await adminClient
+                        .from("user_usage")
+                        .update({
+                              prompts_used: 0,
+                              uploads_used: 0,
+                              last_reset_at: new Date().toISOString(),
+                        })
+                        .eq("user_id", user.id);
+                  usageRaw.uploads_used = 0;
+            }
 
-    if (usage && !usage.is_subscribed && usage.uploads_used >= FREE_LIMITS.uploads) {
-      return Response.json({ error: "free_limit_reached" }, { status: 402 });
-    }
-    // ─────────────────────────────────────────────────────────────────────
+            const usage = usageRaw;
+            if (usage && !usage.is_subscribed && usage.uploads_used >= FREE_LIMITS.uploads)
+                  return Response.json({ error: "free_limit_reached" }, { status: 402 });
 
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
+            const formData = await req.formData();
+            const file = formData.get("file") as File;
+            if (!file) return Response.json({ error: "No file" }, { status: 400 });
 
-    if (!file) {
-      return Response.json({ error: "No file" }, { status: 400 });
-    }
+            const buffer = Buffer.from(await file.arrayBuffer());
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = file.name.toLowerCase();
+            let text: string;
+            try {
+                  text = await extractText(file, buffer);
+            } catch {
+                  return Response.json({ error: "Unsupported file type" }, { status: 400 });
+            }
 
-    let text = "";
+            text = text.replace(/\s+/g, " ").trim();
+            if (!text) return Response.json({ error: "Could not extract text" }, { status: 400 });
+            if (text.length > 50000) text = text.slice(0, 50000);
 
+            const chunks = chunkText(text);
+            const embeddings = await embed(chunks);
+            if (!embeddings || embeddings.length === 0) throw new Error("Embeddings failed");
 
-    // PDF
-    if (fileName.endsWith(".pdf")) {
-      const pdfParse = require("@cyber2024/pdf-parse-fixed");
-      const data = await pdfParse(buffer);
-      text = data.text;
-    }
+            const rows = chunks.map((chunk, i) => ({
+                  content: chunk,
+                  embedding: embeddings[i],
+                  file_name: file.name,
+                  chunk_index: i,
+                  user_id: user.id,
+            }));
 
-    // WORD
-    else if (fileName.endsWith(".docx") || fileName.endsWith(".doc")) {
-      const mammoth = require("mammoth");
-      const result = await mammoth.extractRawText({ buffer });
-      text = result.value;
-    }
+            const { error } = await supabase.from("documents").insert(rows);
+            if (error) throw new Error(error.message);
 
-    // TXT
-    else if (fileName.endsWith(".txt")) {
-      text = buffer.toString("utf-8");
-    }
+            await adminClient.rpc("increment_uploads_used", { target_user_id: user.id });
 
-    // EXCEL / CSV
-    else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls") || fileName.endsWith(".csv")) {
-      const XLSX = require("xlsx");
-      const workbook = XLSX.read(buffer, { type: "buffer" });
-
-      let allText = "";
-
-      for (const sheetName of workbook.SheetNames) {
-        const sheet = workbook.Sheets[sheetName];
-
-        const rows = XLSX.utils.sheet_to_json(sheet, {
-          header: 1,
-        }) as (string | number | boolean | null | undefined)[][];
-
-        allText += `Sheet: ${sheetName}\n`;
-
-        for (const row of rows) {
-          const cleaned = row.filter((cell) => cell !== null && cell !== undefined && cell !== "");
-
-          if (cleaned.length > 0) {
-            allText += cleaned.join(" | ") + "\n";
-          }
-        }
-
-        allText += "\n";
+            return Response.json({ success: true, chunks: chunks.length });
+      } catch (e: unknown) {
+            console.error("UPLOAD ERROR:", e);
+            return Response.json(
+                  { error: e instanceof Error ? e.message : "Unknown" },
+                  { status: 500 }
+            );
       }
-
-      text = allText;
-    }
-
-    //  Unsupported
-    else {
-      return Response.json({ error: "Unsupported file type" }, { status: 400 });
-    }
-
-    //  Clean text
-    text = text.replace(/\s+/g, " ").trim();
-
-    if (!text) {
-      return Response.json({ error: "Could not extract text" }, { status: 400 });
-    }
-
-    // RAG PIPELINE
-
-    // limit size (avoid API crash)
-    if (text.length > 50000) {
-      text = text.slice(0, 50000);
-    }
-
-    const chunks = chunkText(text);
-
-    console.log("TEXT LENGTH:", text.length);
-    console.log("CHUNKS:", chunks.length);
-
-    // embeddings
-    const embeddings = await embed(chunks);
-
-    if (!embeddings || embeddings.length === 0) {
-      throw new Error("Embeddings failed");
-    }
-
-    // prepare rows
-    const rows = chunks.map((chunk, i) => ({
-      content: chunk,
-      embedding: embeddings[i],
-      file_name: file.name,
-      chunk_index: i,
-      user_id: user.id,
-    }));
-
-    // insert into supabase
-    const { error } = await supabase.from("documents").insert(rows);
-
-    if (error) {
-      console.error("SUPABASE ERROR:", error);
-      throw new Error(error.message);
-    }
-
-    // Increment uploads_used
-    await adminClient.rpc("increment_uploads_used", { target_user_id: user.id });
-
-    return Response.json({
-      success: true,
-      chunks: chunks.length,
-    });
-  } catch (e: unknown) {
-    console.error("UPLOAD ERROR:", e);
-    return Response.json({ error: e instanceof Error ? e.message : "Unknown" }, { status: 500 });
-  }
 }

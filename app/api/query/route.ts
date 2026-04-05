@@ -1,201 +1,79 @@
 export const runtime = "nodejs";
 
-import { embed } from "@/lib/embed";
-import { createClient } from "@/lib/supabase-server";
-import { adminClient } from "@/lib/supabase-admin";
-import { runAgentLoop, AgentMessage } from "@/lib/groq";
-import { sendEmail } from "@/lib/email";
-import { getRecentEmails } from "@/lib/gmail";
-import { FREE_LIMITS } from "@/lib/limits";
+import { createClient } from "@/lib/db/supabase-server";
+import { adminClient } from "@/lib/db/supabase-admin";
+import { runAgentLoop, AgentMessage } from "@/lib/ai/groq";
+import { buildToolExecutor } from "@/lib/ai/tools";
+import { FREE_LIMITS, isWindowExpired } from "@/lib/payments/limits";
 
 interface HistoryMessage {
-  role: "user" | "assistant";
-  content: string;
+      role: "user" | "assistant";
+      content: string;
 }
 
 export async function POST(req: Request) {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      try {
+            const supabase = await createClient();
+            const {
+                  data: { user },
+            } = await supabase.auth.getUser();
+            if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
+            const { question, history = [] }: { question: string; history?: HistoryMessage[] } =
+                  await req.json();
+            if (!question) return Response.json({ error: "No question provided" }, { status: 400 });
 
-    const {
-      question,
-      history = [],
-    }: { question: string; history?: HistoryMessage[] } = await req.json();
+            await adminClient
+                  .from("user_usage")
+                  .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
 
-    if (!question) {
-      return Response.json({ error: "No question provided" }, { status: 400 });
-    }
+            const { data: usageRaw } = await adminClient
+                  .from("user_usage")
+                  .select("prompts_used, is_subscribed, last_reset_at")
+                  .eq("user_id", user.id)
+                  .single();
 
-    // ── Usage gate ───────────────────────────────────────────────────────
-    await adminClient
-      .from("user_usage")
-      .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
+            // Reset counters if 24-hour window has expired
+            if (usageRaw && isWindowExpired(usageRaw.last_reset_at)) {
+                  await adminClient
+                        .from("user_usage")
+                        .update({
+                              prompts_used: 0,
+                              uploads_used: 0,
+                              last_reset_at: new Date().toISOString(),
+                        })
+                        .eq("user_id", user.id);
+                  usageRaw.prompts_used = 0;
+            }
 
-    const { data: usage } = await adminClient
-      .from("user_usage")
-      .select("prompts_used, is_subscribed")
-      .eq("user_id", user.id)
-      .single();
+            const usage = usageRaw;
+            if (usage && !usage.is_subscribed && usage.prompts_used >= FREE_LIMITS.prompts)
+                  return Response.json({ error: "free_limit_reached" }, { status: 402 });
 
-    if (usage && !usage.is_subscribed && usage.prompts_used >= FREE_LIMITS.prompts) {
-      return Response.json({ error: "free_limit_reached" }, { status: 402 });
-    }
-    // ─────────────────────────────────────────────────────────────────────
+            const historyMessages: AgentMessage[] = history
+                  .filter((m) => m.content?.trim())
+                  .slice(-6)
+                  .map((m) => ({ role: m.role, content: m.content }));
 
-    // Build messages array in the OpenAI chat format
-    const historyMessages: AgentMessage[] = history
-      .filter((m) => m.content?.trim())
-      .slice(-6)
-      .map((m) => ({ role: m.role, content: m.content }));
+            const messages: AgentMessage[] = [
+                  ...historyMessages,
+                  { role: "user", content: question },
+            ];
 
-    const messages: AgentMessage[] = [
-      ...historyMessages,
-      { role: "user", content: question },
-    ];
+            const executeTool = buildToolExecutor(user, supabase);
+            const answer = await runAgentLoop(messages, executeTool);
 
-    //  Tool executor 
-    const executeTool = async (
-      name: string,
-      args: Record<string, unknown>
-    ): Promise<string> => {
-      //  search_documents 
-      if (name === "search_documents") {
-        const query = String(args.query ?? question);
-        try {
-          const embeddings = await embed([query]);
-          let queryEmbedding = embeddings[0];
-          if (Array.isArray(queryEmbedding[0]))
-            queryEmbedding = queryEmbedding[0];
+            adminClient.rpc("increment_prompts_used", { target_user_id: user.id }).then(
+                  () => {},
+                  () => {}
+            );
 
-          const { data, error } = await supabase.rpc("match_documents", {
-            query_embedding: queryEmbedding,
-            match_count: 12,
-            filter_user_id: user.id,
-          });
-
-          if (error) return `Search error: ${error.message}`;
-
-          if (!data || data.length === 0) {
-            return "No relevant documents found. The user may not have uploaded any files yet.";
-          }
-
-          return data
-            .map(
-              (d: { content: string; file_name: string }) =>
-                `[Source: ${d.file_name}]\n${d.content}`
-            )
-            .join("\n\n---\n\n");
-        } catch (err: unknown) {
-          return `Search failed: ${err instanceof Error ? err.message : String(err)}`;
-        }
+            return Response.json({ answer });
+      } catch (e: unknown) {
+            console.error("AGENT ERROR:", e);
+            return Response.json(
+                  { error: e instanceof Error ? e.message : "Unknown error" },
+                  { status: 500 }
+            );
       }
-
-      //  get_all_documents 
-      if (name === "get_all_documents") {
-        try {
-          const { data, error } = await supabase
-            .from("documents")
-            .select("content, file_name, chunk_index")
-            .eq("user_id", user.id)
-            .order("file_name", { ascending: true })
-            .order("chunk_index", { ascending: true })
-            .limit(60);
-
-          if (error) return `Fetch error: ${error.message}`;
-
-          if (!data || data.length === 0) {
-            return "No documents found. The user has not uploaded any files yet.";
-          }
-
-          return data
-            .map(
-              (d: { content: string; file_name: string }) =>
-                `[Source: ${d.file_name}]\n${d.content}`
-            )
-            .join("\n\n---\n\n");
-        } catch (err: unknown) {
-          return `Fetch failed: ${err instanceof Error ? err.message : String(err)}`;
-        }
-      }
-
-      //  send_email 
-      if (name === "send_email") {
-        const to = String(args.to ?? "");
-        const subject = String(args.subject ?? "Hello");
-        const body = String(args.body ?? "");
-
-        if (!to || !to.includes("@")) {
-          return "Cannot send email: missing or invalid recipient address.";
-        }
-
-        try {
-          const metadata = user?.user_metadata;
-          const userName = (
-            metadata?.full_name ||
-            metadata?.name ||
-            metadata?.display_name ||
-            ""
-          )?.trim();
-          await sendEmail(to, subject, body, userName || undefined);
-          return `Email sent successfully to ${to} with subject "${subject}".`;
-        } catch (err: unknown) {
-          return `Email send failed: ${err instanceof Error ? err.message : String(err)}`;
-        }
-      }
-
-      //  read_gmail 
-      if (name === "read_gmail") {
-        try {
-          const { data: settings } = await supabase
-            .from("user_settings")
-            .select("gmail_user, gmail_app_password")
-            .eq("user_id", user.id)
-            .single();
-
-          if (!settings?.gmail_user || !settings?.gmail_app_password) {
-            return "Gmail is not configured. The user needs to add their Gmail address and App Password in Settings.";
-          }
-
-          const emails = await getRecentEmails(
-            settings.gmail_user,
-            settings.gmail_app_password,
-            15
-          );
-
-          if (emails.length === 0) {
-            return "Inbox is empty — no emails found.";
-          }
-
-          return emails
-            .map(
-              (e, i) =>
-                `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`
-            )
-            .join("\n\n");
-        } catch (err: unknown) {
-          return `Gmail fetch failed: ${err instanceof Error ? err.message : String(err)}`;
-        }
-      }
-
-      return `Unknown tool: ${name}`;
-    }; 
-
-    const answer = await runAgentLoop(messages, executeTool);
-
-    // Increment prompts_used (fire-and-forget)
-    adminClient.rpc("increment_prompts_used", { target_user_id: user.id }).then(() => {}, () => {});
-
-    return Response.json({ answer });
-  } catch (e: unknown) {
-    console.error("AGENT ERROR:", e);
-    const message = e instanceof Error ? e.message : "Unknown error";
-    return Response.json({ error: message }, { status: 500 });
-  }
 }
