@@ -8,8 +8,22 @@ import { useState, useEffect } from "react";
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "How it works", href: "#how-it-works" },
-  { label: "About", href: "/about", isRoute: true },
+  { label: "About", href: "#tech-stack" },
 ];
+
+function smoothScrollTo(id: string) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function handleHashClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+  if (href.startsWith("#")) {
+    e.preventDefault();
+    smoothScrollTo(href.slice(1));
+  }
+}
 
 function NavAuthButton() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -58,25 +72,16 @@ export default function Navbar() {
 
           {/* Nav Links */}
           <nav className="hidden items-center gap-5 font-mono md:flex">
-            <a
-              href="#features"
-              className="rounded-md px-2 py-1 text-[13px] font-semibold text-slate-700 transition-all duration-200 hover:bg-white/40 hover:text-black"
-            >
-              Features
-            </a>
-            <a
-              href="#how-it-works"
-              className="rounded-md px-2 py-1 text-[13px] font-semibold text-slate-700 transition-all duration-200 hover:bg-white/40 hover:text-black"
-            >
-              How it works
-            </a>
-
-            <Link
-              href="/about"
-              className="rounded-md px-2 py-1 text-[13px] font-semibold text-slate-700 transition-all duration-200 hover:bg-white/40 hover:text-black"
-            >
-              About
-            </Link>
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={(e) => handleHashClick(e, link.href)}
+                className="rounded-md px-2 py-1 text-[13px] font-semibold text-slate-700 transition-all duration-200 hover:bg-white/40 hover:text-black"
+              >
+                {link.label}
+              </a>
+            ))}
           </nav>
 
           {/* Right side */}
@@ -107,19 +112,19 @@ export default function Navbar() {
             transition={{ duration: 0.18 }}
             className="absolute top-18 right-4 left-4 z-50 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 p-3 shadow-2xl backdrop-blur-xl md:hidden"
           >
-            {NAV_LINKS.map((link) => {
-              const Tag = link.isRoute ? Link : "a";
-              return (
-                <Tag
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center rounded-xl px-4 py-2.5 font-mono text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 hover:text-black"
-                >
-                  {link.label}
-                </Tag>
-              );
-            })}
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={(e) => {
+                  handleHashClick(e, link.href);
+                  setMobileOpen(false);
+                }}
+                className="flex w-full items-center rounded-xl px-4 py-2.5 font-mono text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 hover:text-black"
+              >
+                {link.label}
+              </a>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>

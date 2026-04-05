@@ -5,7 +5,7 @@ import { techStack } from "./data";
 
 export default function TechStackSection() {
   return (
-    <section className="overflow-hidden bg-white px-6 py-20">
+    <section id="tech-stack" className="overflow-hidden bg-white px-6 py-20">
       <div className="mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
