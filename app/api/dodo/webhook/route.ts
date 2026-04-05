@@ -21,7 +21,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  const data = event.data as Record<string, unknown>;
+// After
+const data = event.data as unknown as Record<string, unknown>;
   const type = event.type as string;
 
   // Resolve Supabase user by email
