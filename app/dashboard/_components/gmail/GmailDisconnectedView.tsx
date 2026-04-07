@@ -10,6 +10,9 @@ interface GmailDisconnectedViewProps {
       onGmailPasswordChange: (v: string) => void;
       onSave: (e: React.FormEvent) => void;
       saving: boolean;
+      removing: boolean;
+      /** Email already known (e.g. after « Change ») — prompt for app password only in copy. */
+      updateMode: boolean;
       message: string | null;
 }
 
@@ -20,6 +23,8 @@ export default function GmailDisconnectedView({
       onGmailPasswordChange,
       onSave,
       saving,
+      removing,
+      updateMode,
       message,
 }: GmailDisconnectedViewProps) {
       const isError = message?.startsWith("error:");
@@ -42,7 +47,9 @@ export default function GmailDisconnectedView({
                                           Gmail
                                     </h1>
                                     <p className="text-[11px] text-slate-500">
-                                          Connect to send emails through Donna
+                                          {updateMode
+                                                ? "Update your app password to reconnect"
+                                                : "Connect to send emails through Donna"}
                                     </p>
                               </div>
                         </div>
@@ -55,11 +62,12 @@ export default function GmailDisconnectedView({
                                           <Mail size={24} className="text-black" />
                                     </div>
                                     <h2 className="font-(family-name:--font-doto) text-xl font-black tracking-tight text-slate-950">
-                                          Connect your Gmail
+                                          {updateMode ? "Update Gmail connection" : "Connect your Gmail"}
                                     </h2>
                                     <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
-                                          Link your Gmail account so Donna can send emails, attach
-                                          calendar links, and manage your inbox all from chat.
+                                          {updateMode
+                                                ? "Your address is kept. Enter your Google App Password again to save changes — paste the 16-character code (spaces optional)."
+                                                : "Link your Gmail account so Donna can send emails, attach calendar links, and manage your inbox from chat."}
                                     </p>
                               </div>
 
@@ -77,7 +85,7 @@ export default function GmailDisconnectedView({
                                                             Credentials
                                                       </p>
                                                       <p className="text-[11px] text-slate-500">
-                                                            Stored securely per-session
+                                                            Encrypted at rest in your account
                                                       </p>
                                                 </div>
                                           </div>
@@ -90,12 +98,19 @@ export default function GmailDisconnectedView({
                                                       <input
                                                             type="email"
                                                             required
+                                                            readOnly={updateMode}
+                                                            aria-readonly={updateMode}
+                                                            disabled={saving || removing}
                                                             value={gmailUser}
                                                             onChange={(e) =>
                                                                   onGmailUserChange(e.target.value)
                                                             }
                                                             placeholder="you@gmail.com"
-                                                            className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-2.5 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-slate-300/15"
+                                                            className={`w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-300 focus:ring-2 focus:ring-slate-300/15 disabled:opacity-50 ${
+                                                                  updateMode
+                                                                        ? "cursor-not-allowed bg-slate-100/90 text-slate-600"
+                                                                        : "bg-slate-50/80 focus:bg-white"
+                                                            }`}
                                                       />
                                                 </div>
                                                 <div>
@@ -105,6 +120,7 @@ export default function GmailDisconnectedView({
                                                       <input
                                                             type="password"
                                                             required
+                                                            autoComplete="off"
                                                             value={gmailPassword}
                                                             onChange={(e) =>
                                                                   onGmailPasswordChange(
@@ -112,7 +128,8 @@ export default function GmailDisconnectedView({
                                                                   )
                                                             }
                                                             placeholder="xxxx xxxx xxxx xxxx"
-                                                            className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-2.5 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-slate-300/15"
+                                                            disabled={saving || removing}
+                                                            className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-2.5 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-slate-300/15 disabled:opacity-50"
                                                       />
                                                 </div>
 
@@ -131,14 +148,22 @@ export default function GmailDisconnectedView({
 
                                                 <button
                                                       type="submit"
-                                                      disabled={saving}
+                                                      disabled={saving || removing}
                                                       className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/25 transition-all hover:ring-2 hover:ring-slate-300/20 disabled:opacity-30"
                                                 >
                                                       {saving ? (
-                                                            "Connecting…"
+                                                            updateMode ? (
+                                                                  "Saving…"
+                                                            ) : (
+                                                                  "Connecting…"
+                                                            )
                                                       ) : (
                                                             <>
-                                                                  <span>Connect Gmail</span>
+                                                                  <span>
+                                                                        {updateMode
+                                                                              ? "Save Gmail"
+                                                                              : "Connect Gmail"}
+                                                                  </span>
                                                                   <ArrowRight size={14} />
                                                             </>
                                                       )}

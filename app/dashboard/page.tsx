@@ -15,7 +15,6 @@ import { useUsage } from "./_hooks/useUsage";
 import { useSessions } from "./_hooks/useSessions";
 import { useMessages } from "./_hooks/useMessages";
 import { useUpload } from "./_hooks/useUpload";
-import { useSettings } from "./_hooks/useSettings";
 
 const FilesPanel = dynamic(() => import("./_components/FilesPanel"), { ssr: false });
 const GmailPanel = dynamic(() => import("./_components/GmailPanel"), { ssr: false });
@@ -72,16 +71,6 @@ export default function DashboardPage() {
             handleUpload,
             handleDelete,
       } = useUpload({ setUsage, setUpgradeOpen });
-      const {
-            gmailUser,
-            setGmailUser,
-            gmailPassword,
-            setGmailPassword,
-            settingsSaving,
-            settingsMsg,
-            loadSettings,
-            handleSaveSettings,
-      } = useSettings();
 
       // Initial data load
       useEffect(() => {
@@ -102,7 +91,6 @@ export default function DashboardPage() {
             }
             loadSessions();
             loadFiles();
-            loadSettings();
             fetchUsage();
             // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
@@ -201,18 +189,7 @@ export default function DashboardPage() {
                                                       onDelete={handleDelete}
                                                 />
                                           )}
-                                          {activeTab === "gmail" && (
-                                                <GmailPanel
-                                                      key="gmail"
-                                                      gmailUser={gmailUser}
-                                                      gmailPassword={gmailPassword}
-                                                      onGmailUserChange={setGmailUser}
-                                                      onGmailPasswordChange={setGmailPassword}
-                                                      onSave={handleSaveSettings}
-                                                      saving={settingsSaving}
-                                                      message={settingsMsg}
-                                                />
-                                          )}
+                                          {activeTab === "gmail" && <GmailPanel key="gmail" />}
                                           {activeTab === "billing" && (
                                                 <BillingPanel
                                                       key="billing"
