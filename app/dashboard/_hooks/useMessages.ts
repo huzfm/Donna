@@ -193,6 +193,8 @@ export function useMessages({
                               return;
                         }
                         if (!res.ok) throw new Error(data.error || "Query failed");
+
+                        const serverPrompts = data.prompts_used;
                         setMessages((prev) => {
                               const updated = [
                                     ...prev,
@@ -207,9 +209,13 @@ export function useMessages({
                               return updated;
                         });
                         persistMessage(sessionId, "assistant", data.answer);
-                        // Optimistically increment local counter so UI updates without a reload
+                        // Use server count so UI stays correct after a 24h reset (avoid stale +1)
                         setUsage((prev) =>
-                              prev ? { ...prev, prompts_used: prev.prompts_used + 1 } : prev
+                              prev && typeof serverPrompts === "number"
+                                    ? { ...prev, prompts_used: serverPrompts }
+                                    : prev
+                                          ? { ...prev, prompts_used: prev.prompts_used + 1 }
+                                          : prev
                         );
                   } catch (err: unknown) {
                         if (err instanceof DOMException && err.name === "AbortError") return;

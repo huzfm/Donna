@@ -136,9 +136,22 @@ export async function POST(req: Request) {
             const { error } = await supabase.from("documents").insert(rows);
             if (error) throw new Error(error.message);
 
-            await adminClient.rpc("increment_uploads_used", { target_user_id: user.id });
+            const { error: rpcErr } = await adminClient.rpc("increment_uploads_used", {
+                  target_user_id: user.id,
+            });
+            if (rpcErr) throw new Error(rpcErr.message);
 
-            return Response.json({ success: true, chunks: chunks.length });
+            const { data: after } = await adminClient
+                  .from("user_usage")
+                  .select("uploads_used")
+                  .eq("user_id", user.id)
+                  .single();
+
+            return Response.json({
+                  success: true,
+                  chunks: chunks.length,
+                  uploads_used: after?.uploads_used,
+            });
       } catch (e: unknown) {
             console.error("UPLOAD ERROR:", e);
             return Response.json(

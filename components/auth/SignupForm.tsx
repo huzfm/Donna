@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/db/supabase-browser";
 import { getOAuthRedirectUrl, googleOAuthQueryParams } from "@/lib/auth/oauth-redirect";
 import Link from "next/link";
-import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, User } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 interface SignupFormProps {
       animationData: Record<string, unknown> | null;
-      successAnimation: Record<string, unknown> | null;
 }
 
-export default function SignupForm({ animationData, successAnimation }: SignupFormProps) {
+export default function SignupForm({ animationData }: SignupFormProps) {
+      const searchParams = useSearchParams();
+      const nextPath = searchParams.get("next") || "/dashboard";
+
       const [fullName, setFullName] = useState("");
       const [email, setEmail] = useState("");
       const [password, setPassword] = useState("");
@@ -25,8 +28,23 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
       const [success, setSuccess] = useState(false);
       const [showPassword, setShowPassword] = useState(false);
       const [showConfirm, setShowConfirm] = useState(false);
+      const [successAnimation, setSuccessAnimation] = useState<Record<
+            string,
+            unknown
+      > | null>(null);
 
       const supabase = createClient();
+
+      useEffect(() => {
+            if (!success) return;
+            fetch("/animations/email-sent.json")
+                  .then((r) => r.json())
+                  .then(setSuccessAnimation)
+                  .catch(() => {});
+      }, [success]);
+
+      const inputClass =
+            "w-full rounded-xl border border-slate-200 bg-white py-3 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10";
 
       const handleSignUp = async (e: React.FormEvent) => {
             e.preventDefault();
@@ -63,10 +81,15 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
             setGoogleLoading(true);
             setError(null);
             try {
+                  const callbackUrl =
+                        nextPath && nextPath !== "/dashboard"
+                              ? `${getOAuthRedirectUrl()}?next=${encodeURIComponent(nextPath)}`
+                              : getOAuthRedirectUrl();
+
                   const { error } = await supabase.auth.signInWithOAuth({
                         provider: "google",
                         options: {
-                              redirectTo: getOAuthRedirectUrl(),
+                              redirectTo: callbackUrl,
                               queryParams: { ...googleOAuthQueryParams },
                         },
                   });
@@ -77,31 +100,78 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
             }
       };
 
+      const loginHref =
+            nextPath && nextPath !== "/dashboard"
+                  ? `/login?next=${encodeURIComponent(nextPath)}`
+                  : "/login";
+
       if (success) {
             return (
-                  <div className="w-full max-w-md text-center">
-                        {successAnimation && (
-                              <Lottie
-                                    animationData={successAnimation}
-                                    loop
-                                    autoplay
-                                    className="mx-auto mb-4 h-28 w-28"
-                              />
-                        )}
-                        <h2 className="mb-3 font-(family-name:--font-doto) text-2xl font-black text-slate-950">
-                              Check your email
-                        </h2>
-                        <p className="mb-8 text-sm text-slate-500">
-                              We sent a confirmation link to{" "}
-                              <strong className="text-slate-900">{email}</strong>. Click the link to
-                              activate your account.
+                  <div className="w-full max-w-md">
+                        <div className="mb-8 text-center lg:hidden">
+                              <Link href="/" className="mb-3 inline-block">
+                                    {animationData && (
+                                          <Lottie
+                                                animationData={animationData}
+                                                loop
+                                                autoplay
+                                                className="mx-auto h-24 w-24"
+                                          />
+                                    )}
+                              </Link>
+                              <span className="font-(family-name:--font-doto) text-lg font-bold tracking-tight text-slate-900">
+                                    Donna
+                              </span>
+                        </div>
+
+                        <div className="mb-8">
+                              <h2 className="font-(family-name:--font-doto) text-2xl font-black tracking-tight text-slate-950">
+                                    Almost there
+                              </h2>
+                              <p className="mt-1.5 text-sm text-slate-500">
+                                    One more step to activate your account
+                              </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+                              {successAnimation && (
+                                    <Lottie
+                                          animationData={successAnimation}
+                                          loop={false}
+                                          autoplay
+                                          className="mx-auto mb-6 h-32 w-32"
+                                    />
+                              )}
+                              <h3 className="mb-2 font-(family-name:--font-doto) text-xl font-black text-slate-950">
+                                    Check your email
+                              </h3>
+                              <p className="text-sm leading-relaxed text-slate-500">
+                                    We sent a confirmation link to{" "}
+                                    <strong className="text-slate-900">{email}</strong>. Open it to
+                                    finish signing up.
+                              </p>
+                              <Link
+                                    href={loginHref}
+                                    className="mt-8 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-slate-800"
+                              >
+                                    Continue to sign in
+                                    <ArrowRight size={15} />
+                              </Link>
+                        </div>
+
+                        <p className="mt-6 text-center text-sm text-slate-500">
+                              Wrong email?{" "}
+                              <button
+                                    type="button"
+                                    onClick={() => {
+                                          setSuccess(false);
+                                          setError(null);
+                                    }}
+                                    className="font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
+                              >
+                                    Go back
+                              </button>
                         </p>
-                        <Link
-                              href="/login"
-                              className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
-                        >
-                              ← Back to login
-                        </Link>
                   </div>
             );
       }
@@ -126,10 +196,10 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
 
                   <div className="mb-8">
                         <h2 className="font-(family-name:--font-doto) text-2xl font-black tracking-tight text-slate-950">
-                              Create your account
+                              Sign up
                         </h2>
                         <p className="mt-1.5 text-sm text-slate-500">
-                              Get started with Donna for free
+                              Create your Donna workspace — it&apos;s free to start
                         </p>
                   </div>
 
@@ -179,28 +249,17 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
                                           Full name
                                     </label>
                                     <div className="relative">
-                                          <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
+                                          <User
+                                                size={16}
                                                 className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
-                                          >
-                                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                                                <circle cx="12" cy="7" r="4" />
-                                          </svg>
+                                          />
                                           <input
                                                 type="text"
                                                 required
                                                 value={fullName}
                                                 onChange={(e) => setFullName(e.target.value)}
                                                 placeholder="Your full name"
-                                                className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/10"
+                                                className={`${inputClass} pr-4 pl-10`}
                                           />
                                     </div>
                               </div>
@@ -219,7 +278,7 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="you@example.com"
-                                                className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/10"
+                                                className={`${inputClass} pr-4 pl-10`}
                                           />
                                     </div>
                               </div>
@@ -238,7 +297,7 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="At least 6 characters"
-                                                className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-10 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/10"
+                                                className={`${inputClass} pr-10 pl-10`}
                                           />
                                           <button
                                                 type="button"
@@ -268,7 +327,7 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                                 placeholder="Re-enter your password"
-                                                className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-10 pl-10 text-sm text-slate-900 transition-all outline-none placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/10"
+                                                className={`${inputClass} pr-10 pl-10`}
                                           />
                                           <button
                                                 type="button"
@@ -297,10 +356,10 @@ export default function SignupForm({ animationData, successAnimation }: SignupFo
                   <p className="mt-6 text-center text-sm text-slate-500">
                         Already have an account?{" "}
                         <Link
-                              href="/login"
+                              href={loginHref}
                               className="font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
                         >
-                              Log in
+                              Sign in
                         </Link>
                   </p>
             </div>

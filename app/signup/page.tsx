@@ -9,25 +9,18 @@ const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export default function SignUpPage() {
       const [animationData, setAnimationData] = useState<Record<string, unknown> | null>(null);
-      const [successAnimation, setSuccessAnimation] = useState<Record<string, unknown> | null>(
-            null
-      );
 
       useEffect(() => {
-            fetch("/animations/chatbot.json")
+            fetch("/animations/ai-robot.json")
                   .then((r) => r.json())
                   .then(setAnimationData)
-                  .catch(() => {});
-            fetch("/animations/email-sent.json")
-                  .then((r) => r.json())
-                  .then(setSuccessAnimation)
                   .catch(() => {});
       }, []);
 
       return (
             <div className="relative min-h-screen overflow-hidden bg-white">
                   <div className="relative z-10 flex min-h-screen">
-                        {/* Left panel with Lottie animation */}
+                        {/* Left: same structure as login */}
                         <div className="relative hidden flex-col items-center justify-center border-r border-slate-200 bg-slate-50 p-12 lg:flex lg:w-1/2">
                               <motion.div
                                     initial={{ opacity: 0, scale: 0.9 }}
@@ -51,7 +44,8 @@ export default function SignUpPage() {
                                     className="mt-8 text-center"
                               >
                                     <h2 className="mb-2 font-(family-name:--font-doto) text-2xl font-black tracking-tight text-slate-950">
-                                          Start with <span className="text-emerald-600">Donna</span>
+                                          Join{" "}
+                                          <span className="text-emerald-600">Donna</span>
                                     </h2>
                                     <p className="mx-auto max-w-xs text-sm text-slate-500">
                                           Create your free account and unlock AI-powered document
@@ -68,17 +62,15 @@ export default function SignUpPage() {
                               </motion.p>
                         </div>
 
-                        {/* Right panel with form */}
+                        {/* Right: form — max width matches login */}
                         <div className="flex flex-1 items-center justify-center p-6 md:p-12">
                               <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5, delay: 0.1 }}
+                                    className="w-full max-w-md"
                               >
-                                    <SignupForm
-                                          animationData={animationData}
-                                          successAnimation={successAnimation}
-                                    />
+                                    <SignupForm animationData={animationData} />
                               </motion.div>
                         </div>
                   </div>

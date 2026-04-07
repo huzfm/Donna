@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
             const { data: usageRaw } = await adminClient
                   .from("user_usage")
-                  .select("prompts_used, is_subscribed, last_reset_at")
+                  .select("prompts_used, uploads_used, is_subscribed, last_reset_at")
                   .eq("user_id", user.id)
                   .single();
 
@@ -44,6 +44,7 @@ export async function POST(req: Request) {
                         })
                         .eq("user_id", user.id);
                   usageRaw.prompts_used = 0;
+                  usageRaw.uploads_used = 0;
             }
 
             const usage = usageRaw;
@@ -63,12 +64,23 @@ export async function POST(req: Request) {
             const executeTool = buildToolExecutor(user, supabase);
             const answer = await runAgentLoop(messages, executeTool);
 
-            adminClient.rpc("increment_prompts_used", { target_user_id: user.id }).then(
-                  () => {},
-                  () => {}
-            );
+            let prompts_used: number | undefined;
+            try {
+                  const { error: rpcErr } = await adminClient.rpc("increment_prompts_used", {
+                        target_user_id: user.id,
+                  });
+                  if (rpcErr) throw rpcErr;
+                  const { data: after } = await adminClient
+                        .from("user_usage")
+                        .select("prompts_used")
+                        .eq("user_id", user.id)
+                        .single();
+                  if (typeof after?.prompts_used === "number") prompts_used = after.prompts_used;
+            } catch (err) {
+                  console.error("increment_prompts_used:", err);
+            }
 
-            return Response.json({ answer });
+            return Response.json({ answer, prompts_used });
       } catch (e: unknown) {
             console.error("AGENT ERROR:", e);
             return Response.json(
