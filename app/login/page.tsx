@@ -25,6 +25,8 @@ export default function LoginPage() {
       const supabase = createClient();
 
       const authError = searchParams.get("error");
+      // After login, go to ?next= if present (e.g. post-payment return URL), else dashboard
+      const nextPath = searchParams.get("next") || "/dashboard";
 
       useEffect(() => {
             fetch("/animations/ai-robot.json")
@@ -44,7 +46,7 @@ export default function LoginPage() {
                         password,
                   });
                   if (signInError) throw signInError;
-                  router.push("/dashboard");
+                  router.push(nextPath);
                   router.refresh();
             } catch (err: unknown) {
                   setError(err instanceof Error ? err.message : "Something went wrong");
@@ -58,10 +60,17 @@ export default function LoginPage() {
             setError(null);
 
             try {
+                  // Pass ?next= into the OAuth callback URL so Google login also
+                  // lands on the correct page (e.g. post-payment return URL).
+                  const callbackUrl =
+                        nextPath && nextPath !== "/dashboard"
+                              ? `${getOAuthRedirectUrl()}?next=${encodeURIComponent(nextPath)}`
+                              : getOAuthRedirectUrl();
+
                   const { error } = await supabase.auth.signInWithOAuth({
                         provider: "google",
                         options: {
-                              redirectTo: getOAuthRedirectUrl(),
+                              redirectTo: callbackUrl,
                               queryParams: { ...googleOAuthQueryParams },
                         },
                   });

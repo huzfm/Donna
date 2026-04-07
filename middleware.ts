@@ -5,9 +5,7 @@ const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth/callback"];
 
 export async function middleware(request: NextRequest) {
       let supabaseResponse = NextResponse.next({
-            request: {
-                  headers: request.headers,
-            },
+            request: { headers: request.headers },
       });
 
       const supabase = createServerClient(
@@ -22,9 +20,7 @@ export async function middleware(request: NextRequest) {
                               cookiesToSet.forEach(({ name, value, options: _options }) =>
                                     request.cookies.set(name, value)
                               );
-                              supabaseResponse = NextResponse.next({
-                                    request,
-                              });
+                              supabaseResponse = NextResponse.next({ request });
                               cookiesToSet.forEach(({ name, value, options }) =>
                                     supabaseResponse.cookies.set(name, value, options)
                               );
@@ -33,50 +29,64 @@ export async function middleware(request: NextRequest) {
             }
       );
 
-      const {
-            data: { user },
-      } = await supabase.auth.getUser();
-
       const pathname = request.nextUrl.pathname;
-      const isPublicPath = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+      const isPublicPath = PUBLIC_PATHS.some(
+            (p) => pathname === p || pathname.startsWith(p + "/")
+      );
       const isApiPath = pathname.startsWith("/api/");
 
-      // 1. Handle CORS Preflight Requests
+      // CORS preflight — no auth needed
       if (isApiPath && request.method === "OPTIONS") {
             return new NextResponse(null, {
                   status: 200,
                   headers: {
                         "Access-Control-Allow-Origin": "*",
                         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-                        "Access-Control-Allow-Headers":
-                              "Content-Type, Authorization, X-Requested-With",
+                        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
                         "Access-Control-Max-Age": "86400",
                   },
             });
       }
 
-      if (!user && !isPublicPath && !isApiPath) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/login";
-            return NextResponse.redirect(url);
+      // Skip Supabase auth check for API routes — each handler does its own.
+      if (isApiPath || isPublicPath) {
+            if (isApiPath) {
+                  supabaseResponse.headers.set("Access-Control-Allow-Origin", "*");
+                  supabaseResponse.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+                  supabaseResponse.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+            }
+            return supabaseResponse;
       }
 
-      if (user && (pathname === "/login" || pathname === "/signup")) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/dashboard";
-            return NextResponse.redirect(url);
+      // Post-payment return: Dodo redirects back with ?upgraded=true.
+      // Let it through directly — the dashboard handles its own auth check
+      // and the /api/dodo/activate endpoint is protected server-side.
+      // This avoids the middleware session race that sends users to /login
+      // immediately after payment.
+      if (request.nextUrl.searchParams.get("upgraded") === "true") {
+            return supabaseResponse;
       }
 
-      if (isApiPath) {
-            supabaseResponse.headers.set("Access-Control-Allow-Origin", "*");
-            supabaseResponse.headers.set(
-                  "Access-Control-Allow-Methods",
-                  "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-            );
-            supabaseResponse.headers.set(
-                  "Access-Control-Allow-Headers",
-                  "Content-Type, Authorization, X-Requested-With"
-            );
+      // For all other protected pages: try to read the session from cookies.
+      // getSession() is cookie-only — no network call, no 20s timeouts.
+      // Fall back to checking for any Supabase auth cookie so a Supabase
+      // blip doesn't lock out users who are clearly logged in.
+      let hasSession = false;
+      try {
+            const { data } = await supabase.auth.getSession();
+            hasSession = !!data.session?.user;
+      } catch {
+            hasSession = request.cookies
+                  .getAll()
+                  .some((c) => c.name.includes("auth-token") || c.name.startsWith("sb-"));
+      }
+
+      // No session → /login with ?next= so we return to the right page after sign-in.
+      if (!hasSession) {
+            const loginUrl = new URL("/login", request.nextUrl.origin);
+            const dest = pathname + request.nextUrl.search;
+            if (dest !== "/") loginUrl.searchParams.set("next", dest);
+            return NextResponse.redirect(loginUrl);
       }
 
       return supabaseResponse;

@@ -3,11 +3,32 @@ import { AGENT_TOOLS } from "./agent-tools";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
 
-export const SYSTEM_PROMPT = `You are Donna, a smart AI workspace agent. Today: ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.
+const TODAY = new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+});
 
-Use your tools whenever the user needs something done. For document questions, always call search_documents first. For diagrams from uploaded files, call get_all_documents first, then output a \`\`\`mermaid block. For Mermaid: use --> arrows, unique node IDs, no parentheses in labels, no reserved words like "end"/"start" as bare IDs.
+export const SYSTEM_PROMPT = `You are Donna, a personal AI workspace assistant. Today: ${TODAY}.
 
-Be concise, use markdown formatting, cite source file names when referencing documents.`;
+The user has uploaded their own documents to their workspace (CVs, resumes, reports, notes, emails, contracts, etc.). These documents contain personal and professional information about the user and the people/companies they know. You have tools to search and retrieve this content.
+
+WHEN TO USE TOOLS:
+- For ANY question about a specific person, colleague, company, project, skill, date, or fact → ALWAYS call search_documents first. The answer is very likely in the user's uploaded files.
+- For diagrams or full-document summaries → call get_all_documents first, then output a \`\`\`mermaid block.
+- For sending email → call send_email.
+- For reading inbox → call read_gmail.
+- For general knowledge questions (math, coding, world facts) that clearly don't require personal documents → answer directly without tools.
+
+STRICT RULES:
+- Never guess personal or specific information. If unsure, say "I don't know."
+- If documents are found, cite every claim: *(Source: filename)*
+- If no documents are found for a personal question, say: "I couldn't find information about that in your documents. Try uploading a relevant file."
+- NEVER narrate tool calls. Never say "Calling search_documents...", "Let me search...", "I will look that up...". Just use tools silently and give the final answer.
+- Always interpret the user's intent. If they have a typo (e.g. "formast" → "format", "teh" → "the"), understand what they meant and respond to the intended question.
+- Use markdown. Be concise and direct.
+
+MERMAID DIAGRAMS: Use --> arrows, unique node IDs, no parentheses in labels, never use "end" or "start" as bare node IDs.`;
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
@@ -16,18 +37,34 @@ async function sleep(ms: number) {
       return new Promise((r) => setTimeout(r, ms));
 }
 
+/** Route to a stronger model for complex/long tasks, fast model for simple ones. */
+function pickModel(messages: AgentMessage[]): string {
+      const last = [...messages].reverse().find((m) => m.role === "user");
+      const text = typeof last?.content === "string" ? last.content : "";
+      const isComplex =
+            text.length > 150 ||
+            /summarize|analyz|compar|explain|generat|diagram|list all|overview|write|draft/i.test(text);
+      return isComplex ? "llama-3.3-70b-versatile" : "llama-3.1-8b-instant";
+}
+
 export async function askGroq(
       prompt: string,
-      opts?: { systemPrompt?: string; temperature?: number; maxTokens?: number }
+      opts?: {
+            systemPrompt?: string;
+            temperature?: number;
+            maxTokens?: number;
+            model?: string;
+      }
 ) {
       const systemContent = opts?.systemPrompt ?? SYSTEM_PROMPT;
       const temperature = opts?.temperature ?? 0.3;
       const maxTokens = opts?.maxTokens ?? 2048;
+      const model = opts?.model ?? "llama-3.1-8b-instant";
 
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
             try {
                   const res = await groq.chat.completions.create({
-                        model: "llama-3.1-8b-instant",
+                        model,
                         temperature,
                         max_tokens: maxTokens,
                         messages: [
@@ -60,6 +97,7 @@ export async function runAgentLoop(
 ): Promise<string> {
       const systemContent = opts?.systemPrompt ?? SYSTEM_PROMPT;
       const maxIterations = opts?.maxIterations ?? 4;
+      const model = pickModel(messages);
 
       const allMessages: AgentMessage[] = [{ role: "system", content: systemContent }, ...messages];
 
@@ -69,9 +107,9 @@ export async function runAgentLoop(
             for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
                   try {
                         res = await groq.chat.completions.create({
-                              model: "meta-llama/llama-4-scout-17b-16e-instruct",
+                              model,
                               temperature: 0.3,
-                              max_tokens: 1024,
+                              max_tokens: 1536,
                               messages: allMessages,
                               tools: AGENT_TOOLS,
                               tool_choice: "auto",
@@ -84,9 +122,9 @@ export async function runAgentLoop(
                               errMsg.includes("Failed to call a function");
                         if (isToolUseFailed) {
                               const fallback = await groq.chat.completions.create({
-                                    model: "meta-llama/llama-4-scout-17b-16e-instruct",
+                                    model,
                                     temperature: 0.3,
-                                    max_tokens: 1024,
+                                    max_tokens: 1536,
                                     messages: allMessages,
                               });
                               return fallback.choices[0].message.content ?? "";

@@ -2,39 +2,113 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { embed } from "@/lib/rag/embed";
 import { sendEmail } from "@/lib/email/resend";
 import { getRecentEmails } from "@/lib/email/gmail";
+import { askGroq } from "@/lib/ai/groq";
 
 export type ToolExecutor = (name: string, args: Record<string, unknown>) => Promise<string>;
 
+type Chunk = { content: string; file_name: string };
+
+/**
+ * Fix typos and rewrite into a precise retrieval query.
+ * Runs on the fast 8b model since it only needs to clean up short text.
+ */
+async function rewriteQuery(rawQuery: string): Promise<string> {
+      try {
+            const result = await askGroq(
+                  `Fix any spelling mistakes and rewrite the following as a precise document search query. Reply with ONLY the corrected query, nothing else:\n"${rawQuery}"`,
+                  { maxTokens: 60, temperature: 0.1 }
+            );
+            return result?.trim() || rawQuery;
+      } catch {
+            return rawQuery;
+      }
+}
+
+/**
+ * Score each chunk 0-10 for relevance and drop those below 5.
+ * Keeps at least the top 3 in case all scores are low.
+ */
+async function rerankChunks(query: string, chunks: Chunk[]): Promise<Chunk[]> {
+      if (chunks.length <= 4) return chunks;
+      try {
+            const list = chunks.map((c, i) => `[${i}] ${c.content.slice(0, 200)}`).join("\n\n");
+            const result = await askGroq(
+                  `Query: "${query}"\n\nScore each chunk 0-10 for relevance. Reply ONLY with comma-separated scores (e.g. 8,3,9,1):\n\n${list}`,
+                  { maxTokens: 80, temperature: 0 }
+            );
+            const scores = (result ?? "").split(",").map((s) => parseFloat(s.trim()) || 0);
+            const filtered = chunks.filter((_, i) => (scores[i] ?? 10) >= 5);
+            return filtered.length > 0 ? filtered : chunks.slice(0, 3);
+      } catch {
+            return chunks;
+      }
+}
+
+/** Group chunks by source file with clear headers and a grounding instruction. */
+function formatContext(chunks: Chunk[]): string {
+      const byFile = new Map<string, string[]>();
+      for (const chunk of chunks) {
+            const arr = byFile.get(chunk.file_name) ?? [];
+            arr.push(chunk.content);
+            byFile.set(chunk.file_name, arr);
+      }
+      const body = Array.from(byFile.entries())
+            .map(([file, parts]) => `## ${file}\n\n${parts.join("\n\n")}`)
+            .join("\n\n---\n\n");
+      return `${body}\n\n---\nAnswer using ONLY the above. Cite every claim as *(Source: filename)*. If unsure, say "I don't know."`;
+}
+
 export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExecutor {
       return async (name: string, args: Record<string, unknown>): Promise<string> => {
+            //  search_documents 
             if (name === "search_documents") {
-                  const query = String(args.query ?? "");
+                  const rawQuery = String(args.query ?? "");
                   try {
-                        const embeddings = await embed([query]);
+                        // 1. Rewrite query (typo-fix) AND embed the raw query IN PARALLEL
+                        //    We embed the raw query now; if the rewritten form differs we
+                        //    use it for full-text search, raw embedding for vector search.
+                        const [rewritten, embeddings] = await Promise.all([
+                              rewriteQuery(rawQuery),
+                              embed([rawQuery]),
+                        ]);
                         let queryEmbedding = embeddings[0];
                         if (Array.isArray(queryEmbedding[0])) queryEmbedding = queryEmbedding[0];
 
-                        const { data, error } = await supabase.rpc("match_documents", {
+                        // 2. Hybrid search (vector + full-text RRF); fallback to pure vector
+                        const { data: hybrid, error: hybridErr } = await supabase.rpc("hybrid_search", {
+                              query_text: rewritten,
                               query_embedding: queryEmbedding,
-                              match_count: 12,
+                              match_count: 15,
                               filter_user_id: user.id,
                         });
 
-                        if (error) return `Search error: ${error.message}`;
-                        if (!data || data.length === 0)
-                              return "No relevant documents found. The user may not have uploaded any files yet.";
+                        let chunks: Chunk[];
 
-                        return data
-                              .map(
-                                    (d: { content: string; file_name: string }) =>
-                                          `[Source: ${d.file_name}]\n${d.content}`
-                              )
-                              .join("\n\n---\n\n");
+                        if (hybridErr) {
+                              const { data: fb, error: fbErr } = await supabase.rpc("match_documents", {
+                                    query_embedding: queryEmbedding,
+                                    match_count: 12,
+                                    filter_user_id: user.id,
+                              });
+                              if (fbErr) return `Search error: ${fbErr.message}`;
+                              if (!fb || fb.length === 0) return "No documents found for this query.";
+                              chunks = fb as Chunk[];
+                        } else {
+                              if (!hybrid || hybrid.length === 0) return "No documents found for this query.";
+                              chunks = hybrid as Chunk[];
+                        }
+
+                        // 3. Only rerank when there are many chunks (avoids extra LLM call for small result sets)
+                        const reranked = chunks.length > 8 ? await rerankChunks(rawQuery, chunks) : chunks;
+
+                        // 4. Return structured, headed context
+                        return formatContext(reranked);
                   } catch (err: unknown) {
                         return `Search failed: ${err instanceof Error ? err.message : String(err)}`;
                   }
             }
 
+                  //  get_all_documents 
             if (name === "get_all_documents") {
                   try {
                         const { data, error } = await supabase
@@ -49,17 +123,13 @@ export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExe
                         if (!data || data.length === 0)
                               return "No documents found. The user has not uploaded any files yet.";
 
-                        return data
-                              .map(
-                                    (d: { content: string; file_name: string }) =>
-                                          `[Source: ${d.file_name}]\n${d.content}`
-                              )
-                              .join("\n\n---\n\n");
+                        return formatContext(data as Chunk[]);
                   } catch (err: unknown) {
                         return `Fetch failed: ${err instanceof Error ? err.message : String(err)}`;
                   }
             }
 
+            //  send_email 
             if (name === "send_email") {
                   const to = String(args.to ?? "");
                   const subject = String(args.subject ?? "Hello");
@@ -83,6 +153,7 @@ export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExe
                   }
             }
 
+            //  read_gmail 
             if (name === "read_gmail") {
                   try {
                         const { data: settings } = await supabase

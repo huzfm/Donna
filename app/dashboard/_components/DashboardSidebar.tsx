@@ -5,6 +5,7 @@ import { LogOut, Settings, Plus, Trash2, PanelLeftClose } from "lucide-react";
 import Link from "next/link";
 import { TABS, TabId, ChatSession } from "./types";
 import type { UsageData } from "../_hooks/useUsage";
+import { FREE_LIMITS } from "@/lib/payments/limits";
 
 interface DashboardSidebarProps {
       open: boolean;
@@ -333,7 +334,7 @@ export default function DashboardSidebar({
                                                                                           <span className="text-[10px] text-slate-400">
                                                                                                 {usage?.prompts_used ??
                                                                                                       0}
-                                                                                                /3
+                                                                                                /{FREE_LIMITS.prompts}
                                                                                                 prompts
                                                                                                 used
                                                                                           </span>
