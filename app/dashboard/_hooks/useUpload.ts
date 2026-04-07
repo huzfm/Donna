@@ -93,7 +93,11 @@ export function useUpload({ setUsage, setUpgradeOpen }: UseUploadOptions) {
                               3000
                         );
                         setUsage((prev) =>
-                              prev ? { ...prev, uploads_used: prev.uploads_used + 1 } : prev
+                              prev && typeof data.uploads_used === "number"
+                                    ? { ...prev, uploads_used: data.uploads_used }
+                                    : prev
+                                          ? { ...prev, uploads_used: prev.uploads_used + 1 }
+                                          : prev
                         );
                         setSavedFiles((prev) => [
                               { file_name: file.name, uploaded_at: new Date().toISOString() },

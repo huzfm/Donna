@@ -1,5 +1,5 @@
 export const FREE_LIMITS = {
-      prompts: 5,
+      prompts: 10,
       uploads: 3,
       windowHours: 24,
 } as const;
