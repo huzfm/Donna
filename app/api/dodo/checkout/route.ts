@@ -2,8 +2,6 @@ export const runtime = "nodejs";
 
 import { createClient } from "@/lib/db/supabase-server";
 import { getDodo } from "@/lib/payments/dodo";
-import { getServerPublicOrigin } from "@/lib/app-url";
-
 export async function POST(req: Request) {
       try {
             const supabase = await createClient();
@@ -13,7 +11,12 @@ export async function POST(req: Request) {
 
             if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-            const origin = getServerPublicOrigin(req);
+            // Use explicit APP_URL env var if set, otherwise fall back to the request origin
+            // but force http for localhost (localhost doesn't support https)
+            let origin = process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin;
+            if (origin.includes("localhost")) {
+                  origin = origin.replace("https://", "http://");
+            }
 
             const session = await getDodo().checkoutSessions.create({
                   product_cart: [
