@@ -1,71 +1,60 @@
+// app/api/settings/gmail/route.ts
 export const runtime = "nodejs";
 
 import { createClient } from "@/lib/db/supabase-server";
-import { getRecentEmails } from "@/lib/email/gmail";
-import { askGroq } from "@/lib/ai/groq";
+import { adminClient } from "@/lib/db/supabase-admin";
 
+// GET — fetch current gmail settings
 export async function GET() {
-      try {
-            const supabase = await createClient();
-            const {
-                  data: { user },
-            } = await supabase.auth.getUser();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-            if (!user) {
-                  return Response.json({ error: "Unauthorized" }, { status: 401 });
-            }
+  const { data } = await adminClient
+    .from("user_settings")
+    .select("gmail_user")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-            // Load this user's Gmail credentials from user_settings
-            const { data: settings } = await supabase
-                  .from("user_settings")
-                  .select("gmail_user, gmail_app_password")
-                  .eq("user_id", user.id)
-                  .single();
+  return Response.json({ gmail_user: data?.gmail_user ?? null });
+}
 
-            if (!settings?.gmail_user || !settings?.gmail_app_password) {
-                  return Response.json(
-                        {
-                              error: "Gmail not configured. Please add your Gmail credentials in Settings.",
-                        },
-                        { status: 400 }
-                  );
-            }
+// POST — save gmail credentials
+export async function POST(req: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-            const emails = await getRecentEmails(
-                  settings.gmail_user,
-                  settings.gmail_app_password,
-                  15
-            );
+  const { gmail_user, gmail_app_password } = await req.json();
 
-            if (emails.length === 0) {
-                  return Response.json({ summary: "Your inbox is empty." });
-            }
+  if (!gmail_user || !gmail_app_password) {
+    return Response.json({ error: "Missing credentials" }, { status: 400 });
+  }
 
-            const emailList = emails
-                  .map(
-                        (e, i) =>
-                              `${i + 1}. From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.date}`
-                  )
-                  .join("\n\n");
+  const { error } = await adminClient
+    .from("user_settings")
+    .upsert(
+      { user_id: user.id, gmail_user, gmail_app_password },
+      { onConflict: "user_id" }
+    );
 
-            const prompt = `
-You are a smart email assistant. Here are the user's latest Gmail messages:
+  if (error) return Response.json({ error: error.message }, { status: 500 });
 
-${emailList}
+  return Response.json({ success: true });
+}
 
-Give a concise, helpful crux:
--  Any urgent or important emails (meetings, deadlines, action items)
--  Key senders and what they want
--  Quick summary of overall inbox state
+// DELETE — remove gmail credentials from db
+export async function DELETE() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-Be brief, use bullet points, and highlight what needs attention first.
-`;
+  const { error } = await adminClient
+    .from("user_settings")
+    .update({ gmail_user: null, gmail_app_password: null })
+    .eq("user_id", user.id);
 
-            const summary = await askGroq(prompt);
-            return Response.json({ summary, emails });
-      } catch (e: unknown) {
-            console.error("GMAIL ERROR:", e);
-            const message = e instanceof Error ? e.message : "Unknown error";
-            return Response.json({ error: message }, { status: 500 });
-      }
+  if (error) return Response.json({ error: error.message }, { status: 500 });
+
+  return Response.json({ success: true });
 }

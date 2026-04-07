@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
       Crown,
@@ -14,6 +15,7 @@ import {
       Clock,
       ExternalLink,
       RefreshCw,
+      Loader2,
 } from "lucide-react";
 import { FREE_LIMITS } from "@/lib/payments/limits";
 import UsageMeter from "./billing/UsageMeter";
@@ -64,6 +66,47 @@ export default function BillingPanel({
       const uploadsUsed = usage?.uploads_used ?? 0;
       const subId = usage?.dodo_subscription_id;
       const subStatus = usage?.subscription_status;
+
+      const [cancelLoading, setCancelLoading] = useState(false);
+      const [cancelError, setCancelError] = useState<string | null>(null);
+      const [cancelSuccess, setCancelSuccess] = useState<string | null>(null);
+
+      const canCancel =
+            isSubscribed &&
+            Boolean(subId) &&
+            subStatus !== "cancelled" &&
+            subStatus !== "expired";
+
+      const handleCancelSubscription = useCallback(async () => {
+            if (
+                  typeof window !== "undefined" &&
+                  !window.confirm(
+                        "Cancel your Pro subscription?\n\nYou will keep unlimited access until the end of your current billing period. After that, your account returns to the free plan."
+                  )
+            ) {
+                  return;
+            }
+            setCancelLoading(true);
+            setCancelError(null);
+            setCancelSuccess(null);
+            try {
+                  const res = await fetch("/api/dodo/cancel-subscription", { method: "POST" });
+                  const data = (await res.json()) as {
+                        error?: string;
+                        next_billing_date?: string;
+                  };
+                  if (!res.ok) throw new Error(data.error ?? "Could not cancel subscription");
+                  const endHint = data.next_billing_date
+                        ? ` Access continues until ${new Date(data.next_billing_date).toLocaleDateString(undefined, { dateStyle: "medium" })}.`
+                        : "";
+                  setCancelSuccess(`Cancellation scheduled.${endHint}`);
+                  await onRefreshUsage();
+            } catch (e) {
+                  setCancelError(e instanceof Error ? e.message : "Something went wrong");
+            } finally {
+                  setCancelLoading(false);
+            }
+      }, [onRefreshUsage]);
 
       return (
             <motion.div
@@ -274,10 +317,40 @@ export default function BillingPanel({
                                                 ))}
                                           </div>
                                           <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-4">
+                                                {cancelError && (
+                                                      <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11px] text-red-800">
+                                                            {cancelError}
+                                                      </p>
+                                                )}
+                                                {cancelSuccess && (
+                                                      <p className="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] text-emerald-900">
+                                                            {cancelSuccess}
+                                                      </p>
+                                                )}
+                                                {canCancel && (
+                                                      <button
+                                                            type="button"
+                                                            onClick={handleCancelSubscription}
+                                                            disabled={cancelLoading}
+                                                            className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-[12px] font-semibold text-red-800 transition-all hover:bg-red-50 disabled:opacity-50 sm:w-auto"
+                                                      >
+                                                            {cancelLoading ? (
+                                                                  <>
+                                                                        <Loader2
+                                                                              size={14}
+                                                                              className="animate-spin"
+                                                                        />
+                                                                        Cancelling…
+                                                                  </>
+                                                            ) : (
+                                                                  "Cancel subscription"
+                                                            )}
+                                                      </button>
+                                                )}
                                                 <p className="flex items-center gap-1.5 text-[11px] text-slate-400">
                                                       <Clock size={11} />
-                                                      To cancel or modify your subscription, contact
-                                                      us or visit the Dodo Payments portal.
+                                                      You can also manage payment methods in the Dodo
+                                                      Payments portal.
                                                 </p>
                                                 <a
                                                       href="https://app.dodopayments.com"
@@ -285,7 +358,7 @@ export default function BillingPanel({
                                                       rel="noopener noreferrer"
                                                       className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-600 transition-colors hover:text-slate-900"
                                                 >
-                                                      Manage in Dodo Payments
+                                                      Open Dodo Payments
                                                       <ExternalLink size={10} />
                                                 </a>
                                           </div>

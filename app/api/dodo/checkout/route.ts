@@ -2,7 +2,6 @@ export const runtime = "nodejs";
 
 import { createClient } from "@/lib/db/supabase-server";
 import { getDodo } from "@/lib/payments/dodo";
-
 export async function POST(req: Request) {
       try {
             const supabase = await createClient();

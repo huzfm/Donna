@@ -243,6 +243,7 @@ export function useMessages({
                   messages,
                   writeMsgCache,
                   setUpgradeOpen,
+                  setUsage,
             ]
       );
 

@@ -1,4 +1,5 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { adminClient } from "@/lib/db/supabase-admin";
 import { embed } from "@/lib/rag/embed";
 import { sendEmail } from "@/lib/email/resend";
 import { getRecentEmails } from "@/lib/email/gmail";
@@ -55,14 +56,23 @@ function formatContext(chunks: Chunk[]): string {
       const body = Array.from(byFile.entries())
             .map(([file, parts]) => `## ${file}\n\n${parts.join("\n\n")}`)
             .join("\n\n---\n\n");
-      return `${body}\n\n---\nAnswer using ONLY the above. Cite every claim as *(Source: filename)*. If unsure, say "I don't know."`;
+      return `${body}\n\n---\nAnswer using ONLY the above. Cite factual claims as *(Source: filename)*.`;
 }
 
 export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExecutor {
       return async (name: string, args: Record<string, unknown>): Promise<string> => {
             //  search_documents 
             if (name === "search_documents") {
-                  const rawQuery = String(args.query ?? "");
+                  const rawQuery = String(args.query ?? "").trim();
+                  // Skip expensive RAG when the "query" is clearly conversational — model sometimes still calls the tool for "hi"
+                  if (
+                        rawQuery.length < 3 ||
+                        /^(hi|hello|hey|yo|hiya|sup|thanks|thank you|ok|okay|bye|goodbye|good\s+(morning|afternoon|evening))\.?!*\s*$/i.test(
+                              rawQuery
+                        )
+                  ) {
+                        return "No document search was run — the user message looks conversational, not a file lookup. Answer them directly without citing files.";
+                  }
                   try {
                         // 1. Rewrite query (typo-fix) AND embed the raw query IN PARALLEL
                         //    We embed the raw query now; if the rewritten form differs we
@@ -156,11 +166,14 @@ export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExe
             //  read_gmail 
             if (name === "read_gmail") {
                   try {
-                        const { data: settings } = await supabase
+                        const { data: settings, error: settingsErr } = await adminClient
                               .from("user_settings")
                               .select("gmail_user, gmail_app_password")
                               .eq("user_id", user.id)
-                              .single();
+                              .maybeSingle();
+
+                        if (settingsErr)
+                              return `Gmail settings could not be loaded: ${settingsErr.message}`;
 
                         if (!settings?.gmail_user || !settings?.gmail_app_password)
                               return "Gmail is not configured. The user needs to add their Gmail address and App Password in Settings.";
