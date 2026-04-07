@@ -60,7 +60,7 @@ function formatContext(chunks: Chunk[]): string {
 
 export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExecutor {
       return async (name: string, args: Record<string, unknown>): Promise<string> => {
-            // ── search_documents ──────────────────────────────────────────
+            //  search_documents 
             if (name === "search_documents") {
                   const rawQuery = String(args.query ?? "");
                   try {
@@ -108,7 +108,7 @@ export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExe
                   }
             }
 
-            // ── get_all_documents ─────────────────────────────────────────
+                  //  get_all_documents 
             if (name === "get_all_documents") {
                   try {
                         const { data, error } = await supabase
@@ -129,7 +129,7 @@ export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExe
                   }
             }
 
-            // ── send_email ────────────────────────────────────────────────
+            //  send_email 
             if (name === "send_email") {
                   const to = String(args.to ?? "");
                   const subject = String(args.subject ?? "Hello");
@@ -153,7 +153,7 @@ export function buildToolExecutor(user: User, supabase: SupabaseClient): ToolExe
                   }
             }
 
-            // ── read_gmail ────────────────────────────────────────────────
+            //  read_gmail 
             if (name === "read_gmail") {
                   try {
                         const { data: settings } = await supabase
