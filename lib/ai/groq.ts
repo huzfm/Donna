@@ -1,3 +1,4 @@
+```ts
 import Groq from "groq-sdk";
 import { AGENT_TOOLS } from "./agent-tools";
 
@@ -48,7 +49,9 @@ function pickModel(messages: AgentMessage[]): string {
       const isComplex =
             text.length > 150 ||
             /summarize|analyz|compar|explain|generat|diagram|list all|overview|write|draft/i.test(text);
-      return isComplex ? "llama-3.3-70b-versatile" : "llama-3.1-8b-instant";
+      return isComplex
+            ? "llama-3.3-70b-versatile"
+            : "llama-3.3-70b-versatile";
 }
 
 export async function askGroq(
@@ -63,7 +66,7 @@ export async function askGroq(
       const systemContent = opts?.systemPrompt ?? SYSTEM_PROMPT;
       const temperature = opts?.temperature ?? 0.3;
       const maxTokens = opts?.maxTokens ?? 2048;
-      const model = opts?.model ?? "llama-3.1-8b-instant";
+      const model = opts?.model ?? "llama-3.3-70b-versatile";
 
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
             try {
@@ -175,3 +178,4 @@ export async function runAgentLoop(
 
       return "I reached the maximum number of reasoning steps. Please try rephrasing your request.";
 }
+```
