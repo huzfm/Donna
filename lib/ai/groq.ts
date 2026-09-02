@@ -50,8 +50,8 @@ export const SYSTEM_PROMPT = getSystemPrompt();
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
 
-const FAST_MODEL = "llama-3.1-8b-instant";
-const STRONG_MODEL = "llama-3.3-70b-versatile";
+const FAST_MODEL = "openai/gpt-oss-20b";
+const STRONG_MODEL = "openai/gpt-oss-120b";
 
 async function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
